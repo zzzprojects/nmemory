@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E95EF85F-FAC7-476E-8333-2D835BD41BD9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NMemory</RootNamespace>
+    <AssemblyName>NMemory</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\ExpressionHelper.cs" />
+    <Compile Include="Common\QueryMethods.cs" />
+    <Compile Include="Common\ReflectionHelper.cs" />
+    <Compile Include="Common\Visitors\ReplacerVisitor.cs" />
+    <Compile Include="Common\Visitors\TableVisitor.cs" />
+    <Compile Include="Common\Visitors\TableVisitor`1.cs" />
+    <Compile Include="Concurrency\ConcurrencyManager.cs" />
+    <Compile Include="Concurrency\EntrantCounter.cs" />
+    <Compile Include="Concurrency\Locks\LightweightSpinLock.cs" />
+    <Compile Include="Concurrency\Locks\LockTypes.cs" />
+    <Compile Include="Concurrency\Locks\UncheckedReaderWriterLock.cs" />
+    <Compile Include="Concurrency\Locks\WaitingToken.cs" />
+    <Compile Include="Concurrency\ResourceAllocationGraph.cs" />
+    <Compile Include="Concurrency\TransactionLockInventory.cs" />
+    <Compile Include="Constraints\ConstraintBase.cs" />
+    <Compile Include="Constraints\IConstraint.cs" />
+    <Compile Include="Constraints\NCharConstraint.cs" />
+    <Compile Include="Constraints\NumericConstraint.cs" />
+    <Compile Include="Constraints\NVarCharConstraint.cs" />
+    <Compile Include="Constraints\TimestampConstraint.cs" />
+    <Compile Include="Database.cs" />
+    <Compile Include="DataStructures\AnonymousTypeComparer.cs" />
+    <Compile Include="DataStructures\Hashtable.cs" />
+    <Compile Include="DataStructures\IDataStructure.cs" />
+    <Compile Include="DataStructures\IIntervalSearchable.cs" />
+    <Compile Include="DataStructures\Internal\Graphs\Graph.cs" />
+    <Compile Include="DataStructures\Internal\Trees\ITTreeNode.cs" />
+    <Compile Include="DataStructures\Internal\Trees\RedBlackTree.cs" />
+    <Compile Include="DataStructures\Internal\Trees\RedBlackTreeNode.cs" />
+    <Compile Include="DataStructures\Internal\Trees\TTree.cs" />
+    <Compile Include="DataStructures\Internal\Trees\TTreeNode.cs" />
+    <Compile Include="DataStructures\Internal\Trees\TTreeSearchResult.cs" />
+    <Compile Include="DataStructures\IUniqueDataStructure.cs" />
+    <Compile Include="DataStructures\RedBlackTree.cs" />
+    <Compile Include="DataStructures\SuffixArray\FullTextCatalog.cs" />
+    <Compile Include="DataStructures\SuffixArray\SuffixArrayKS.cs" />
+    <Compile Include="DataStructures\UniqueHashtable.cs" />
+    <Compile Include="DataStructures\UniqueRedBlackTree.cs" />
+    <Compile Include="Data\Binary.cs" />
+    <Compile Include="Data\Timestamp.cs" />
+    <Compile Include="Diagnostics\ConsoleLoggingPort.cs" />
+    <Compile Include="Diagnostics\ILoggingPort.cs" />
+    <Compile Include="Diagnostics\MessageBuffer.cs" />
+    <Compile Include="Diagnostics\Messages\IndexFoundMessage.cs" />
+    <Compile Include="Diagnostics\Messages\JoinArgumentsOrderSwappedMessage.cs" />
+    <Compile Include="Diagnostics\Messages\JoinOperatorsSwappedMessage.cs" />
+    <Compile Include="Diagnostics\Messages\Message.cs" />
+    <Compile Include="Diagnostics\Messages\PreferredIndexMessage.cs" />
+    <Compile Include="Diagnostics\Messages\StandardMessage.cs" />
+    <Compile Include="Diagnostics\Messages\StatisticsFoundMessage.cs" />
+    <Compile Include="Diagnostics\Messages\TableMessage.cs" />
+    <Compile Include="Common\EntityHelper.cs" />
+    <Compile Include="Exceptions\ConstraintException.cs" />
+    <Compile Include="Exceptions\DeadlockException.cs" />
+    <Compile Include="Exceptions\ErrorCodes.cs" />
+    <Compile Include="Exceptions\ForeignKeyViolationException.cs" />
+    <Compile Include="Exceptions\IndexKeyTypeNotSupportedException.cs" />
+    <Compile Include="Exceptions\NMemoryException.cs" />
+    <Compile Include="Exceptions\MultipleUniqueKeyFoundException.cs" />
+    <Compile Include="Exceptions\TransactionAlreadyOpenException.cs" />
+    <Compile Include="Exceptions\TransactionHasAlreadyOpen.cs" />
+    <Compile Include="Execution\Optimization\IExpressionModifier.cs" />
+    <Compile Include="Execution\Optimization\Modifiers\ExpressionModifierBase.cs" />
+    <Compile Include="Execution\Optimization\Modifiers\TableModifier.cs" />
+    <Compile Include="Execution\ProcessState.cs" />
+    <Compile Include="Execution\QueryExecutorBase.cs" />
+    <Compile Include="Concurrency\QueryEnumeratorFactory.cs" />
+    <Compile Include="Indexes\DictionaryIndexFactory.cs" />
+    <Compile Include="Indexes\IIndex.cs" />
+    <Compile Include="Indexes\IIndex`1.cs" />
+    <Compile Include="Indexes\IKeyInfo.cs" />
+    <Compile Include="Indexes\IKeyInfo`2.cs" />
+    <Compile Include="Indexes\Index.cs" />
+    <Compile Include="Indexes\IndexBase.cs" />
+    <Compile Include="Indexes\IIndexFactory.cs" />
+    <Compile Include="Indexes\IIndex`2.cs" />
+    <Compile Include="Indexes\IUniqueIndex.cs" />
+    <Compile Include="Indexes\KeyInfo.cs" />
+    <Compile Include="Indexes\RedBlackTreeIndexFactory.cs" />
+    <Compile Include="Indexes\SimpleKeyInfo.cs" />
+    <Compile Include="Indexes\UniqueIndex.cs" />
+    <Compile Include="Common\ExpressionEqualityComparer.cs" />
+    <Compile Include="Linq\IIndexedQueryable.cs" />
+    <Compile Include="Linq\IndexedQueryable.cs" />
+    <Compile Include="Common\MutableTuple.cs" />
+    <Compile Include="Common\TypeSystem.cs" />
+    <Compile Include="Linq\ITableQuery.cs" />
+    <Compile Include="Linq\TableQuery.cs" />
+    <Compile Include="Linq\TableQuery`1.cs" />
+    <Compile Include="Linq\TableQueryProvider.cs" />
+    <Compile Include="Linq\QueryableEx.cs" />
+    <Compile Include="Common\DynamicMethodBuilder.cs" />
+    <Compile Include="Modularity\DefaultDatabaseEngineFactory.cs" />
+    <Compile Include="Modularity\DefaultCore.cs" />
+    <Compile Include="Modularity\IConcurrencyManager.cs" />
+    <Compile Include="Modularity\IDatabaseComponent.cs" />
+    <Compile Include="Modularity\IDatabaseEngineFactory.cs" />
+    <Compile Include="Modularity\ICore.cs" />
+    <Compile Include="Modularity\IExtensible.cs" />
+    <Compile Include="Modularity\IQueryEnumeratorFactory.cs" />
+    <Compile Include="Modularity\IQueryExecutor.cs" />
+    <Compile Include="StoredProcedures\Parameter.cs" />
+    <Compile Include="StoredProcedures\StoredProcedure.cs" />
+    <Compile Include="Concurrency\DeadlockManagementStrategies.cs" />
+    <Compile Include="Concurrency\Locks\ILock.cs" />
+    <Compile Include="Concurrency\Locks\ILockFactory.cs" />
+    <Compile Include="Concurrency\Locks\DefaultLockFactory.cs" />
+    <Compile Include="Execution\CacheProvider.cs" />
+    <Compile Include="Execution\QueryExecutor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tables\IRelation.cs" />
+    <Compile Include="Tables\Relation.cs" />
+    <Compile Include="Statistics\FixedHeightBuckets.cs" />
+    <Compile Include="Statistics\FixedWidthBuckets.cs" />
+    <Compile Include="Statistics\Histogram.cs" />
+    <Compile Include="Statistics\IColumnData.cs" />
+    <Compile Include="Statistics\IStatistics.cs" />
+    <Compile Include="StoredProcedures\StoredProcedureCollection.cs" />
+    <Compile Include="Tables\EntityPropertyChangeDetector.cs" />
+    <Compile Include="Tables\EntityPropertyCloner.cs" />
+    <Compile Include="Tables\IdentityField.cs" />
+    <Compile Include="Tables\IdentitySpecification.cs" />
+    <Compile Include="Tables\IReflectionTable.cs" />
+    <Compile Include="Tables\ITable.cs" />
+    <Compile Include="Tables\EntityEventArgs.cs" />
+    <Compile Include="Tables\EntityUpdateEventArgs.cs" />
+    <Compile Include="Tables\ITable`1.cs" />
+    <Compile Include="Tables\ITable`2.cs" />
+    <Compile Include="Tables\Table.cs" />
+    <Compile Include="Tables\Table`1.cs" />
+    <Compile Include="Tables\Table`2.cs" />
+    <Compile Include="Tables\TableCollection.cs" />
+    <Compile Include="Tables\TableExtensions.cs" />
+    <Compile Include="Tables\TableHints.cs" />
+    <Compile Include="Transactions\Logs\IndexDeleteTransactionLogItem.cs" />
+    <Compile Include="Transactions\Logs\IndexInsertTransactionLogItem.cs" />
+    <Compile Include="Transactions\Logs\ITransactionLogItem.cs" />
+    <Compile Include="Transactions\IsolationLevels.cs" />
+    <Compile Include="Transactions\Logs\TransactionLog.cs" />
+    <Compile Include="Transactions\Logs\IndexTransactionLogItemBase.cs" />
+    <Compile Include="Transactions\Logs\UpdateEntityLogItem.cs" />
+    <Compile Include="Transactions\Transaction.cs" />
+    <Compile Include="Transactions\TransactionHandler.cs" />
+    <Compile Include="Transactions\TransactionWrapper.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,109 @@
+
+           
+                            No iteration                  Yield iteration                 Callback iteration
+                    
+                          Low count  High count          Low count  High count           Low count  High count       
+Stack                        23         2331               43          4421                30          2652
+Parent                       38         3859               78          7112                50          4160
+Recursive                     4          545              167         27434                 6          770
+
+
+
+
+==================
+Recursive algoritm
+==================
+
+if (node.Left != null)
+{
+    Recursive(node.Left);
+}
+
+// OUT: node
+
+if (node.Right != null)
+{
+    Recursive(node.Right);
+}
+
+
+====================
+Stack based algoritm
+====================
+
+int capacity = (int)Math.Truncate(2 * Math.Log(tree.Count + 1) / 0.301);
+Stack<RedBlackTreeNode<int, int>> stack = new Stack<RedBlackTreeNode<int, int>>(capacity);
+
+bool done = false;
+RedBlackTreeNode<int, int> current = tree.RootElement;
+int max = 0;
+while (!done)
+{
+    max = Math.Max(max, stack.Count);
+    if (current != null)
+    {
+        stack.Push(current);
+        current = current.Left;
+    }
+    else
+    {
+        if (stack.Count > 0)
+        {
+            current = stack.Pop();
+
+	    // OUT: current
+
+            current = current.Right;
+        }
+        else
+        {
+            done = true;
+        }
+    }
+
+}
+
+=====================
+Parent based algoritm
+=====================
+
+RedBlackTreeNode<int, int> previous = null;
+RedBlackTreeNode<int, int> current = node;
+
+while (current != null)
+{
+    RedBlackTreeNode<int, int> next = null;
+
+    if (previous == current.Parent)
+    {
+        next = current.Left;
+
+        if (next == null)
+        {
+            // OUT
+            next = current.Right;
+
+            if (next == null)
+            {
+                next = current.Parent;
+            }
+        }
+    }
+    else if (previous == current.Left)
+    {
+        // OUT
+        next = current.Right;
+
+        if (next == null)
+        {
+            next = current.Parent;
+        }
+    }
+    else if (previous == current.Right)
+    {
+        next = current.Parent;
+    }
+
+    previous = current;
+    current = next;
+}

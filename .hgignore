@@ -1,0 +1,6 @@
+syntax: glob
+bin/**
+obj/**
+TestResults/**
+*.suo
+*.user

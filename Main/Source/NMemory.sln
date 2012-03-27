@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMemory", "NMemory\NMemory.csproj", "{E95EF85F-FAC7-476E-8333-2D835BD41BD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMemory.Test", "NMemory.Test\NMemory.Test.csproj", "{D877B580-57C2-44E6-98DB-0791D1F1DD64}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CA731E0B-53E8-4056-A496-9F3ABFF20492}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		NMemory.vsmdi = NMemory.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = NMemory.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E95EF85F-FAC7-476E-8333-2D835BD41BD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E95EF85F-FAC7-476E-8333-2D835BD41BD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E95EF85F-FAC7-476E-8333-2D835BD41BD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E95EF85F-FAC7-476E-8333-2D835BD41BD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D877B580-57C2-44E6-98DB-0791D1F1DD64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D877B580-57C2-44E6-98DB-0791D1F1DD64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D877B580-57C2-44E6-98DB-0791D1F1DD64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D877B580-57C2-44E6-98DB-0791D1F1DD64}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
