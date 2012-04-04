@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NMemory.Tables;
+using System.Linq.Expressions;
+using NMemory.Linq;
+using NMemory.Transactions;
 
 namespace NMemory.Modularity
 {
@@ -13,8 +16,11 @@ namespace NMemory.Modularity
     {
         void RegisterEntityType<T>();
 
-        void OnTableCreated(ITable table);
-
         T CreateEntity<T>();
+
+        Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
+            Expression<Func<TEntity, TPrimaryKey>> primaryKey,
+            IdentitySpecification<TEntity> identitySpecification,
+            IEnumerable<TEntity> initialEntities) where TEntity : class;
     }
 }

@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using NMemory.Concurrency.Locks;
+using NMemory.Execution.Locks;
 using NMemory.DataStructures.Internal.Graphs;
 using NMemory.Exceptions;
 using NMemory.Modularity;
 using NMemory.Tables;
 using NMemory.Transactions;
 
-namespace NMemory.Concurrency
+namespace NMemory.Execution
 {
-    public class ConcurrencyManager : IConcurrencyManager
+    public class TableLockConcurrencyManager : IConcurrencyManager
     {
         private Database database;
 
@@ -20,7 +20,7 @@ namespace NMemory.Concurrency
         private Graph<object> lockGraph;
         private TransactionLockInventory lockInventory;
 
-        public ConcurrencyManager()
+        public TableLockConcurrencyManager()
         {
             // this.deadlockManagement = DeadlockManagementStrategies.DeadlockDetection;
             this.lockFactory = new DefaultLockFactory();
@@ -160,6 +160,26 @@ namespace NMemory.Concurrency
 
         }
 
+        public void AcquireRelatedTableLock(ITable table, Transaction transaction)
+        {
+            ILock tableLock = this.tableLocks[table];
+            var lockInfo = this.lockInventory.GetLockInformation(tableLock, transaction);
+
+            if (!lockInfo.IsReadLockHeld)
+            {
+                if (!lockInfo.IsWriteLockHeld)
+                {
+                    // TODO: OnWaiting
+                    tableLock.EnterRead();
+                    // TODO: OnAcquired
+                }
+
+                lockInfo.IsReadLockHeld = true;
+            }
+
+            lockInfo.IsRelatedTable = true;
+        }
+
         public void AcquireTableReadLock(ITable table, Transaction transaction)
         {
             ILock tableLock = this.tableLocks[table];
@@ -188,7 +208,8 @@ namespace NMemory.Concurrency
             ILock tableLock = this.tableLocks[table];
             var lockInfo = this.lockInventory.GetLockInformation(tableLock, transaction);
 
-            if (lockInfo.IsReadLockHeld)
+            // Releated tables are locked until the transaction ends
+            if (!lockInfo.IsRelatedTable && lockInfo.IsReadLockHeld)
             {
                 if (!lockInfo.IsWriteLockHeld)
                 {
@@ -227,7 +248,7 @@ namespace NMemory.Concurrency
 
             if (this.lockGraph.HasCycle())
             {
-                // Deadlock detaction
+                // Deadlock detection
                 throw new DeadlockException();
             }
         }
@@ -239,6 +260,9 @@ namespace NMemory.Concurrency
         }
 
 
-        
+
+
+
+
     }
 }

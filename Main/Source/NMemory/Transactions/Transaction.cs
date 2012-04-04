@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using NMemory.Concurrency.Locks;
+using NMemory.Execution.Locks;
 
 namespace NMemory.Transactions
 {
@@ -57,6 +57,32 @@ namespace NMemory.Transactions
             Transaction.current = new Transaction(external, false);
         }
 
+        internal static TransactionWrapper EnsureTransaction(Database database)
+        {
+            TransactionWrapper result = null;
+
+            if (Transaction.Current != null || Transaction.TryEnlistOnTransient())
+            {
+                if (Transaction.Current.Aborted)
+                {
+                    throw new System.Transactions.TransactionAbortedException();
+                }
+
+                // Transaction is present, create empty wrapper
+                result = new TransactionWrapper(null);
+            }
+            else
+            {
+                // There is no transaction, create a local transaction
+                result = new TransactionWrapper(Transaction.CreateLocal());
+            }
+
+            // Ensure transaction event subscription
+            database.TransactionHandler.EnsureSubscription(Transaction.Current);
+
+            return result;
+        }
+
         internal static bool TryEnlistOnTransient()
         {
             CheckExistingTransaction();
@@ -73,7 +99,7 @@ namespace NMemory.Transactions
             return true;
         }
 
-        public static System.Transactions.TransactionScope CreateLocal()
+        internal static System.Transactions.TransactionScope CreateLocal()
         {
             CheckExistingTransaction();
 

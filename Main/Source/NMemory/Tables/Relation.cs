@@ -1,5 +1,7 @@
 ﻿using System;
 using NMemory.Indexes;
+using System.Collections.Generic;
+using NMemory.Exceptions;
 
 namespace NMemory.Tables
 {
@@ -42,24 +44,54 @@ namespace NMemory.Tables
 
         #endregion
 
-        public ITable PrimaryTable
+        ITable IRelation.PrimaryTable
         {
             get { return this.primaryIndex.Table; }
         }
 
-        public ITable ForeignTable
+        ITable IRelation.ForeignTable
         {
             get { return this.foreignIndex.Table; }
         }
 
-        public IIndex PrimaryIndex
+        IIndex IRelation.PrimaryIndex
         {
             get { return this.primaryIndex; }
         }
 
-        public IIndex ForeignIndex
+        IIndex IRelation.ForeignIndex
         {
             get { return this.foreignIndex; }
+        }
+
+
+        void IRelation.ValidateEntity(object foreign)
+        {
+            TForeign entity = (TForeign)foreign;
+            TForeignKey key = this.foreignIndex.KeyInfo.GetKey(entity);
+
+            if (!this.primaryIndex.Contains(this.convertForeignToPrimary(key)))
+            {
+                // TODO: Proper message
+                throw new ForeignKeyViolationException();
+            }
+        }
+
+
+        IEnumerable<object> IRelation.GetReferringEntities(object primary)
+        {
+            TPrimary entity = (TPrimary)primary;
+            TPrimaryKey key = this.primaryIndex.KeyInfo.GetKey(entity);
+
+            return this.foreignIndex.Select(this.convertPrimaryToForeign.Invoke(key));
+        }
+
+        IEnumerable<object> IRelation.GetReferredEntities(object foreign)
+        {
+            TForeign entity = (TForeign)foreign;
+            TForeignKey key = this.foreignIndex.KeyInfo.GetKey(entity);
+
+            return this.primaryIndex.Select(this.convertForeignToPrimary.Invoke(key));
         }
     }
 }

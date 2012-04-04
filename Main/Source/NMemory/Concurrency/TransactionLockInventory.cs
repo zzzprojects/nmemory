@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Collections.Concurrent;
 using NMemory.Transactions;
-using NMemory.Concurrency.Locks;
+using NMemory.Execution.Locks;
 
-namespace NMemory.Concurrency
+namespace NMemory.Execution
 {
-    public class TransactionLockInventory
+    internal class TransactionLockInventory
     {
         private ConcurrentDictionary<Transaction, HashSet<Item>> collection;
 
@@ -66,6 +66,7 @@ namespace NMemory.Concurrency
             public ILock Lock { get; private set; }
             public bool IsReadLockHeld { get; set; }
             public bool IsWriteLockHeld { get; set; }
+            public bool IsRelatedTable { get; set; }
 
             public override int GetHashCode()
             {

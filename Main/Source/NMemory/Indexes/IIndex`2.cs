@@ -7,7 +7,7 @@ namespace NMemory.Indexes
 {
     public interface IIndex<TEntity, TKey> : IIndex<TEntity>
     {
-        TKey Key(TEntity entity);
+        bool Contains(TKey key);
 
         IEnumerable<TEntity> Select(TKey value);
 
@@ -16,5 +16,7 @@ namespace NMemory.Indexes
         IEnumerable<TEntity> SelectGreater(TKey from, bool open);
 
         IEnumerable<TEntity> SelectLess(TKey to, bool open);
+
+        new IKeyInfo<TEntity, TKey> KeyInfo { get; }
     }
 }

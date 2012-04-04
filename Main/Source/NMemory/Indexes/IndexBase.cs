@@ -157,5 +157,10 @@ namespace NMemory.Indexes
                     .ToArray()), table);
 		}
 
+
+        public bool Contains(TKey key)
+        {
+            return this.DataStructure.ContainsKey(key);
+        }
     }
 }

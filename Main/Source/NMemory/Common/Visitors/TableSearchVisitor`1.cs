@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using NMemory.Tables;
 
 namespace NMemory.Common.Visitors
 {
-    public class TableVisitor<T> : ExpressionVisitor
+    public class TableSearchVisitor<T> : ExpressionVisitor
     {
         private ITable table;
 

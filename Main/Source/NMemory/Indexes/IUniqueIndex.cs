@@ -7,5 +7,6 @@ namespace NMemory.Indexes
 {
     public interface IUniqueIndex<TEntity, TUniqueKey> : IIndex<TEntity, TUniqueKey>
     {
+        TEntity GetByUniqueIndex(TUniqueKey entity);
     }
 }

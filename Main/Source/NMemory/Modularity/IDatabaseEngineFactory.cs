@@ -6,7 +6,7 @@ using System.Text;
 namespace NMemory.Modularity
 {
     /// <summary>
-    /// Provides funtionality to instantiate <c>Database</c> instances.
+    /// Provides funtionality to instantiate <see cref="NMemory.Database">Database</see> instances.
     /// </summary>
     public interface IDatabaseEngineFactory
     {
@@ -23,9 +23,17 @@ namespace NMemory.Modularity
         ICore CreateDispatcher();
 
         /// <summary>
-        /// Creates a query executor that optimizes and executes database queries.
+        /// Creates a query compiler that optimizes and compiles database queries.
+        /// </summary>
+        /// <returns>A query compiler.</returns>
+        IQueryCompiler CreateQueryCompiler();
+
+        /// <summary>
+        /// Creates a query executor that executes compiled queries.
         /// </summary>
         /// <returns>A query executor.</returns>
         IQueryExecutor CreateQueryExecutor();
+
+
     }
 }

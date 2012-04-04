@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NMemory.Concurrency
+namespace NMemory.Execution
 {
     /// <summary>
     /// Specifies the stragegy of deadlock management

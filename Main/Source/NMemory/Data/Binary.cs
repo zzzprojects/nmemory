@@ -66,7 +66,6 @@ namespace NMemory.Data
             return result;
         }
 
-
         public bool Equals(Binary other)
         {
             if (other == null)

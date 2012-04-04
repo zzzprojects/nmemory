@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace NMemory.Common.Visitors
 {
-    internal class ReplacerVisitor : ExpressionVisitor
+    internal class ReplaceVisitor : ExpressionVisitor
     {
         public Func<Expression, bool> Condition { get; set; }
         public Func<Expression, Expression> NewExpression { get; set; }
 
-        public ReplacerVisitor(Func<Expression, bool> condition, Func<Expression, Expression> newExpression)
+        public ReplaceVisitor(Func<Expression, bool> condition, Func<Expression, Expression> newExpression)
         {
             this.Condition = condition;
             this.NewExpression = newExpression;

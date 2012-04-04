@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NMemory.Execution
+namespace NMemory.Exceptions
 {
-    public class ProcessState
+    public class ParameterException : NMemoryException
     {
-        public bool IsFinished { get; set; }
     }
 }

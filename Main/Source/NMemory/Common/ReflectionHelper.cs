@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace NMemory.Common
 {
@@ -42,6 +41,26 @@ namespace NMemory.Common
             var method = expression.Body as MethodCallExpression;
 
             return method.Method.Name;
+        }
+
+
+        public static Type GetUnderlyingIfNullable(Type type)
+        {
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                return type.GetGenericArguments()[0];
+            }
+
+            return type;
+        }
+
+        public static bool IsAnonymousType(Type type)
+        {
+            return
+                !typeof(IComparable).IsAssignableFrom(type) &&
+                type.GetCustomAttributes(typeof(DebuggerDisplayAttribute), false)
+                    .Cast<DebuggerDisplayAttribute>()
+                    .Any(m => m.Type == "<Anonymous Type>");
         }
     }
 }

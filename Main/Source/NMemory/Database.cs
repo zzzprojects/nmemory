@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using NMemory.Concurrency;
 using NMemory.Diagnostics;
 using NMemory.Indexes;
-using NMemory.Execution;
+using NMemory.Modularity;
 using NMemory.StoredProcedures;
 using NMemory.Tables;
 using NMemory.Transactions;
-using NMemory.Modularity;
 
 namespace NMemory
 {
@@ -19,6 +17,7 @@ namespace NMemory
     {
         private StoredProcedureCollection storedProcedures;
 
+        private IQueryCompiler compiler;
         private IQueryExecutor executor;
         private IConcurrencyManager concurrencyManager;
         private ICore dispatcher;
@@ -48,6 +47,9 @@ namespace NMemory
                 throw new ArgumentNullException("databaseEngineFactory");
             }
 
+            this.compiler = databaseEngineFactory.CreateQueryCompiler();
+            this.compiler.Initialize(this);
+
             this.executor = databaseEngineFactory.CreateQueryExecutor();
             this.executor.Initialize(this);
 
@@ -70,6 +72,11 @@ namespace NMemory
         internal IConcurrencyManager ConcurrencyManager
         {
             get { return this.concurrencyManager; }
+        }
+
+        internal IQueryCompiler Compiler
+        {
+            get { return this.compiler; }
         }
 
         internal IQueryExecutor Executor
@@ -125,14 +132,12 @@ namespace NMemory
 
             where TEntity : class
         {
-            Table<TEntity, TPrimaryKey> table = new Table<TEntity, TPrimaryKey>(
-                this,
+            Table<TEntity, TPrimaryKey> table = this.Core.CreateTable<TEntity, TPrimaryKey>(
                 primaryKey, 
                 identitySpecification, 
                 initialEntities);
 
             this.tables.RegisterTable(table);
-            this.Core.OnTableCreated(table);
 
             return table;
         }

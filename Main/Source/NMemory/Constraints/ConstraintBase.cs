@@ -35,7 +35,7 @@ namespace NMemory.Constraints
             }
 
             this.propertyGetter = propertySelector.Compile();
-            this.propertySetter = DynamicMethodBuilder.CreateSingleSetter<TEntity, TProperty>(propertyInfo);
+            this.propertySetter = DynamicMethodBuilder.CreateSinglePropertySetter<TEntity, TProperty>(propertyInfo);
             this.propertyName = propertyInfo.Name;
         }
 

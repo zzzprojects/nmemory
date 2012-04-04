@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NMemory.Concurrency.Locks
+namespace NMemory.Execution.Locks
 {
     public class DefaultLockFactory : ILockFactory
     {

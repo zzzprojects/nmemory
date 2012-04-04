@@ -12,10 +12,15 @@ namespace NMemory.Test.Data
         private Table<Member, string> members;
         private Table<Group, int> groups;
 
-        public TestDatabase()
+        public TestDatabase() : this(true)
+        {
+ 
+        }
+
+        public TestDatabase(bool identity)
         {
             this.members = this.CreateTable<Member, string>(m => m.Id);
-            this.groups = this.CreateTable<Group, int>(m => m.Id, new IdentitySpecification<Group>(m => m.Id, 1, 1));
+            this.groups = this.CreateTable<Group, int>(m => m.Id, identity ? new IdentitySpecification<Group>(m => m.Id, 1, 1) : null);
         }
 
         public ITable<Member> Members

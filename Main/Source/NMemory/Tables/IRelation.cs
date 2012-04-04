@@ -15,5 +15,11 @@ namespace NMemory.Tables
         IIndex PrimaryIndex { get; }
 
         IIndex ForeignIndex { get; }
+
+        void ValidateEntity(object foreign);
+
+        IEnumerable<object> GetReferringEntities(object primary);
+
+        IEnumerable<object> GetReferredEntities(object foreign);
     }
 }

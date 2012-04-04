@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NMemory.Concurrency;
 using NMemory.Execution;
 
 namespace NMemory.Modularity
@@ -11,7 +10,7 @@ namespace NMemory.Modularity
     {
         public IConcurrencyManager CreateConcurrencyManager()
         {
-            return new ConcurrencyManager();
+            return new TableLockConcurrencyManager();
         }
 
         public ICore CreateDispatcher()
@@ -19,9 +18,14 @@ namespace NMemory.Modularity
             return new DefaultCore();
         }
 
+        public IQueryCompiler CreateQueryCompiler()
+        {
+            return new QueryCompiler() { EnableCompilationCaching = false, EnableOptimization = false };
+        }
+
         public IQueryExecutor CreateQueryExecutor()
         {
-            return new QueryExecutor() { EnableCompilationCaching = false, EnableOptimization = false };
+            return new QueryExecutor();
         }
     }
 }

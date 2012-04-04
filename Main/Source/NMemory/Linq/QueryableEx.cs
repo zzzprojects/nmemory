@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using NMemory.Common.Visitors;
 using NMemory.Indexes;
 using NMemory.Linq.Helpers;
 using NMemory.Tables;
-using NMemory.Transactions;
-using NMemory.Common.Visitors;
 
 namespace NMemory.Linq
 {
@@ -14,103 +13,74 @@ namespace NMemory.Linq
 	{
 		#region Update
 
-		public static int Update<T>( this IQueryable<T> queryable, Expression<Func<T, T>> updater)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queryable"></param>
+        /// <param name="updater"></param>
+        /// <returns></returns>
+		public static int Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater)
 			where T : class
 		{
-            TableVisitor<T> tableSearcher = new TableVisitor<T>();
-			ITable<T> table = tableSearcher.SearchTable(queryable.Expression);
-            
-            // TODO: Verify expression
-            Func<T, T> compiledUpdater = updater.Compile();
-
-
-            if (Transaction.Current != null && !Transaction.TryEnlistOnTransient())
+            if (queryable == null)
             {
-                using (var tran = Transaction.CreateLocal())
-                {
-                    int result = InternalUpdate<T>(queryable, table, compiledUpdater);
+                throw new ArgumentNullException("queryable");
+            }
 
-                    tran.Complete();
-                    return result;
-                }
-            }
-            else
+            TableQuery<T> query = queryable as TableQuery<T>;
+
+            if (query == null)
             {
-                return InternalUpdate<T>(queryable, table, compiledUpdater);
+                throw new ArgumentException("Delete command can be executed only on NMemory queries.", "queryable");
             }
+
+            IBatchTable<T> table = query.Database.Tables.FindTable<T>() as IBatchTable<T>;
+
+            if (table == null)
+            {
+                throw new ArgumentException("Update query must result in table entities", "queryable");
+            }
+
+            return table.Update(query, updater);
 		}
 
-        private static int InternalUpdate<T>(IQueryable<T> queryable, ITable<T> table, Func<T, T> compiledUpdater) where T : class
-        {
-            table.Database.ConcurrencyManager.AcquireTableWriteLock(table, Transaction.Current);
-            int counter = 0;
-
-            try
-            {
-                foreach (T entity in queryable.Distinct().ToList())
-                {
-                    counter++;
-
-                    T newEntity = compiledUpdater.Invoke(entity);
-
-                    table.Update(entity, newEntity);
-                }
-            }
-            finally
-            {
-                table.Database.ConcurrencyManager.ReleaseTableWriteLock(table, Transaction.Current);
-            }
-
-            return counter;
-        }
+ 
 
 		#endregion
 
 		#region Delete
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queryable"></param>
+        /// <returns></returns>
 		public static int Delete<T>( this IQueryable<T> queryable )
 			where T : class
 		{
-            TableVisitor<T> tableSearcher = new TableVisitor<T>();
-            ITable<T> table = tableSearcher.SearchTable(queryable.Expression);
-
-            if (Transaction.Current != null && !Transaction.TryEnlistOnTransient())
+            if (queryable == null)
             {
-                using (var tran = Transaction.CreateLocal())
-                {
-                    int result = InternalDelete<T>(queryable, table);
+                throw new ArgumentNullException("queryable");
+            }
 
-                    tran.Complete();
-                    return result;
-                }
-            }
-            else
+            TableQuery<T> query = queryable as TableQuery<T>;
+
+            if (query == null)
             {
-                return InternalDelete<T>(queryable, table);
+                throw new ArgumentException("Delete command can be executed only on NMemory queries.", "queryable");
             }
+
+            IBatchTable<T> table = query.Database.Tables.FindTable<T>() as IBatchTable<T>;
+
+            if (table == null)
+            {
+                throw new ArgumentException("Delete query must result in table entities", "queryable");
+            }
+
+            return table.Delete(query);
 		}
-
-        private static int InternalDelete<T>(IQueryable<T> queryable, ITable<T> table) where T : class
-        {
-            table.Database.ConcurrencyManager.AcquireTableWriteLock(table, Transaction.Current);
-            int counter = 0;
-
-            try
-            {
-                foreach (var item in queryable.Distinct().ToList())
-                {
-                    counter++;
-
-                    table.Delete(item);
-                }
-            }
-            finally
-            {
-                table.Database.ConcurrencyManager.ReleaseTableWriteLock(table, Transaction.Current);
-            }
-
-            return counter;
-        }
 
 		#endregion
 
@@ -403,7 +373,7 @@ namespace NMemory.Linq
 
             Type tupleType = joined.GetType().GetGenericArguments().First();
 
-            ReplacerVisitor rv;
+            ReplaceVisitor rv;
 
             ParameterExpression oldResultParam1 = resultSelector.Parameters[0];
             ParameterExpression oldResultParam2 = resultSelector.Parameters[1];
@@ -415,9 +385,9 @@ namespace NMemory.Linq
 
             Expression oSelector = Expression.Property(anonParam, tupleType.GetProperty("Item1"));
 
-            rv = new ReplacerVisitor(exp => exp == oldResultParam1, exp => oSelector);
+            rv = new ReplaceVisitor(exp => exp == oldResultParam1, exp => oSelector);
             newResultSelectorBody = rv.Visit(newResultSelectorBody);
-            rv = new ReplacerVisitor(exp => exp == oldResultParam2, exp => innerParam);
+            rv = new ReplaceVisitor(exp => exp == oldResultParam2, exp => innerParam);
             newResultSelectorBody = rv.Visit(newResultSelectorBody);
 
             LambdaExpression newResultSelector = Expression.Lambda(newResultSelectorBody, anonParam, innerParam);

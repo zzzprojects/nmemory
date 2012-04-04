@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using NMemory.Indexes;
-using NMemory.Statistics;
 using System.Linq;
 
 namespace NMemory.Tables
@@ -35,8 +34,6 @@ namespace NMemory.Tables
         /// Occurs when the indexes of the table are changed.
         /// </summary>
 		event EventHandler IndexChanged;
-
-        IStatistics Statistics { get; }
 
         /// <summary>
         /// Gets the number of entities contained in the table.

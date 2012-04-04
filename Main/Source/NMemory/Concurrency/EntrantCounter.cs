@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NMemory.Concurrency
+namespace NMemory.Execution
 {
 	internal class EntrantCounter
 	{

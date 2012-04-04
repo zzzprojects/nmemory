@@ -11,7 +11,7 @@ namespace NMemory.Tables
     internal class IdentityField<TEntity>
     {
         private Func<TEntity, long> identityGetter;
-        private Setter<TEntity> identitySetter;
+        private DynamicPropertySetter<TEntity> identitySetter;
         private IdentitySpecification<TEntity> identity;
         private long nextIdentity;
         private Type identityType;
@@ -26,7 +26,7 @@ namespace NMemory.Tables
             PropertyInfo identityInfo = member.Member as PropertyInfo;
 
             this.identityType = identityInfo.PropertyType;
-            this.identitySetter = DynamicMethodBuilder.CreateSetter<TEntity>(identityInfo);
+            this.identitySetter = DynamicMethodBuilder.CreatePropertySetter<TEntity>(identityInfo);
             this.identityGetter = this.identity.IdentityColumn.Compile();
 
             if (initialEntities != null)

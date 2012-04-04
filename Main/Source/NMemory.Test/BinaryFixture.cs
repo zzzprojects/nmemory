@@ -10,6 +10,40 @@ namespace NMemory.Test
     [TestClass]
     public class BinaryFixture
     {
+
+        [TestMethod]
+        public void CastBinary()
+        {
+            Binary binary = new byte[] { 1, 2, 3 };
+
+            byte[] array = (byte[])binary;
+
+            Assert.AreEqual(array.Length, 3);
+            Assert.AreEqual(array[0], 1);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidCastException))]
+        public void CastBinaryObject()
+        {
+            Binary binary = new byte[] { 1, 2, 3 };
+            object binaryObj = binary;
+
+            byte[] array = (byte[])binaryObj;
+        }
+
+        [TestMethod]
+        public void CastBinaryObjectWorkaround()
+        {
+            Binary binary = new byte[] { 1, 2, 3 };
+            object binaryObj = binary;
+
+            byte[] array = (byte[])(Binary)binaryObj;
+
+            Assert.AreEqual(array.Length, 3);
+            Assert.AreEqual(array[0], 1);
+        }
+
         [TestMethod]
         public void SetBinaryValue()
         {
@@ -83,5 +117,15 @@ namespace NMemory.Test
 
             Assert.AreNotEqual(binary1, binary2);
         }
+
+        [TestMethod]
+        public void BinaryAsArgument()
+        {
+            Binary binary = new byte[] { };
+
+            Method(binary);
+        }
+
+        private void Method(byte[] binary) { }
     }
 }

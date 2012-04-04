@@ -76,7 +76,6 @@ namespace NMemory.DataStructures
 
         public void Insert(TKey key, TEntity entity)
         {
-            // TODO: TryAdd
             if (!this.inner.TryAdd(key, entity))
             {
                 throw new MultipleUniqueKeyFoundException();

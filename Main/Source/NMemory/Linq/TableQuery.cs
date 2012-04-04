@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Linq.Expressions;
 using System.Collections;
+using System.Linq;
+using System.Linq.Expressions;
 using NMemory.Transactions;
 
 namespace NMemory.Linq
@@ -94,36 +92,23 @@ namespace NMemory.Linq
             get { return this.provider; }
         }
 
-        public abstract IEnumerator GetEnumerator();
-
-        protected bool CheckTransaction()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            if (Transaction.Current != null || Transaction.TryEnlistOnTransient())
-            {
-                if (Transaction.Current.Aborted)
-                {
-                    throw new System.Transactions.TransactionAbortedException();
-                }
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return null;
         }
 
-        protected TransactionWrapper EnsureTransaction()
+        protected Transaction CurrentTransaction
         {
-            if (this.CheckTransaction())
+            get
             {
-                // Transaction is present, create empty wrapper
-                return new TransactionWrapper(null);
-            }
-            else
-            {
-                // There is no transaction, create a local transaction and wrap it
-                return new TransactionWrapper(Transaction.CreateLocal());
+                Transaction transaction = Transaction.Current;
+
+                if (transaction == null)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                return transaction;
             }
         }
     }

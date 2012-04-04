@@ -46,6 +46,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AggregationFixture.cs" />
     <Compile Include="BasicFixture.cs" />
     <Compile Include="BinaryFixture.cs" />
     <Compile Include="Data\Group.cs" />
@@ -56,6 +57,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedBlackTreeFixture.cs" />
     <Compile Include="RelationFixture.cs" />
+    <Compile Include="StoredProcedureFixture.cs" />
     <Compile Include="TimestampFixture.cs" />
     <Compile Include="TransactionFixture.cs" />
   </ItemGroup>

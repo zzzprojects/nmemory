@@ -13,6 +13,7 @@ namespace NMemory.Modularity
 
         void ReleaseTableWriteLock(ITable table, Transaction transaction);
 
+        void AcquireRelatedTableLock(ITable table, Transaction transaction);
 
         void AcquireTableReadLock(ITable table, Transaction transaction);
 

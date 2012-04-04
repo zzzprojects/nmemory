@@ -59,6 +59,11 @@ namespace NMemory.Tables
             return this.referredRelations[foreignTable].AsReadOnly();
         }
 
+        internal IList<IRelation> GetReferringRelations(IIndex primaryIndex)
+        {
+            return this.referringRelations[primaryIndex.Table].Where(x => x.PrimaryIndex == primaryIndex).ToList();
+        }
+
         internal IList<IRelation> GetReferedRelations(IIndex foreignIndex)
         {
             return this.referredRelations[foreignIndex.Table].Where(x => x.ForeignIndex == foreignIndex).ToList();
@@ -73,6 +78,11 @@ namespace NMemory.Tables
         internal bool IsEntityType<T>()
         {
             return this.entityTypes.Contains(typeof(T));
+        }
+
+        internal ITable<T> FindTable<T>()
+        {
+            return this.tables.SingleOrDefault(t => t.EntityType == typeof(T)) as ITable<T>;
         }
 
     }

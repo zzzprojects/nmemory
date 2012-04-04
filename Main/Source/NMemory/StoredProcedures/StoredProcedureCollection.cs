@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NMemory.Linq;
-using System.Collections;
-using System.Linq.Expressions;
 
 namespace NMemory.StoredProcedures
 {
@@ -20,53 +17,40 @@ namespace NMemory.StoredProcedures
                 throw new ArgumentNullException();
             }
 
-            this.database = new WeakReference(this.database);
+            this.database = new WeakReference(database);
             this.storedProcedures = new List<object>();
         }
 
-        ////public Func<TParam1, IEnumerable<TEntity>> Create<TEntity, TParam1>(IQueryable<TEntity> query)
-        ////{
-        ////    var sp = new StoredProcedure<TEntity, TParam1>(query, this.Database);
-
-        ////    this.storedProcedures.Add(sp);
-
-        ////    return sp.Procedure;
-        ////}
-
-
-        ////public Func<TParam1, IEnumerable<TEntity>> CreateStoredProcedure<TEntity, TParam1>(IQueryable<TEntity> query)
-        ////{
-        ////    var sp = new StoredProcedure<TEntity, TParam1>(query, this.Database);
-
-        ////    this.storedProcedures.Add(sp);
-
-        ////    return sp.Procedure;
-        ////}
-
-        ////public Func<Dictionary<string, object>, IEnumerable<TEntity>> CreateStoredProcedure<TEntity>(IQueryable<TEntity> query)
-        ////{
-        ////    var sp = new StoredProcedure<TEntity>(query, this.Database);
-
-        ////    this.storedProcedures.Add(sp);
-
-        ////    return sp.Procedure;
-        ////}
-
-        ////public Func<Dictionary<string, object>, IEnumerable> CreateStoredProcedure(Expression expression)
-        ////{
-        ////    var sp = new StoredProcedure(expression, this.Database);
-
-        ////    this.storedProcedures.Add(sp);
-
-        ////    return sp.Procedure;
-        ////}
-
         private Database Database
         {
-            get
+            get { return this.database.Target as Database; }
+        }
+
+        public IStoredProcedure<T> Create<T>(IQueryable<T> query)
+        {
+            this.ValidateQuery<T>(query);
+
+            StoredProcedure<T> procedure = new StoredProcedure<T>(query);
+
+            this.storedProcedures.Add(procedure);
+            return procedure;
+        }
+
+        private void ValidateQuery<T>(IQueryable<T> query)
+        {
+            ITableQuery tableQuery = query as ITableQuery;
+
+            if (tableQuery == null)
             {
-                return this.database.Target as Database;
+                throw new ArgumentException("Query is not an NMemory query.", "query");
+            }
+
+            if (tableQuery.Database != this.Database)
+            {
+                throw new ArgumentException("Query does not belong to this database.", "query");
             }
         }
+
+        
     }
 }

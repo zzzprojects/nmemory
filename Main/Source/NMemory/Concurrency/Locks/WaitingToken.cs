@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace NMemory.Concurrency.Locks
+namespace NMemory.Execution.Locks
 {
     internal class WaitingToken
     {

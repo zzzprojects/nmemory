@@ -56,7 +56,11 @@ namespace NMemory.Transactions
         {
             TransactionLog log;
             this.transactionLogs.TryRemove(transaction, out log);
-            log.Release();
+
+            if (log != null)
+            {
+                log.Release();
+            }
 
             this.database.ConcurrencyManager.ReleaseAllLocks(transaction);
         }

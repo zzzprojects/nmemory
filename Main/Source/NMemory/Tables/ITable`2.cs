@@ -13,5 +13,18 @@ namespace NMemory.Tables
         /// Gets the primary key index of the table.
         /// </summary>
         new IUniqueIndex<TEntity, TPrimaryKey> PrimaryKeyIndex { get; }
+
+        /// <summary>
+        /// Updates the properties of an entity contained by the table.
+        /// </summary>
+        /// <param name="key">The primary key of the entity.</param>
+        /// <param name="entity">An entity that represents the new property values.</param>
+        void Update(TPrimaryKey key, TEntity entity);
+
+        /// <summary>
+        /// Deletes an entity from the table.
+        /// </summary>
+        /// <param name="key">The primary key of the entity to be deleted.</param>
+        void Delete(TPrimaryKey key);
     }
 }

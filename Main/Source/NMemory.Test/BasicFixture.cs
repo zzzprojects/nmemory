@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NMemory.Tables;
 using NMemory.Test.Data;
+using NMemory.Linq;
 
 namespace NMemory.Test
 {
@@ -57,11 +58,61 @@ namespace NMemory.Test
 
             member.Name = "John Doe";
 
-            database.Members.Update(member, member);
+            database.Members.Update(member);
 
             Member updated = database.Members.FirstOrDefault();
             Assert.AreEqual(updated.Name, "John Doe");
         }
+
+        [TestMethod]
+        public void UpdateEntities()
+        {
+            TestDatabase database = new TestDatabase();
+            
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            database.Groups.Insert(new Group { Name = "Group 3" });
+
+            database.Groups.Update(x => new Group { Name = x.Name + " (deleted)" });
+
+            var newEntities = database.Groups.ToList();
+            Assert.IsTrue(newEntities.All(e => e.Name.EndsWith("(deleted)")));
+        }
+
+
+        [TestMethod]
+        public void DeleteEntity()
+        {
+            TestDatabase database = new TestDatabase();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+
+            database.Groups.Delete(new Group() { Id = 1 });
+
+            Group group = database.Groups.FirstOrDefault();
+
+            Assert.AreEqual(database.Groups.Count, 1);
+            Assert.IsNotNull(group);
+            Assert.AreEqual(group.Name, "Group 2");
+        }
+
+        [TestMethod]
+        public void DeleteEntities()
+        {
+            TestDatabase database = new TestDatabase();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            database.Groups.Insert(new Group { Name = "Group 3" });
+
+            database.Groups.Delete();
+
+            Group group = database.Groups.FirstOrDefault();
+
+            Assert.AreEqual(database.Groups.Count, 0);
+        }
+
 
         [TestMethod]
         public void EnumerateTable()

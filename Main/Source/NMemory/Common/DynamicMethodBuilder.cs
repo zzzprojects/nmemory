@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Linq.Expressions;
 
 namespace NMemory.Common
 {
-    internal delegate TObject Setter<TObject>(TObject obj, params object[] args);
+    internal delegate TObject DynamicPropertySetter<TObject>(TObject obj, params object[] args);
 
     internal static class DynamicMethodBuilder
     {
-        public static Action<TObject, TValue> CreateSingleSetter<TObject, TValue>(PropertyInfo member)
+        public static Action<TObject, TValue> CreateSinglePropertySetter<TObject, TValue>(PropertyInfo member)
         {
             var objParam = Expression.Parameter(typeof(TObject));
             var valueParam = Expression.Parameter(typeof(TValue));
@@ -26,22 +23,22 @@ namespace NMemory.Common
 
         }
 
-        public static Setter<TObject> CreateSetter<TObject>(params PropertyInfo[] members)
+        public static DynamicPropertySetter<TObject> CreatePropertySetter<TObject>(params PropertyInfo[] members)
         {
-            DynamicMethod setterMethod = CreateSetterImpl<TObject>(members);
-            Setter<TObject> setter = (Setter<TObject>)setterMethod.CreateDelegate(typeof(Setter<TObject>));
+            DynamicMethod setterMethod = CreatePropertySetterImpl<TObject>(members);
+            DynamicPropertySetter<TObject> setter = (DynamicPropertySetter<TObject>)setterMethod.CreateDelegate(typeof(DynamicPropertySetter<TObject>));
 
             return setter;
         }
 
-        public static MethodInfo CreateSetterMethodInfo<TObject>(params PropertyInfo[] members)
+        public static MethodInfo CreatePropertySetterMethodInfo<TObject>(params PropertyInfo[] members)
         {
-            DynamicMethod setterDef = CreateSetterImpl<TObject>(members);
+            DynamicMethod setterDef = CreatePropertySetterImpl<TObject>(members);
 
             return setterDef;
         }
 
-        private static DynamicMethod CreateSetterImpl<TObject>(PropertyInfo[] members)
+        private static DynamicMethod CreatePropertySetterImpl<TObject>(PropertyInfo[] members)
         {
             DynamicMethod setterDef = new DynamicMethod(typeof(TObject).Name + "PropertySetter",
                 typeof(TObject),

@@ -12,19 +12,20 @@ using NMemory.Exceptions;
 using NMemory.Execution;
 using NMemory.Indexes;
 using NMemory.Linq;
-using NMemory.Statistics;
 using NMemory.Transactions;
 using NMemory.Transactions.Logs;
 using NMemory.Modularity;
+using NMemory.Common.Visitors;
 
 namespace NMemory.Tables
 {
-    public class Table<TEntity, TPrimaryKey> : 
-        
-        TableQuery<TEntity>, 
+    public abstract class Table<TEntity, TPrimaryKey> :
 
-        ITable<TEntity, TPrimaryKey>, 
-        IQueryable<TEntity>, 
+        TableQuery<TEntity>,
+
+        ITable<TEntity, TPrimaryKey>,
+        IQueryable<TEntity>,
+        IBatchTable<TEntity>,
         IReflectionTable
 
         where TEntity : class
@@ -33,17 +34,9 @@ namespace NMemory.Tables
         #region Members
 
         private IdentityField<TEntity> identityField;
-
-        private EntityPropertyCloner<TEntity> cloner;
-        private EntityPropertyChangeDetector<TEntity> changeDetector;
-
-        private UniqueIndex<TEntity, TPrimaryKey> primaryKeyIndex;
+        private IUniqueIndex<TEntity, TPrimaryKey> primaryKeyIndex;
         private IList<IIndex<TEntity>> indexes;
         private IList<IConstraint<TEntity>> constraints;
-
-        private Histogram<TEntity> histogram;
-
-        
 
         private static int counter;
         private int id;
@@ -52,13 +45,13 @@ namespace NMemory.Tables
 
         #region Constructor
 
-        internal Table(
+        public Table(
             Database database,
-            Expression<Func<TEntity, TPrimaryKey>> primaryKey, 
-            
-            IdentitySpecification<TEntity> identitySpecification = null, 
-            IEnumerable<TEntity> initialEntities = null) 
-            
+            Expression<Func<TEntity, TPrimaryKey>> primaryKey,
+
+            IdentitySpecification<TEntity> identitySpecification,
+            IEnumerable<TEntity> initialEntities)
+
             : base(database)
         {
             this.VerifyType();
@@ -68,15 +61,10 @@ namespace NMemory.Tables
 
             this.RegisterTimestampConstraints();
 
-            this.changeDetector = new EntityPropertyChangeDetector<TEntity>();
-            this.cloner = new EntityPropertyCloner<TEntity>();
-            
-            this.primaryKeyIndex = 
+            this.primaryKeyIndex =
                 this.CreateUniqueIndex<TPrimaryKey>(
                     new RedBlackTreeIndexFactory<TEntity>(),
                     primaryKey);
-
-            this.histogram = new Histogram<TEntity>( this );
 
             if (identitySpecification != null)
             {
@@ -99,57 +87,27 @@ namespace NMemory.Tables
         /// </summary>
         public event EventHandler IndexChanged;
 
-        /// <summary>
-        /// Occurs before a new entity is inserted.
-        /// </summary>
-        public event EventHandler<EntityEventArgs<TEntity>> EntityInserting;
-
-        /// <summary>
-        /// Occurs after a new entity is inserted.
-        /// </summary>
-        public event EventHandler<EntityEventArgs<TEntity>> EntityInserted;
-
-        /// <summary>
-        /// Occurs before an entity is updated.
-        /// </summary>
-        public event EventHandler<EntityUpdateEventArgs<TEntity>> EntityUpdating;
-
-        /// <summary>
-        /// Occurs after an entity is updated.
-        /// </summary>
-        public event EventHandler<EntityUpdateEventArgs<TEntity>> EntityUpdated;
-
-        /// <summary>
-        /// Occurs before an entity is deleted.
-        /// </summary>
-        public event EventHandler<EntityEventArgs<TEntity>> EntityDeleting;
-
-        /// <summary>
-        /// Occurs after an entity is deleted.
-        /// </summary>
-        public event EventHandler<EntityEventArgs<TEntity>> EntityDeleted;
-
         #endregion
 
 
         #region Lock management
 
-        private void AcquireWriteLock(Transaction transaction)
+        protected void AcquireWriteLock(Transaction transaction)
         {
             this.Database.ConcurrencyManager.AcquireTableWriteLock(this, transaction);
         }
 
-        private void ReleaseWriteLock(Transaction transaction)
+        protected void ReleaseWriteLock(Transaction transaction)
         {
             this.Database.ConcurrencyManager.ReleaseTableWriteLock(this, transaction);
         }
 
-        private void AcquireReadLock(Transaction transaction)
+        protected void AcquireReadLock(Transaction transaction)
         {
             this.Database.ConcurrencyManager.AcquireTableReadLock(this, transaction);
         }
 
-        private void ReleaseReadLock(Transaction transaction)
+        protected void ReleaseReadLock(Transaction transaction)
         {
             this.Database.ConcurrencyManager.ReleaseTableReadLock(this, transaction);
         }
@@ -164,25 +122,19 @@ namespace NMemory.Tables
         /// <param name="entity">An entity that represents the property values of the new entity.</param>
         public void Insert(TEntity entity)
         {
-	        if (this.identityField != null)
+            if (this.identityField != null)
             {
                 this.identityField.Generate(entity);
             }
 
-            // PreEvent
-            this.OnItemInserting( entity );
-
             try
             {
-                using (var tran = base.EnsureTransaction())
+                using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
                     InsertCore(entity);
 
                     tran.Complete();
                 }
-
-                // PostEvent
-                this.OnItemInserted(entity);
             }
             catch (System.Transactions.TransactionAbortedException)
             {
@@ -199,200 +151,79 @@ namespace NMemory.Tables
 
         }
 
-        private void InsertCore(TEntity entity)
+        protected abstract void InsertCore(TEntity entity);
+
+        /// <summary>
+        /// Updates the properties of an entity contained by the table.
+        /// </summary>
+        /// <param name="entity">An entity that represents the new property values.</param>
+        public void Update(TEntity entity)
         {
-            this.ApplyContraints(entity);
-
-            TEntity storedEntity = this.Database.Core.CreateEntity<TEntity>();
-            this.cloner.Clone(entity, storedEntity);
-
-            Transaction transaction = Transaction.Current;
-
-            if (transaction == null)
-            {
-                throw new InvalidOperationException("No transaction");
-            }
-
-            this.Database.TransactionHandler.EnsureSubscription(transaction);
-            TransactionLog log = this.Database.TransactionHandler.GetTransactionLog(transaction);
-            int logPosition = log.CurrentPosition;
-
-            this.AcquireWriteLock(transaction);
-            transaction.EnterAtomicSection();
-
-            try
-            {
-                foreach (IIndex<TEntity> index in this.indexes)
-                {
-                    index.Insert(storedEntity);
-
-                    log.WriteIndexInsert(index, storedEntity);
-                }
-            }
-            catch
-            {
-                log.RollbackTo(logPosition);
-
-                throw;
-            }
-            finally
-            {
-                transaction.ExitAtomicSection();
-                this.ReleaseWriteLock(transaction);
-            }
+            Update(primaryKeyIndex.KeyInfo.GetKey(entity), entity);
         }
 
         /// <summary>
         /// Updates the properties of an entity contained by the table.
         /// </summary>
-        /// <param name="originalEntity">An entity that contains the primary key of the entity to be updated.</param>
+        /// <param name="key">The primary key of the entity.</param>
         /// <param name="entity">An entity that represents the new property values.</param>
-        public void Update(TEntity originalEntity, TEntity entity)
+        public void Update(TPrimaryKey key, TEntity entity)
         {
-            // PreEvent
-            this.OnItemUpdating(originalEntity, entity);
-
             try
             {
-                using (var tran = base.EnsureTransaction())
+                using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
-                    UpdateCore(originalEntity, entity);
+                    UpdateCore(key, entity);
 
                     tran.Complete();
                 }
-
-                // PostEvent
-                this.OnItemUpdated(originalEntity, entity);
             }
             catch (System.Transactions.TransactionAbortedException)
             {
                 throw;
             }
-            catch(NMemoryException)
+            catch (NMemoryException)
             {
                 throw;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new NMemoryException(ErrorCodes.GenericError, ex);
             }
         }
 
-        private void UpdateCore(TEntity oldEntity, TEntity newEntity)
+        int IBatchTable<TEntity>.Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater)
         {
-            this.ApplyContraints(newEntity);
-
-            Transaction transaction = Transaction.Current;
-
-            if (transaction == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            this.Database.TransactionHandler.EnsureSubscription(transaction);
-            TransactionLog log = this.Database.TransactionHandler.GetTransactionLog(transaction);
-            int logPosition = log.CurrentPosition;
-
-            HashSet<ITable> tables = new HashSet<ITable>();
-            
-            tables.Add(this);
-            this.Database.ConcurrencyManager.AcquireTableWriteLock(this, transaction);
+            updater = ExpressionHelper.ValidateAndCompleteUpdaterExpression(updater);
+            Expression expression = ((IQueryable<TEntity>)query).Expression;
 
             try
             {
-                TPrimaryKey key = primaryKeyIndex.Key(oldEntity);
-                TEntity storedEntity = primaryKeyIndex.GetByUniqueIndex(key);
-
-                if (storedEntity == null)
+                using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
-                    return;
-                }
+                    int result = UpdateCore(expression, updater);
 
-                List<PropertyInfo> changedProperties = this.changeDetector.GetChanges(storedEntity, newEntity);
-                List<IIndex<TEntity>> detectedIndexes = new List<IIndex<TEntity>>();
-
-                foreach (IIndex<TEntity> index in this.indexes)
-                {
-                    if (index.KeyInfo.KeyMembers.Any(x => changedProperties.Contains(x)))
-                    {
-                        detectedIndexes.Add(index);
-                    }
-                }
-
-                // If there is no change, leave
-                if (changedProperties.Count == 0)
-                {
-                    return;
-                }
-
-                // Lock related tables
-                foreach (IIndex<TEntity> index in detectedIndexes)
-                {
-                    List<ITable> indexTables = new List<ITable>();
-
-                    if (index == this.PrimaryKeyIndex)
-                    {
-                        indexTables.AddRange(this.Database.Tables.GetReferringRelations(this).Select(x => x.ForeignTable));
-                    }
-                    else
-                    {
-                        indexTables.AddRange(this.Database.Tables.GetReferedRelations(index).Select(x => x.PrimaryTable));
-                    }
-
-                    foreach (ITable table in indexTables)
-                    {
-                        if (tables.Add(table))
-                        {
-                            this.Database.ConcurrencyManager.AcquireTableWriteLock(table, transaction);
-                        }
-                    }
-                }
-
-                transaction.EnterAtomicSection();
-
-                try
-                {
-                    // Delete invalid index records
-                    foreach (IIndex<TEntity> index in detectedIndexes)
-                    {
-                        index.Delete(storedEntity);
-                        log.WriteIndexDelete(index, storedEntity);
-                    }
-
-                    // Create backup
-                    TEntity backup = Activator.CreateInstance<TEntity>();
-                    this.cloner.Clone(storedEntity, backup);
-
-                    // Update entity
-                    this.cloner.Clone(newEntity, storedEntity);
-                    log.WriteEntityUpdate(this.cloner, storedEntity, backup);
-
-                    // Insert new index records
-                    foreach (IIndex<TEntity> index in detectedIndexes)
-                    {
-                        index.Insert(storedEntity);
-                        log.WriteIndexInsert(index, storedEntity);
-                    }
-                }
-                catch
-                {
-                    log.RollbackTo(logPosition);
-                    throw;
-                }
-                finally
-                {
-                    transaction.ExitAtomicSection();
+                    tran.Complete();
+                    return result;
                 }
             }
-            finally
+            catch (System.Transactions.TransactionAbortedException)
             {
-                // Release all locks
-                foreach (ITable table in tables)
-                {
-                    this.Database.ConcurrencyManager.ReleaseTableWriteLock(table, transaction);
-                }
+                throw;
+            }
+            catch (NMemoryException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new NMemoryException(ErrorCodes.GenericError, ex);
             }
         }
+
+        protected abstract void UpdateCore(TPrimaryKey key, TEntity entity);
+
+        protected abstract int UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater);
 
         /// <summary>
         /// Deletes an entity from the table.
@@ -400,20 +231,23 @@ namespace NMemory.Tables
         /// <param name="entity">An entity that contains the primary key of the entity to be deleted.</param>
         public void Delete(TEntity entity)
         {
-            // PreEvent
-            this.OnItemDeleting(entity);
+            Delete(this.primaryKeyIndex.KeyInfo.GetKey(entity));
+        }
 
+        /// <summary>
+        /// Deletes an entity from the table.
+        /// </summary>
+        /// <param name="key">The primary key of the entity to be deleted.</param>
+        public void Delete(TPrimaryKey key)
+        {
             try
             {
-                using (var tran = base.EnsureTransaction())
+                using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
-                    DeleteCore(entity);
+                    DeleteCore(key);
 
                     tran.Complete();
                 }
-
-                // PostEvent
-                this.OnItemDeleted(entity);
             }
             catch (System.Transactions.TransactionAbortedException)
             {
@@ -429,79 +263,40 @@ namespace NMemory.Tables
             }
         }
 
-        private void DeleteCore(TEntity entity)
+        int IBatchTable<TEntity>.Delete(TableQuery<TEntity> query)
         {
-            Transaction transaction = Transaction.Current;
-
-            if (transaction == null)
-            {
-                throw new InvalidOperationException("No transaction");
-            }
-
-            this.Database.TransactionHandler.EnsureSubscription(transaction);
-            TransactionLog log = this.Database.TransactionHandler.GetTransactionLog(transaction);
-            int logPosition = log.CurrentPosition;
-
-            HashSet<ITable> tables = new HashSet<ITable>();
-
-            tables.Add(this);
-            this.Database.ConcurrencyManager.AcquireTableWriteLock(this, transaction);
+            Expression expression = ((IQueryable<TEntity>)query).Expression;
 
             try
             {
-                TPrimaryKey key = primaryKeyIndex.Key(entity);
-                TEntity storedEntity = primaryKeyIndex.GetByUniqueIndex(key);
-
-                if (storedEntity == null)
+                using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
-                    return;
-                }
+                    int result = DeleteCore(expression);
 
-                IList<ITable> foreignTables = this.Database.Tables.GetReferringRelations(this).Select(x => x.ForeignTable).ToList();
-
-                // Lock referenced tables
-                foreach (ITable table in foreignTables)
-                {
-                    if (tables.Add(table))
-                    {
-                        this.Database.ConcurrencyManager.AcquireTableWriteLock(table, transaction);
-                    }
-                }
-
-                transaction.EnterAtomicSection();
-
-                try
-                {
-                    foreach (IIndex<TEntity> index in this.indexes)
-                    {
-                        index.Delete(storedEntity);
-
-                        log.WriteIndexDelete(index, storedEntity);
-                    }
-                }
-                catch
-                {
-                    log.RollbackTo(logPosition);
-                    throw;
-                }
-                finally
-                {
-                    transaction.ExitAtomicSection();
+                    tran.Complete();
+                    return result;
                 }
             }
-            finally
+            catch (System.Transactions.TransactionAbortedException)
             {
-                // Release all locks
-                foreach (ITable table in tables)
-                {
-                    this.Database.ConcurrencyManager.ReleaseTableWriteLock(table, transaction);
-                }
+                throw;
             }
-
+            catch (NMemoryException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new NMemoryException(ErrorCodes.GenericError, ex);
+            }
         }
 
+        protected abstract int DeleteCore(Expression expression);
+
+        protected abstract void DeleteCore(TPrimaryKey key);
+
         #endregion
-        
+
         #region Query
 
         /// <summary>
@@ -511,25 +306,8 @@ namespace NMemory.Tables
         {
             get
             {
-                using (var tran = base.EnsureTransaction())
-                {
-                    long result = this.GetTransactedCount();
-
-                    tran.Complete();
-                    return result;
-                }
+                return this.LongCount();
             }
-        }
-
-        /// <summary>
-        /// Returns an enumerator that iterates through the entities of the table.
-        /// </summary>
-        /// <returns>An IEnumerator object </returns>
-        public override IEnumerator<TEntity> GetEnumerator()
-        {
-            IQueryEnumeratorFactory enumeratorFactory = this.Database.Executor.CreateQueryEnumeratorFactory();
-
-            return enumeratorFactory.Create<TEntity>(this, this.EnsureTransaction());
         }
 
         internal IEnumerable<TEntity> SelectAll()
@@ -542,22 +320,6 @@ namespace NMemory.Tables
             return this.primaryKeyIndex.Count;
         }
 
-        private long GetTransactedCount()
-        {
-            Transaction transaction = Transaction.Current;
-
-            AcquireReadLock(transaction);
-
-            try
-            {
-                return GetCount();
-            }
-            finally
-            {
-                ReleaseReadLock(transaction);
-            }
-        }
-
         #endregion
 
         #region Event helpers
@@ -565,58 +327,8 @@ namespace NMemory.Tables
         private void OnIndexChanged()
         {
             if (this.IndexChanged != null)
-	        {
+            {
                 this.IndexChanged.Invoke(this, EventArgs.Empty);
-	        }
-        }
-
-        private void OnItemInserting(TEntity t)
-        {
-            if (this.EntityInserting != null)
-            {
-                this.EntityInserting(this, new EntityEventArgs<TEntity>(t));
-            }
-        }
-
-        private void OnItemInserted(TEntity t)
-        {
-            if (this.EntityInserted != null)
-            {
-                this.EntityInserted(this, new EntityEventArgs<TEntity>(t));
-            }
-        }
-
-        private void OnItemDeleting(TEntity t)
-        {
-            if (this.EntityDeleting != null)
-            {
-                this.EntityDeleting(this, new EntityEventArgs<TEntity>(t));
-            }
-        }
-
-        private void OnItemDeleted(TEntity t)
-        {
-            if (this.EntityDeleted != null)
-            {
-                this.EntityDeleted(this, new EntityEventArgs<TEntity>(t));
-            }
-        }
-
-        private void OnItemUpdating(TEntity itemOld, TEntity itemUpdated)
-        {
-            if (this.EntityUpdating != null)
-            {
-                this.EntityUpdating(this, new EntityUpdateEventArgs<TEntity>(itemOld, itemUpdated));
-            }
-        }
-
-
-
-        private void OnItemUpdated(TEntity itemOld, TEntity itemUpdated)
-        {
-            if (this.EntityUpdated != null)
-            {
-                this.EntityUpdated(this, new EntityUpdateEventArgs<TEntity>(itemOld, itemUpdated));
             }
         }
 
@@ -628,18 +340,9 @@ namespace NMemory.Tables
             IIndexFactory<TEntity> indexFactory,
             Expression<Func<TEntity, TKey>> key)
         {
-            // Check if a custom comparer is needed
-            IComparer<TKey> comparer;
-
-            if (CreateComparerIfNeeded<TKey>(out comparer))
-            {
-                // TODO: Move this somewhere else
-                return CreateIndex(indexFactory, key, comparer);
-            }
-
             var index = indexFactory.CreateIndex(this, key);
 
-            this.indexes.Add( index );
+            this.indexes.Add(index);
             this.OnIndexChanged();
 
             return index;
@@ -652,24 +355,16 @@ namespace NMemory.Tables
         {
             var index = indexFactory.CreateIndex(this, key, keyComparer);
 
-            this.indexes.Add( index );
+            this.indexes.Add(index);
             this.OnIndexChanged();
 
             return index;
         }
 
-        public UniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
+        public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
             IIndexFactory<TEntity> indexFactory,
             Expression<Func<TEntity, TUniqueKey>> key)
         {
-            // Check if a custom comparer is needed
-            IComparer<TUniqueKey> comparer;
-            if (CreateComparerIfNeeded<TUniqueKey>(out comparer))
-            {
-                // TODO: Move this somewhere else
-                return CreateUniqueIndex(indexFactory, key, comparer);
-            }
-
             var index = indexFactory.CreateUniqueIndex(this, key);
 
             this.indexes.Add(index);
@@ -678,7 +373,7 @@ namespace NMemory.Tables
             return index;
         }
 
-        public UniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
+        public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
             IIndexFactory<TEntity> indexFactory,
             Expression<Func<TEntity, TUniqueKey>> key,
             IComparer<TUniqueKey> keyComparer)
@@ -721,26 +416,21 @@ namespace NMemory.Tables
             get { return this.primaryKeyIndex; }
         }
 
-        public IStatistics Statistics
-        {
-            get { return this.histogram; }
-        }
-
         #endregion
 
         #region IReflectionTable Members
 
-        void IReflectionTable.Update( object originalEntity, object entity )
+        void IReflectionTable.Update(object entity)
         {
-            this.Update((TEntity)originalEntity, (TEntity)entity);
+            this.Update((TEntity)entity);
         }
 
-        void IReflectionTable.Insert( object entity )
+        void IReflectionTable.Insert(object entity)
         {
             this.Insert((TEntity)entity);
         }
 
-        void IReflectionTable.Delete( object entity )
+        void IReflectionTable.Delete(object entity)
         {
             this.Delete((TEntity)entity);
         }
@@ -770,13 +460,18 @@ namespace NMemory.Tables
                     continue;
                 }
 
+                if (item.PropertyType == typeof(NMemory.Data.Binary))
+                {
+                    continue;
+                }
+
                 if (item.PropertyType == typeof(byte[]))
                 {
                     throw new ArgumentException(
-                        string.Format("The type of '{0}' property is '{1}', use '{2}' instead.", 
-                            item.Name, 
-                            typeof(byte[]).FullName, 
-                            typeof(Binary).FullName), 
+                        string.Format("The type of '{0}' property is '{1}', use '{2}' instead.",
+                            item.Name,
+                            typeof(byte[]).FullName,
+                            typeof(Binary).FullName),
                         "TEntity");
                 }
 
@@ -802,7 +497,7 @@ namespace NMemory.Tables
             }
         }
 
-        private void ApplyContraints(TEntity entity)
+        protected void ApplyContraints(TEntity entity)
         {
             foreach (IConstraint<TEntity> constraint in this.constraints)
             {
@@ -810,31 +505,23 @@ namespace NMemory.Tables
             }
         }
 
-        private bool CreateComparerIfNeeded<TKey>(out IComparer<TKey> comparer)
-        {
-            comparer = null;
-
-            if (TypeSystem.IsAnonymousType(typeof(TKey)))
-            {
-                comparer = new AnonymousTypeComparer<TKey>();
-                return true;
-            }
-
-            return false;
-        }
 
         private void InitializeData(IEnumerable<TEntity> initialEntities)
         {
-            if (initialEntities != null)
+            if (initialEntities == null)
             {
-                foreach (TEntity entity in initialEntities)
-                {
-                    TEntity insert = this.Database.Core.CreateEntity<TEntity>();
-
-                    this.cloner.Clone(entity, insert);
-                    this.primaryKeyIndex.Insert(insert);
-                }
+                return;
             }
-        } 
+
+            EntityPropertyCloner<TEntity> cloner = new EntityPropertyCloner<TEntity>();
+
+            foreach (TEntity entity in initialEntities)
+            {
+                TEntity insert = this.Database.Core.CreateEntity<TEntity>();
+
+                cloner.Clone(entity, insert);
+                this.primaryKeyIndex.Insert(insert);
+            }
+        }
     }
 }

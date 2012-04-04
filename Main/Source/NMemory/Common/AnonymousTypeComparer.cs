@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
-namespace NMemory.DataStructures
+namespace NMemory.Common
 {
     internal class AnonymousTypeComparer<T> : IComparer<T>
     {
-        // TODO: Move to appropriate namespace
-
         private Func<T, T, int> comparer;
 
         public AnonymousTypeComparer()

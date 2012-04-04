@@ -6,7 +6,7 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
-namespace NMemory.Concurrency.Locks
+namespace NMemory.Execution.Locks
 {
     public class UncheckedReaderWriterLock : ILock
     {

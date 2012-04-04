@@ -22,11 +22,11 @@ namespace NMemory.Indexes
             Expression<Func<TEntity, TKey>> key, 
             IComparer<TKey> keyComparer);
 
-        UniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
+        IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
             ITable<TEntity> table, 
             Expression<Func<TEntity, TUniqueKey>> key);
 
-        UniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
+        IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
             ITable<TEntity> table, 
             Expression<Func<TEntity, TUniqueKey>> key, 
             IComparer<TUniqueKey> keyComparer);
