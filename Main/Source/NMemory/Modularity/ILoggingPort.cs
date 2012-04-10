@@ -1,6 +1,6 @@
 ﻿using NMemory.Diagnostics.Messages;
 
-namespace NMemory.Diagnostics
+namespace NMemory.Modularity
 {
     public interface ILoggingPort
     {

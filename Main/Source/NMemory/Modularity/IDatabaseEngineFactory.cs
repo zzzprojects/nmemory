@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace NMemory.Modularity
 {
     /// <summary>
@@ -20,7 +16,7 @@ namespace NMemory.Modularity
         /// Creates a core module that provides basic functionalites to the database engine. 
         /// </summary>
         /// <returns>A core module.</returns>
-        ICore CreateDispatcher();
+        ICore CreateCore();
 
         /// <summary>
         /// Creates a query compiler that optimizes and compiles database queries.

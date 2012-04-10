@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NMemory.Tables;
+﻿using NMemory.Tables;
 using NMemory.Transactions;
 
 namespace NMemory.Modularity

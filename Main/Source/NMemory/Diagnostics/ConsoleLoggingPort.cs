@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NMemory.Diagnostics.Messages;
+using NMemory.Modularity;
 
 namespace NMemory.Diagnostics
 {

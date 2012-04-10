@@ -87,7 +87,7 @@
     <Compile Include="Data\Binary.cs" />
     <Compile Include="Data\Timestamp.cs" />
     <Compile Include="Diagnostics\ConsoleLoggingPort.cs" />
-    <Compile Include="Diagnostics\ILoggingPort.cs" />
+    <Compile Include="Modularity\ILoggingPort.cs" />
     <Compile Include="Diagnostics\MessageBuffer.cs" />
     <Compile Include="Diagnostics\Messages\IndexFoundMessage.cs" />
     <Compile Include="Diagnostics\Messages\JoinArgumentsOrderSwappedMessage.cs" />
@@ -142,6 +142,7 @@
     <Compile Include="Modularity\DefaultDatabaseEngineFactory.cs" />
     <Compile Include="Modularity\DefaultCore.cs" />
     <Compile Include="Modularity\IConcurrencyManager.cs" />
+    <Compile Include="Modularity\IDatabase.cs" />
     <Compile Include="Modularity\IDatabaseComponent.cs" />
     <Compile Include="Modularity\IDatabaseEngineFactory.cs" />
     <Compile Include="Modularity\ICore.cs" />

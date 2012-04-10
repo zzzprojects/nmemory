@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NMemory.Indexes;
-using NMemory.Transactions.Logs;
-using System.Reflection;
-using NMemory.Transactions;
 using System.Linq.Expressions;
+using System.Reflection;
 using NMemory.Common.Visitors;
 using NMemory.Execution;
+using NMemory.Indexes;
+using NMemory.Modularity;
+using NMemory.Transactions;
+using NMemory.Transactions.Logs;
 
 namespace NMemory.Tables
 {
-    internal class DefaultTable<TEntity, TPrimaryKey> : Table<TEntity, TPrimaryKey> 
+    internal class DefaultTable<TEntity, TPrimaryKey> : 
+        Table<TEntity, TPrimaryKey> 
         where TEntity : class
     {
         private EntityPropertyCloner<TEntity> cloner;
         private EntityPropertyChangeDetector<TEntity> changeDetector;
 
         internal DefaultTable(
-            Database database,
+            IDatabase database,
             Expression<Func<TEntity, TPrimaryKey>> primaryKey, 
             
             IdentitySpecification<TEntity> identitySpecification, 

@@ -13,14 +13,14 @@ namespace NMemory
     /// <summary>
     /// Represents an NMemory database instance.
     /// </summary>
-    public class Database
+    public class Database : IDatabase
     {
         private StoredProcedureCollection storedProcedures;
 
         private IQueryCompiler compiler;
         private IQueryExecutor executor;
         private IConcurrencyManager concurrencyManager;
-        private ICore dispatcher;
+        private ICore core;
 
         private TransactionHandler transactionHandler;
 
@@ -56,8 +56,8 @@ namespace NMemory
             this.concurrencyManager = databaseEngineFactory.CreateConcurrencyManager();
             this.concurrencyManager.Initialize(this);
 
-            this.dispatcher = databaseEngineFactory.CreateDispatcher();
-            this.dispatcher.Initialize(this);
+            this.core = databaseEngineFactory.CreateCore();
+            this.core.Initialize(this);
 
             this.transactionHandler = new TransactionHandler();
             this.transactionHandler.Initialize(this);
@@ -69,32 +69,32 @@ namespace NMemory
         }
 
 
-        internal IConcurrencyManager ConcurrencyManager
+        ICore IDatabase.Core
+        {
+            get { return this.core; }
+        }
+
+        IConcurrencyManager IDatabase.ConcurrencyManager
         {
             get { return this.concurrencyManager; }
         }
 
-        internal IQueryCompiler Compiler
+        IQueryCompiler IDatabase.Compiler
         {
             get { return this.compiler; }
         }
 
-        internal IQueryExecutor Executor
+        IQueryExecutor IDatabase.Executor
         {
             get { return this.executor; }
         }
 
-        internal ICore Core
-        {
-            get { return this.dispatcher; }
-        }
-
-        internal TransactionHandler TransactionHandler
+        TransactionHandler IDatabase.TransactionHandler
         {
             get { return this.transactionHandler; }
         }
 
-        internal ILoggingPort LoggingPort 
+        ILoggingPort IDatabase.LoggingPort 
         {
             get { return this.loggingPort; }
         }
@@ -132,7 +132,7 @@ namespace NMemory
 
             where TEntity : class
         {
-            Table<TEntity, TPrimaryKey> table = this.Core.CreateTable<TEntity, TPrimaryKey>(
+            Table<TEntity, TPrimaryKey> table = this.core.CreateTable<TEntity, TPrimaryKey>(
                 primaryKey, 
                 identitySpecification, 
                 initialEntities);

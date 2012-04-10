@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using NMemory.Indexes;
 using System.Linq;
+using NMemory.Modularity;
 
 namespace NMemory.Tables
 {
     /// <summary>
-    /// Defines an interface for a database tables.
+    /// Defines an interface for database tables.
     /// </summary>
 	public interface ITable : IQueryable
 	{
         /// <summary>
         /// Gets the database that contains the table.
         /// </summary>
-        Database Database { get; }
+        IDatabase Database { get; }
 
         /// <summary>
         /// Gets the type of the entities contained in the table.

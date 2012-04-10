@@ -5,6 +5,13 @@ using NMemory.Exceptions;
 
 namespace NMemory.Tables
 {
+    /// <summary>
+    /// Represents a relation between two database tables.
+    /// </summary>
+    /// <typeparam name="TPrimary">The type of the entities of the referred table.</typeparam>
+    /// <typeparam name="TPrimaryKey">The type of the primary key.</typeparam>
+    /// <typeparam name="TForeign">The type of the entities of the referring table.</typeparam>
+    /// <typeparam name="TForeignKey">The type of the foreign key.</typeparam>
 	public class Relation<
         TPrimary, 
         TPrimaryKey, 

@@ -6,27 +6,27 @@ using System.Linq.Expressions;
 using NMemory.Common.Visitors;
 using NMemory.Execution;
 using NMemory.Transactions;
+using NMemory.Modularity;
 
 namespace NMemory.Linq
 {
     public class TableQuery<TEntity> : TableQuery, IQueryable<TEntity>
     {
-
         #region Ctor
 
-        internal TableQuery(Database database, Expression expression, IQueryProvider provider) 
+        internal TableQuery(IDatabase database, Expression expression, IQueryProvider provider) 
             : base(database, expression, provider)
         {
            
         }
 
-        public TableQuery(Database database, Expression expression)
+        public TableQuery(IDatabase database, Expression expression)
             : base(database, expression)
         {
             
         }
 
-        protected TableQuery(Database database)
+        protected TableQuery(IDatabase database)
             :base(database)
         {
             

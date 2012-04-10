@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NMemory.Execution;
+﻿using NMemory.Execution;
 
 namespace NMemory.Modularity
 {
@@ -13,7 +9,7 @@ namespace NMemory.Modularity
             return new TableLockConcurrencyManager();
         }
 
-        public ICore CreateDispatcher()
+        public ICore CreateCore()
         {
             return new DefaultCore();
         }

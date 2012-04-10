@@ -6,9 +6,9 @@ namespace NMemory.Execution.Optimization.Modifiers
 {
     public abstract class ExpressionModifierBase : ExpressionVisitor, IExpressionModifier, IDatabaseComponent
     {
-        private Database database;
+        private IDatabase database;
 
-        public void Initialize(Database database)
+        public void Initialize(IDatabase database)
         {
             this.database = database;
         }

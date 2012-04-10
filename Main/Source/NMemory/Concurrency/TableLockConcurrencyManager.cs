@@ -11,7 +11,7 @@ namespace NMemory.Execution
 {
     public class TableLockConcurrencyManager : IConcurrencyManager
     {
-        private Database database;
+        private IDatabase database;
 
         // private DeadlockManagementStrategies deadlockManagement;
         private ILockFactory lockFactory;
@@ -30,7 +30,7 @@ namespace NMemory.Execution
             this.lockInventory = new TransactionLockInventory();
         }
 
-        public void Initialize(Database database)
+        public void Initialize(IDatabase database)
         {
             if (database == null)
             {

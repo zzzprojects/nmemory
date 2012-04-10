@@ -1,16 +1,16 @@
 ﻿using System;
-using NMemory.Tables;
-using NMemory.Execution;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using NMemory.Execution;
+using NMemory.Tables;
 
 namespace NMemory.Modularity
 {
     internal class DefaultCore : ICore
     {
-        private Database database;
+        private IDatabase database;
 
-        public void Initialize(Database database)
+        public void Initialize(IDatabase database)
         {
             this.database = database;
         }

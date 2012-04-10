@@ -10,9 +10,9 @@ namespace NMemory.Execution
 {
     public class ChaosConcurrencyManager : IConcurrencyManager
     {
-        public void Initialize(Database database)
+        public void Initialize(IDatabase database)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void AcquireTableWriteLock(ITable table, Transaction transaction)

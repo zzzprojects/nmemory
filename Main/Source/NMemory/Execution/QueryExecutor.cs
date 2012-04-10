@@ -12,9 +12,9 @@ namespace NMemory.Execution
 {
     public class QueryExecutor : IQueryExecutor
     {
-        private Database database;
+        private IDatabase database;
 
-        public void Initialize(Database database)
+        public void Initialize(IDatabase database)
         {
             this.database = database;
         }

@@ -5,12 +5,13 @@ using System.Text;
 using System.Threading;
 using NMemory.Transactions.Logs;
 using System.Collections.Concurrent;
+using NMemory.Modularity;
 
 namespace NMemory.Transactions
 {
-    public class TransactionHandler
+    public class TransactionHandler : IDatabaseComponent
     {
-        private Database database;
+        private IDatabase database;
         private ConcurrentDictionary<Transaction, TransactionLog> transactionLogs;
 
         private static int counter;
@@ -22,7 +23,7 @@ namespace NMemory.Transactions
             this.transactionLogs = new ConcurrentDictionary<Transaction, TransactionLog>();
         }
 
-        internal void Initialize(Database database)
+        public void Initialize(IDatabase database)
         {
             this.database = database;
         }

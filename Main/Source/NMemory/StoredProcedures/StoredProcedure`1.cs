@@ -10,14 +10,17 @@ using NMemory.Tables;
 using NMemory.Transactions;
 using System.Collections;
 using System.Collections.ObjectModel;
+using NMemory.Modularity;
 
 namespace NMemory.StoredProcedures
 {
     public class StoredProcedure<T> : IStoredProcedure<T>, IStoredProcedure
     {
-        private Database database;
-        private Expression expression;
+        private IDatabase database;
         private IList<ITable> tables;
+
+        private Expression expression;
+       
         private Func<IExecutionContext, IEnumerable<T>> compiledQuery;
         private IList<ParameterDescription> parameters;
 

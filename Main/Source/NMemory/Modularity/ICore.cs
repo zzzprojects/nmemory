@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NMemory.Tables;
 using System.Linq.Expressions;
-using NMemory.Linq;
-using NMemory.Transactions;
+using NMemory.Tables;
 
 namespace NMemory.Modularity
 {

@@ -46,7 +46,7 @@ namespace NMemory.Tables
         #region Constructor
 
         public Table(
-            Database database,
+            IDatabase database,
             Expression<Func<TEntity, TPrimaryKey>> primaryKey,
 
             IdentitySpecification<TEntity> identitySpecification,

@@ -3,18 +3,19 @@ using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
 using NMemory.Transactions;
+using NMemory.Modularity;
 
 namespace NMemory.Linq
 {
     public abstract class TableQuery : IQueryable, ITableQuery
     {
         private Expression expression;
-        private Database database;
+        private IDatabase database;
         private IQueryProvider provider;
 
         #region Ctor
 
-        internal TableQuery(Database database, Expression expression, IQueryProvider provider)
+        internal TableQuery(IDatabase database, Expression expression, IQueryProvider provider)
         {
             if (database == null)
             {
@@ -36,7 +37,7 @@ namespace NMemory.Linq
             this.provider = provider;
         }
 
-        internal TableQuery(Database database, Expression expression)
+        internal TableQuery(IDatabase database, Expression expression)
         {
             if (database == null)
             {
@@ -53,7 +54,7 @@ namespace NMemory.Linq
             this.provider = new TableQueryProvider(database);
         }
 
-        internal TableQuery(Database database)
+        internal TableQuery(IDatabase database)
         {
             if (database == null)
             {
@@ -67,7 +68,7 @@ namespace NMemory.Linq
 
         #endregion
 
-        public Database Database
+        public IDatabase Database
         {
             get { return this.database; }
         }

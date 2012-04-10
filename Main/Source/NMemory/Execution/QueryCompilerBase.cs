@@ -11,9 +11,9 @@ namespace NMemory.Execution
 {
     public abstract class QueryCompilerBase : IQueryCompiler
     {
-        private Database database;
+        private IDatabase database;
 
-        public void Initialize(Database database)
+        public void Initialize(IDatabase database)
         {
             this.database = database;
         }

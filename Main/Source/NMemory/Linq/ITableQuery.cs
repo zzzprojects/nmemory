@@ -1,4 +1,5 @@
 ﻿using System;
+using NMemory.Modularity;
 
 namespace NMemory.Linq
 {
@@ -6,6 +7,6 @@ namespace NMemory.Linq
     {
         Type EntityType { get; }
 
-        Database Database { get; }
+        IDatabase Database { get; }
     }
 }

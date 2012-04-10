@@ -3,7 +3,7 @@
 namespace NMemory.Tables
 {
     /// <summary>
-    /// Defines an interface for a database tables.
+    /// Defines an interface for database tables.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entities, contained by the table.</typeparam>
     /// <typeparam name="TPrimaryKey">The type of the primary key of the entities of the table.</typeparam>

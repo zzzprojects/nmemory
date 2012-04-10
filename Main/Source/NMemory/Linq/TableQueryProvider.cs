@@ -6,14 +6,15 @@ using NMemory.Common.Visitors;
 using NMemory.Execution;
 using NMemory.Tables;
 using NMemory.Transactions;
+using NMemory.Modularity;
 
 namespace NMemory.Linq
 {
 	public class TableQueryProvider : IQueryProvider
 	{
-        private Database database;
+        private IDatabase database;
 
-		public TableQueryProvider(Database database)
+		public TableQueryProvider(IDatabase database)
 		{
             this.database = database;
 		}

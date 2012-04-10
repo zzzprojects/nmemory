@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using NMemory.Execution.Locks;
+using NMemory.Modularity;
 
 namespace NMemory.Transactions
 {
@@ -57,7 +58,7 @@ namespace NMemory.Transactions
             Transaction.current = new Transaction(external, false);
         }
 
-        internal static TransactionWrapper EnsureTransaction(Database database)
+        internal static TransactionWrapper EnsureTransaction(IDatabase database)
         {
             TransactionWrapper result = null;
 
