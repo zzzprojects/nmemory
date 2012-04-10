@@ -14,6 +14,10 @@ using NMemory.Modularity;
 
 namespace NMemory.StoredProcedures
 {
+    /// <summary>
+    /// Represents a stored procedure that returns with a resultset.
+    /// </summary>
+    /// <typeparam name="T">The type of the elements of the resultset.</typeparam>
     public class StoredProcedure<T> : IStoredProcedure<T>, IStoredProcedure
     {
         private IDatabase database;
@@ -24,29 +28,41 @@ namespace NMemory.StoredProcedures
         private Func<IExecutionContext, IEnumerable<T>> compiledQuery;
         private IList<ParameterDescription> parameters;
 
-        public StoredProcedure(IQueryable<T> query)
+        public StoredProcedure(IQueryable<T> query, bool precompiled)
         {
             this.database = ((ITableQuery)query).Database;
             this.expression = query.Expression;
 
             // Create parameter description
             this.parameters = StoredProcedureParameterSearchVisitor
-                .FindParameters(expression)
+                .FindParameters(this.expression)
                 .Select(p => new ParameterDescription(p.Name, p.Type))
                 .ToList()
                 .AsReadOnly();
 
-            this.tables = TableSearchVisitor.FindTables(expression);
-            this.compiledQuery = this.database.Compiler.Compile<IEnumerable<T>>(expression);
+            this.tables = TableSearchVisitor.FindTables(this.expression);
+
+            if (precompiled)
+            {
+                this.compiledQuery = this.Compile();
+            }
         }
 
         public IEnumerable<T> Execute(IDictionary<string, object> parameters)
         {
+            Func<IExecutionContext, IEnumerable<T>> compiledQuery = this.compiledQuery;
+
+            // If the query is not compiled, it has to be done now
+            if (compiledQuery == null)
+            {
+                compiledQuery = this.Compile();
+            }
+
             IExecutionContext context = new ExecutionContext(this.tables, parameters);
 
             using (var tran = Transaction.EnsureTransaction(this.database))
             {
-                IEnumerable<T> result = this.database.Executor.Execute<T>(this.compiledQuery, context).ToEnumerable();
+                IEnumerable<T> result = this.database.Executor.Execute<T>(compiledQuery, context).ToEnumerable();
 
                 tran.Complete();
                 return result;
@@ -61,6 +77,11 @@ namespace NMemory.StoredProcedures
         IEnumerable IStoredProcedure.Execute(IDictionary<string, object> parameters)
         {
             return Execute(parameters);
+        }
+
+        protected Func<IExecutionContext, IEnumerable<T>> Compile()
+        {
+            return this.database.Compiler.Compile<IEnumerable<T>>(this.expression);
         }
     }
 }

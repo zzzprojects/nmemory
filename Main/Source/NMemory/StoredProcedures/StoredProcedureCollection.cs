@@ -28,9 +28,14 @@ namespace NMemory.StoredProcedures
 
         public IStoredProcedure<T> Create<T>(IQueryable<T> query)
         {
+            return this.Create<T>(query, false);
+        }
+
+        public IStoredProcedure<T> Create<T>(IQueryable<T> query, bool precompiled)
+        {
             this.ValidateQuery<T>(query);
 
-            StoredProcedure<T> procedure = new StoredProcedure<T>(query);
+            StoredProcedure<T> procedure = new StoredProcedure<T>(query, precompiled);
 
             this.storedProcedures.Add(procedure);
             return procedure;
