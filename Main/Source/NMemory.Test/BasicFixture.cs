@@ -20,7 +20,7 @@ namespace NMemory.Test
         {
             Database database = new Database();
 
-            database.CreateTable<Group, int>(g => g.Id);
+            database.Tables.Create<Group, int>(g => g.Id);
         }
 
         [TestMethod]
@@ -28,7 +28,7 @@ namespace NMemory.Test
         {
             Database database = new Database();
 
-            database.CreateTable<Group, int>(g => g.Id, new IdentitySpecification<Group>(g => g.Id));
+            database.Tables.Create<Group, int>(g => g.Id, new IdentitySpecification<Group>(g => g.Id));
         }
 
         [TestMethod]

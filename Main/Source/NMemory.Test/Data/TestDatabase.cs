@@ -19,8 +19,8 @@ namespace NMemory.Test.Data
 
         public TestDatabase(bool identity)
         {
-            this.members = this.CreateTable<Member, string>(m => m.Id);
-            this.groups = this.CreateTable<Group, int>(m => m.Id, identity ? new IdentitySpecification<Group>(m => m.Id, 1, 1) : null);
+            this.members = this.Tables.Create<Member, string>(m => m.Id);
+            this.groups = this.Tables.Create<Group, int>(m => m.Id, identity ? new IdentitySpecification<Group>(m => m.Id, 1, 1) : null);
         }
 
         public ITable<Member> Members
@@ -42,7 +42,7 @@ namespace NMemory.Test.Data
         {
             var index = this.members.CreateIndex(new RedBlackTreeIndexFactory<Member>(), m => m.GroupId);
 
-            this.CreateRelation(this.groups.PrimaryKeyIndex, index, x => x.Value, x => x); 
+            this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, index, x => x.Value, x => x); 
         }
     }
 }

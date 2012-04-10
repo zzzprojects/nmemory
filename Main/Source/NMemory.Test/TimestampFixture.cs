@@ -34,7 +34,7 @@ namespace NMemory.Test
         public void TimestampInsert()
         {
             Database database = new Database();
-            ITable<TimestampEntity> table = database.CreateTable<TimestampEntity, int>(e => e.Id);
+            ITable<TimestampEntity> table = database.Tables.Create<TimestampEntity, int>(e => e.Id);
 
             TimestampEntity entity = new TimestampEntity() { Id = 1 };
 
