@@ -6,7 +6,7 @@ using NMemory.Tables;
 
 namespace NMemory.Modularity
 {
-    internal class DefaultCore : ICore
+    internal class DefaultTableFactory : ITableFactory
     {
         private IDatabase database;
 
@@ -14,17 +14,6 @@ namespace NMemory.Modularity
         {
             this.database = database;
         }
-
-        public void RegisterEntityType<T>()
-        {
-            
-        }
-
-        public T CreateEntity<T>()
-        {
-            return Activator.CreateInstance<T>();
-        }
-
 
         public Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
             Expression<Func<TEntity, TPrimaryKey>> primaryKey, 

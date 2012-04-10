@@ -5,7 +5,7 @@ namespace NMemory.Modularity
 {
     public interface IDatabase
     {
-        ICore Core
+        ITableFactory TableFactory
         {
             get;
         }

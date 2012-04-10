@@ -40,7 +40,7 @@ namespace NMemory.Tables
 
             this.ApplyContraints(entity);
 
-            TEntity storedEntity = this.Database.Core.CreateEntity<TEntity>();
+            TEntity storedEntity = this.CreateStoredEntity();
             this.cloner.Clone(entity, storedEntity);
 
             // Find referred relations

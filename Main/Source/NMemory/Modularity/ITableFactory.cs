@@ -8,12 +8,8 @@ namespace NMemory.Modularity
     /// <summary>
     /// Provides essential functionality for the database engine.
     /// </summary>
-    public interface ICore : IDatabaseComponent
+    public interface ITableFactory : IDatabaseComponent
     {
-        void RegisterEntityType<T>();
-
-        T CreateEntity<T>();
-
         Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
             Expression<Func<TEntity, TPrimaryKey>> primaryKey,
             IdentitySpecification<TEntity> identitySpecification,

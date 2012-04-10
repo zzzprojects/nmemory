@@ -56,7 +56,7 @@ namespace NMemory.Tables
 
             where TEntity : class
         {
-            Table<TEntity, TPrimaryKey> table = this.database.Core.CreateTable<TEntity, TPrimaryKey>(
+            Table<TEntity, TPrimaryKey> table = this.database.TableFactory.CreateTable<TEntity, TPrimaryKey>(
                 primaryKey,
                 identitySpecification,
                 initialEntities);

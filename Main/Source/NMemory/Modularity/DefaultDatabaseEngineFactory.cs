@@ -9,9 +9,9 @@ namespace NMemory.Modularity
             return new TableLockConcurrencyManager();
         }
 
-        public ICore CreateCore()
+        public ITableFactory CreateTableFactory()
         {
-            return new DefaultCore();
+            return new DefaultTableFactory();
         }
 
         public IQueryCompiler CreateQueryCompiler()

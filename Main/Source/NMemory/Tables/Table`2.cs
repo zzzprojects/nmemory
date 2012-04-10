@@ -71,8 +71,6 @@ namespace NMemory.Tables
                 this.identityField = new IdentityField<TEntity>(identitySpecification, initialEntities);
             }
 
-            this.Database.Core.RegisterEntityType<TEntity>();
-
             this.InitializeData(initialEntities);
 
             this.id = Interlocked.Increment(ref counter);
@@ -446,6 +444,19 @@ namespace NMemory.Tables
             return string.Format("Table<{0}>", this.EntityType.Name);
         }
 
+        protected void ApplyContraints(TEntity entity)
+        {
+            foreach (IConstraint<TEntity> constraint in this.constraints)
+            {
+                constraint.Apply(entity);
+            }
+        }
+
+        protected virtual TEntity CreateStoredEntity()
+        {
+            return Activator.CreateInstance<TEntity>();
+        }
+
         private void VerifyType()
         {
             foreach (PropertyInfo item in typeof(TEntity).GetProperties())
@@ -497,15 +508,6 @@ namespace NMemory.Tables
             }
         }
 
-        protected void ApplyContraints(TEntity entity)
-        {
-            foreach (IConstraint<TEntity> constraint in this.constraints)
-            {
-                constraint.Apply(entity);
-            }
-        }
-
-
         private void InitializeData(IEnumerable<TEntity> initialEntities)
         {
             if (initialEntities == null)
@@ -517,7 +519,7 @@ namespace NMemory.Tables
 
             foreach (TEntity entity in initialEntities)
             {
-                TEntity insert = this.Database.Core.CreateEntity<TEntity>();
+                TEntity insert = this.CreateStoredEntity();
 
                 cloner.Clone(entity, insert);
                 this.primaryKeyIndex.Insert(insert);

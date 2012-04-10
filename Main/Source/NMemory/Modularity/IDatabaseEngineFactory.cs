@@ -13,10 +13,10 @@ namespace NMemory.Modularity
         IConcurrencyManager CreateConcurrencyManager();
 
         /// <summary>
-        /// Creates a core module that provides basic functionalites to the database engine. 
+        /// Creates a table factory module that initializes database tables.
         /// </summary>
-        /// <returns>A core module.</returns>
-        ICore CreateCore();
+        /// <returns>A table factory module.</returns>
+        ITableFactory CreateTableFactory();
 
         /// <summary>
         /// Creates a query compiler that optimizes and compiles database queries.

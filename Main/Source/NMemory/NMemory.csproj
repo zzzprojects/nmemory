@@ -140,12 +140,12 @@
     <Compile Include="Linq\QueryableEx.cs" />
     <Compile Include="Common\DynamicMethodBuilder.cs" />
     <Compile Include="Modularity\DefaultDatabaseEngineFactory.cs" />
-    <Compile Include="Modularity\DefaultCore.cs" />
+    <Compile Include="Modularity\DefaultTableFactory.cs" />
     <Compile Include="Modularity\IConcurrencyManager.cs" />
     <Compile Include="Modularity\IDatabase.cs" />
     <Compile Include="Modularity\IDatabaseComponent.cs" />
     <Compile Include="Modularity\IDatabaseEngineFactory.cs" />
-    <Compile Include="Modularity\ICore.cs" />
+    <Compile Include="Modularity\ITableFactory.cs" />
     <Compile Include="Modularity\IExtensible.cs" />
     <Compile Include="Modularity\IQueryCompiler.cs" />
     <Compile Include="Modularity\IQueryExecutor.cs" />

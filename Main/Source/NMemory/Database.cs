@@ -20,7 +20,7 @@ namespace NMemory
         private IQueryCompiler compiler;
         private IQueryExecutor executor;
         private IConcurrencyManager concurrencyManager;
-        private ICore core;
+        private ITableFactory tableFactory;
 
         private TransactionHandler transactionHandler;
 
@@ -56,8 +56,8 @@ namespace NMemory
             this.concurrencyManager = databaseEngineFactory.CreateConcurrencyManager();
             this.concurrencyManager.Initialize(this);
 
-            this.core = databaseEngineFactory.CreateCore();
-            this.core.Initialize(this);
+            this.tableFactory = databaseEngineFactory.CreateTableFactory();
+            this.tableFactory.Initialize(this);
 
             this.transactionHandler = new TransactionHandler();
             this.transactionHandler.Initialize(this);
@@ -69,9 +69,9 @@ namespace NMemory
         }
 
 
-        ICore IDatabase.Core
+        ITableFactory IDatabase.TableFactory
         {
-            get { return this.core; }
+            get { return this.tableFactory; }
         }
 
         IConcurrencyManager IDatabase.ConcurrencyManager
