@@ -21,6 +21,31 @@ namespace NMemory.Test
         }
 
         [TestMethod]
+        public void CreateRelationWithData()
+        {
+            TestDatabase database = new TestDatabase();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+
+            database.Members.Insert(new Member { Id = "A", GroupId = 1 });
+            database.Members.Insert(new Member { Id = "B", GroupId = null });
+
+            database.AddMemberGroupRelation();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ForeignKeyViolationException))]
+        public void CreateRelationWithDataViolation()
+        {
+            TestDatabase database = new TestDatabase();
+
+            database.Members.Insert(new Member { Id = "A", GroupId = 1 });
+            database.Members.Insert(new Member { Id = "B", GroupId = null });
+
+            database.AddMemberGroupRelation();
+        }
+
+        [TestMethod]
         public void InsertRelatedEntity()
         {
             TestDatabase database = new TestDatabase();
@@ -43,6 +68,15 @@ namespace NMemory.Test
             database.Groups.Insert(new Group { Name = "Group 2" });
 
             database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 3 });
+        }
+
+        [TestMethod]
+        public void InsertRelatedEntityWithEmptyForeignKey()
+        {
+            TestDatabase database = new TestDatabase();
+            database.AddMemberGroupRelation();
+
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = null });
         }
 
         [TestMethod]

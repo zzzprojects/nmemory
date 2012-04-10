@@ -2,6 +2,7 @@
 using NMemory.Indexes;
 using System.Collections.Generic;
 using NMemory.Exceptions;
+using System.Linq;
 
 namespace NMemory.Tables
 {
@@ -77,6 +78,12 @@ namespace NMemory.Tables
             TForeign entity = (TForeign)foreign;
             TForeignKey key = this.foreignIndex.KeyInfo.GetKey(entity);
 
+            // Empty foreign key means, that it does not refer to anything
+            if (key == null)
+            {
+                return;
+            }
+
             if (!this.primaryIndex.Contains(this.convertForeignToPrimary(key)))
             {
                 // TODO: Proper message
@@ -97,6 +104,12 @@ namespace NMemory.Tables
         {
             TForeign entity = (TForeign)foreign;
             TForeignKey key = this.foreignIndex.KeyInfo.GetKey(entity);
+
+            // Empty key means that there are no referred entity
+            if (key == null)
+            {
+                return Enumerable.Empty<object>();
+            }
 
             return this.primaryIndex.Select(this.convertForeignToPrimary.Invoke(key));
         }
