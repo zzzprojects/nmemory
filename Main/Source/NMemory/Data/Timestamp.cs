@@ -21,9 +21,22 @@ namespace NMemory.Data
             return timestamp;
         }
 
+        public static Timestamp FromBinary(byte[] binary)
+        {
+            Timestamp timestamp = new Timestamp();
+            timestamp.value = BitConverter.ToInt64(binary, 0);
+
+            return timestamp;
+        }
+
         public bool Equals(Timestamp other)
         {
             return this.value == other.value;
+        }
+
+        public static byte[] GetBytes(Timestamp timestamp)
+        {
+            return  BitConverter.GetBytes(timestamp.value);
         }
     }
 }
