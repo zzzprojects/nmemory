@@ -55,7 +55,7 @@ namespace NMemory.Data
 
         public static implicit operator byte[](Binary binary)
         {
-            if (binary == null)
+            if (((object)binary) == null)
             {
                 return null;
             }
@@ -66,9 +66,25 @@ namespace NMemory.Data
             return result;
         }
 
+        public static bool operator ==(Binary left, Binary right)
+        {
+            if (((object)left) == null || ((object)right) == null)
+            {
+                return ((object)left) == null && ((object)right) == null;
+            }
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Binary left, Binary right)
+        {
+            return !(left == right);
+        }
+
+
         public bool Equals(Binary other)
         {
-            if (other == null)
+            if (((object)other) == null)
             {
                 return false;
             }

@@ -20,7 +20,7 @@ namespace NMemory.Linq
         /// <param name="queryable"></param>
         /// <param name="updater"></param>
         /// <returns></returns>
-		public static int Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater)
+		public static IEnumerable<T> Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater)
 			where T : class
 		{
             if (queryable == null)

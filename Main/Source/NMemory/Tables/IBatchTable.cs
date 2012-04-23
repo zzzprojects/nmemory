@@ -9,7 +9,7 @@ namespace NMemory.Tables
 {
     internal interface IBatchTable<TEntity>
     {
-        int Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater);
+        IEnumerable<TEntity> Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater);
 
         int Delete(TableQuery<TEntity> query);
     }

@@ -190,7 +190,7 @@ namespace NMemory.Tables
             }
         }
 
-        int IBatchTable<TEntity>.Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater)
+        IEnumerable<TEntity> IBatchTable<TEntity>.Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater)
         {
             updater = ExpressionHelper.ValidateAndCompleteUpdaterExpression(updater);
             Expression expression = ((IQueryable<TEntity>)query).Expression;
@@ -199,7 +199,7 @@ namespace NMemory.Tables
             {
                 using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
-                    int result = UpdateCore(expression, updater);
+                    IEnumerable<TEntity> result = UpdateCore(expression, updater);
 
                     tran.Complete();
                     return result;
@@ -221,7 +221,7 @@ namespace NMemory.Tables
 
         protected abstract void UpdateCore(TPrimaryKey key, TEntity entity);
 
-        protected abstract int UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater);
+        protected abstract IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater);
 
         /// <summary>
         /// Deletes an entity from the table.
@@ -472,6 +472,11 @@ namespace NMemory.Tables
                 }
 
                 if (item.PropertyType == typeof(NMemory.Data.Binary))
+                {
+                    continue;
+                }
+
+                if (item.PropertyType == typeof(NMemory.Data.Timestamp))
                 {
                     continue;
                 }

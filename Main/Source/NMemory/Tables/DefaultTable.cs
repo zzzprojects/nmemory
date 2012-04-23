@@ -116,7 +116,7 @@ namespace NMemory.Tables
             }
         }
 
-        protected override int UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater)
+        protected override IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater)
         {
             Transaction transaction = this.CurrentTransaction;
 
@@ -136,7 +136,7 @@ namespace NMemory.Tables
                 this.ReleaseWriteLock(transaction);
             }
 
-            return result != null ? result.Count : 0;
+            return this.CloneEntities(result);
         }
 
         private void UpdateCore(IList<TEntity> storedEntities, Expression<Func<TEntity, TEntity>> updater)
@@ -245,9 +245,7 @@ namespace NMemory.Tables
             {
                 transaction.ExitAtomicSection();
             }
-
         }
-
 
         #endregion
 
@@ -546,6 +544,21 @@ namespace NMemory.Tables
             }
 
             return changes.ToArray();
+        }
+
+        private List<TEntity> CloneEntities(IList<TEntity> entities)
+        {
+            List<TEntity> result = new List<TEntity>();
+
+            for (int i = 0; i < entities.Count; i++)
+            {
+                TEntity entity = Activator.CreateInstance<TEntity>();
+                this.cloner.Clone(entities[i], entity);
+
+                result.Add(entity);
+            }
+
+            return result;
         }
     }
 }
