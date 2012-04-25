@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NMemory.Tables;
 using NMemory.Indexes;
+using NMemory.Constraints;
 
 namespace NMemory.Test.Data
 {
@@ -11,16 +12,21 @@ namespace NMemory.Test.Data
     {
         private Table<Member, string> members;
         private Table<Group, int> groups;
+        private Table<TimestampEntity, int> timestampEntities;
 
-        public TestDatabase() : this(true)
-        {
- 
-        }
 
-        public TestDatabase(bool identity)
+        public TestDatabase(bool createIdentityForGroup = false, bool createNcharContraintForGroup = false)
         {
-            this.members = this.Tables.Create<Member, string>(m => m.Id);
-            this.groups = this.Tables.Create<Group, int>(m => m.Id, identity ? new IdentitySpecification<Group>(m => m.Id, 1, 1) : null);
+            var members = this.Tables.Create<Member, string>(x => x.Id);
+            var groups = this.Tables.Create<Group, int>(x => x.Id, createIdentityForGroup ? new IdentitySpecification<Group>(x => x.Id, 1, 1) : null);
+
+            if (createNcharContraintForGroup)
+            {
+                groups.AddConstraint(new NCharConstraint<Group>(x => x.Name, 4));
+            }
+
+            this.members = members;
+            this.groups = groups;
         }
 
         public ITable<Member> Members
@@ -31,6 +37,19 @@ namespace NMemory.Test.Data
         public ITable<Group> Groups
         {
             get { return this.groups; }
+        }
+
+        public ITable<TimestampEntity> TimestampEntities
+        {
+            get 
+            {
+                if (this.timestampEntities == null)
+                {
+                    this.timestampEntities = this.Tables.Create<TimestampEntity, int>(x => x.Id);
+                }
+
+                return this.timestampEntities; 
+            }
         }
 
         public void AddGroupNameIndex()

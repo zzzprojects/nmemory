@@ -38,10 +38,10 @@ namespace NMemory.Tables
         {
             Transaction transaction = this.CurrentTransaction;
 
-            this.ApplyContraints(entity);
-
             TEntity storedEntity = this.CreateStoredEntity();
             this.cloner.Clone(entity, storedEntity);
+
+            this.ApplyContraints(storedEntity);
 
             // Find referred relations
             List<IRelation> referredRelations = new List<IRelation>();
@@ -76,6 +76,9 @@ namespace NMemory.Tables
                         index.Insert(storedEntity);
                         log.WriteIndexInsert(index, storedEntity);
                     }
+
+                    // Copy back the modifications
+                    this.cloner.Clone(storedEntity, entity);
                 }
                 catch
                 {
@@ -109,6 +112,9 @@ namespace NMemory.Tables
                 Expression<Func<TEntity, TEntity>> updater = CreateSingleEntityUpdater(entity, storedEntity);
 
                 this.UpdateCore(new TEntity[] { storedEntity }, updater);
+
+                // Copy back the modifications
+                this.cloner.Clone(storedEntity, entity);
             }
             finally
             {

@@ -33,12 +33,39 @@ namespace NMemory.Test
         [TestMethod]
         public void TimestampInsert()
         {
-            Database database = new Database();
-            ITable<TimestampEntity> table = database.Tables.Create<TimestampEntity, int>(e => e.Id);
+            TestDatabase db = new TestDatabase();
 
             TimestampEntity entity = new TimestampEntity() { Id = 1 };
+            db.TimestampEntities.Insert(entity);
+        }
 
-            table.Insert(entity);
+        [TestMethod]
+        public void TimestampChangedOnInsert()
+        {
+            TestDatabase db = new TestDatabase();
+
+            TimestampEntity entity = new TimestampEntity() { Id = 1 };
+            Timestamp timestamp = entity.Timestamp;
+
+            db.TimestampEntities.Insert(entity);
+
+            Assert.AreNotEqual(timestamp, db.TimestampEntities.Single(t => t.Id == 1).Timestamp);
+        }
+
+        [TestMethod]
+        public void TimestampChangedOnUpdate()
+        {
+            TestDatabase db = new TestDatabase();
+
+            TimestampEntity entity = new TimestampEntity() { Id = 1 };
+            
+            db.TimestampEntities.Insert(entity);
+            Timestamp timestamp = entity.Timestamp;
+
+            entity.Data = "altered";
+            db.TimestampEntities.Update(entity);
+
+            Assert.AreNotEqual(timestamp, db.TimestampEntities.Single(t => t.Id == 1).Timestamp);
         }
     }
 }

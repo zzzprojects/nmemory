@@ -435,6 +435,11 @@ namespace NMemory.Tables
 
         #endregion
 
+        public void AddConstraint(IConstraint<TEntity> constraint)
+        {
+            this.constraints.Add(constraint);
+        }
+
         /// <summary>
         /// Returns a string that represents the table.
         /// </summary>

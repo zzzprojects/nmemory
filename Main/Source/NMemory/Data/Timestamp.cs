@@ -58,5 +58,7 @@ namespace NMemory.Data
         {
             return Timestamp.GetBytes(timestamp);
         }
+
+
     }
 }

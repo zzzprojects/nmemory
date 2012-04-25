@@ -10,6 +10,8 @@ namespace NMemory.Test.Data
     {
         public int Id { get; set; }
 
+        public string Data { get; set; }
+
         public Timestamp Timestamp { get; set; }
     }
 }
