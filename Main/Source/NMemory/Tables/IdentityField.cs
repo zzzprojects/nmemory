@@ -12,35 +12,47 @@ namespace NMemory.Tables
     {
         private Func<TEntity, long> identityGetter;
         private DynamicPropertySetter<TEntity> identitySetter;
-        private IdentitySpecification<TEntity> identity;
+        private IdentitySpecification<TEntity> identitySpecification;
         private long nextIdentity;
         private Type identityType;
 
         internal IdentityField(IdentitySpecification<TEntity> identitySpecification, IEnumerable<TEntity> initialEntities)
         {
-            this.identity = identitySpecification;
+            this.identitySpecification = identitySpecification;
 
-            this.nextIdentity = this.identity.Seed;
+            this.nextIdentity = this.identitySpecification.Seed;
 
             MemberExpression member = ExpressionHelper.FindMemberExpression(identitySpecification.IdentityColumn.Body);
             PropertyInfo identityInfo = member.Member as PropertyInfo;
 
             this.identityType = identityInfo.PropertyType;
             this.identitySetter = DynamicMethodBuilder.CreatePropertySetter<TEntity>(identityInfo);
-            this.identityGetter = this.identity.IdentityColumn.Compile();
+            this.identityGetter = this.identitySpecification.IdentityColumn.Compile();
 
-            if (initialEntities != null)
+            long? currentNextIdentity = null;
+
+            foreach (TEntity entity in initialEntities)
             {
-                this.nextIdentity =
-                    initialEntities.Max(e => this.identityGetter(e))
-                    + this.identity.Increment;
+                long entityIdentity = this.identityGetter(entity);
+
+                if (!currentNextIdentity.HasValue || 
+                    (this.identitySpecification.Increment < 0 && entityIdentity < currentNextIdentity.Value) ||
+                    (this.identitySpecification.Increment > 0 && entityIdentity > currentNextIdentity.Value))
+                {
+                    currentNextIdentity = entityIdentity;
+                }
+            }
+
+            if (currentNextIdentity.HasValue)
+            {
+                this.nextIdentity = currentNextIdentity.Value + this.identitySpecification.Increment;
             }
         }
 
         internal void Generate(TEntity entity)
         {
-            long nextValue = Interlocked.Add(ref this.nextIdentity, this.identity.Increment);
-            long currentValue = nextValue - this.identity.Increment;
+            long nextValue = Interlocked.Add(ref this.nextIdentity, this.identitySpecification.Increment);
+            long currentValue = nextValue - this.identitySpecification.Increment;
 
             // Int64 to IntX conversion
             object currentValueConverted = Convert.ChangeType(currentValue, this.identityType);

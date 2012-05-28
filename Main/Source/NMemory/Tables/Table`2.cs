@@ -66,12 +66,12 @@ namespace NMemory.Tables
                     new RedBlackTreeIndexFactory<TEntity>(),
                     primaryKey);
 
+            this.InitializeData(initialEntities);
+
             if (identitySpecification != null)
             {
-                this.identityField = new IdentityField<TEntity>(identitySpecification, initialEntities);
+                this.identityField = new IdentityField<TEntity>(identitySpecification, this.primaryKeyIndex.SelectAll());
             }
-
-            this.InitializeData(initialEntities);
 
             this.id = Interlocked.Increment(ref counter);
         }
