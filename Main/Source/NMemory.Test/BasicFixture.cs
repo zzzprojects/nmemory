@@ -24,18 +24,9 @@ namespace NMemory.Test
         }
 
         [TestMethod]
-        public void CreateTableWithIdentity()
-        {
-            Database database = new Database();
-
-            database.Tables.Create<Group, int>(g => g.Id, new IdentitySpecification<Group>(g => g.Id));
-        }
-
-        [TestMethod]
         public void CreateTestDatabase()
         {
             TestDatabase database = new TestDatabase();
-
         }
 
         [TestMethod]
