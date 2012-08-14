@@ -6,6 +6,7 @@ using NMemory.Common.Visitors;
 using NMemory.Indexes;
 using NMemory.Linq.Helpers;
 using NMemory.Tables;
+using NMemory.Transactions;
 
 namespace NMemory.Linq
 {
@@ -13,14 +14,13 @@ namespace NMemory.Linq
 	{
 		#region Update
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="queryable"></param>
-        /// <param name="updater"></param>
-        /// <returns></returns>
-		public static IEnumerable<T> Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater)
+        public static IEnumerable<T> Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater)
+            where T : class
+        {
+            return Update<T>(queryable, updater, null);
+        }
+
+		public static IEnumerable<T> Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater, Transaction transaction)
 			where T : class
 		{
             if (queryable == null)
@@ -39,10 +39,10 @@ namespace NMemory.Linq
 
             if (table == null)
             {
-                throw new ArgumentException("Update query must result in table entities", "queryable");
+                throw new ArgumentException("The database associated with the command does contain the appropriate table.", "queryable");
             }
 
-            return table.Update(query, updater);
+            return table.Update(query, updater, transaction);
 		}
 
  
@@ -51,13 +51,13 @@ namespace NMemory.Linq
 
 		#region Delete
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="queryable"></param>
-        /// <returns></returns>
-		public static int Delete<T>( this IQueryable<T> queryable )
+        public static int Delete<T>(this IQueryable<T> queryable)
+            where T : class
+        {
+            return Delete<T>(queryable, null);
+        }
+        
+		public static int Delete<T>(this IQueryable<T> queryable, Transaction transaction)
 			where T : class
 		{
             if (queryable == null)
@@ -76,13 +76,35 @@ namespace NMemory.Linq
 
             if (table == null)
             {
-                throw new ArgumentException("Delete query must result in table entities", "queryable");
+                throw new ArgumentException("The database associated with the command does contain the appropriate table.", "queryable");
             }
 
-            return table.Delete(query);
+            return table.Delete(query, transaction);
 		}
 
 		#endregion
+
+        public static IEnumerable<T> Execute<T>(this IQueryable<T> queryable)
+        {
+            return Execute<T>(queryable, null);
+        }
+
+        public static IEnumerable<T> Execute<T>(this IQueryable<T> queryable, Transaction transaction)
+        {
+            if (queryable == null)
+            {
+                throw new ArgumentNullException("queryable");
+            }
+
+            TableQuery<T> query = queryable as TableQuery<T>;
+
+            if (query == null)
+            {
+                throw new ArgumentException("Execute command can be executed only on NMemory queries.", "queryable");
+            }
+
+            return new TableQueryTransactionWrapper<T>(query, transaction);
+        }
 
 		#region JoinIndexed
 
@@ -181,58 +203,26 @@ namespace NMemory.Linq
 			Func<TOuter, TInner, TResult> resultSelectorFunc = resultSelector;
 			IIndex<TInner, TInnerKey> index = inner;
 
-#if MEASURE
-			Stopwatch s = new Stopwatch();
-			Stopwatch keys = new Stopwatch();
-			Stopwatch results = new Stopwatch();
-			s.Start();
-#endif
-
 			foreach( TOuter outer_item in outer )
 			{
-#if MEASURE
-				keys.Start();
-#endif
 				TInnerKey key = keyToIndexKexFunc( outerKeySelectorFunc( outer_item ) );
-#if MEASURE
-				keys.Stop();
-#endif
 
 				foreach( TInner inner_item in index.Select( key ) )
 				{
-#if MEASURE
-					results.Start();
-#endif
 					TResult result = resultSelectorFunc( outer_item, inner_item );
-#if MEASURE
-					results.Stop();
-#endif
 
 					yield return result;
 				}
 			}
-
-#if MEASURE
-			s.Stop();
-
-			Console.WriteLine("JoinIndexedCore/keyek előtállítása: {0} ms", keys.ElapsedMilliseconds);
-			Console.WriteLine("JoinIndexedCore/result előtállítása: {0} ms", results.ElapsedMilliseconds);
-			Console.WriteLine("JoinIndexedCore: {0} ms", s.ElapsedMilliseconds);
-#endif
 		}
 
-		/// <summary>
-		/// Join operátor, amely indexeken éri el a belső reláció elemeit.
-		/// </summary>
+
 		public static IQueryable<TResult> JoinIndexed<TOuter, TInner, TInnerKey, TKey, TResult>(
-
-																						IQueryable<TOuter> outer,
-																						IIndex<TInner, TInnerKey> inner,
-																						Func<TKey, TInnerKey> keyToIndexKey,
-																						Func<TOuter, TKey> outerKeySelector,
-																						Func<TOuter, TInner, TResult> resultSelector
-
-																			)
+			IQueryable<TOuter> outer,
+			IIndex<TInner, TInnerKey> inner,
+			Func<TKey, TInnerKey> keyToIndexKey,
+			Func<TOuter, TKey> outerKeySelector,
+			Func<TOuter, TInner, TResult> resultSelector)
 		{
 			IEnumerable<TResult> res = JoinIndexedCore<TOuter, TInner, TInnerKey, TKey, TResult>( outer, inner, keyToIndexKey, outerKeySelector, resultSelector );
 
@@ -366,7 +356,12 @@ namespace NMemory.Linq
 		}
 		#endregion
 
-        public static IQueryable<TResult> LeftOuterJoin<TOuter, TInner, TKey, TResult>(IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+        public static IQueryable<TResult> LeftOuterJoin<TOuter, TInner, TKey, TResult>(
+            IQueryable<TOuter> outer, 
+            IEnumerable<TInner> inner, 
+            Expression<Func<TOuter, TKey>> outerKeySelector, 
+            Expression<Func<TInner, TKey>> innerKeySelector, 
+            Expression<Func<TOuter, TInner, TResult>> resultSelector)
         {
             var joined = outer.GroupJoin(inner, outerKeySelector, innerKeySelector,
                                           (o, i) => new Tuple<TOuter, IEnumerable<TInner>>(o, i));

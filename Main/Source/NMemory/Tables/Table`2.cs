@@ -114,11 +114,13 @@ namespace NMemory.Tables
 
         #region Manipulation
 
-        /// <summary>
-        /// Inserts a new entity into the table.
-        /// </summary>
-        /// <param name="entity">An entity that represents the property values of the new entity.</param>
+
         public void Insert(TEntity entity)
+        {
+            this.Insert(entity, null);
+        }
+
+        public void Insert(TEntity entity, Transaction transaction)
         {
             if (this.identityField != null)
             {
@@ -129,7 +131,7 @@ namespace NMemory.Tables
             {
                 using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
-                    InsertCore(entity);
+                    this.InsertCore(entity);
 
                     tran.Complete();
                 }
@@ -151,27 +153,30 @@ namespace NMemory.Tables
 
         protected abstract void InsertCore(TEntity entity);
 
-        /// <summary>
-        /// Updates the properties of an entity contained by the table.
-        /// </summary>
-        /// <param name="entity">An entity that represents the new property values.</param>
         public void Update(TEntity entity)
         {
-            Update(primaryKeyIndex.KeyInfo.GetKey(entity), entity);
+            this.Update(entity, null);
         }
 
-        /// <summary>
-        /// Updates the properties of an entity contained by the table.
-        /// </summary>
-        /// <param name="key">The primary key of the entity.</param>
-        /// <param name="entity">An entity that represents the new property values.</param>
+        public void Update(TEntity entity, Transaction transaction)
+        {
+            TPrimaryKey key = this.primaryKeyIndex.KeyInfo.GetKey(entity);
+
+            this.Update(key, entity, transaction);
+        }
+
         public void Update(TPrimaryKey key, TEntity entity)
+        {
+            this.Update(key, entity, null);
+        }
+
+        public void Update(TPrimaryKey key, TEntity entity, Transaction transaction)
         {
             try
             {
                 using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
-                    UpdateCore(key, entity);
+                    this.UpdateCore(key, entity, transaction);
 
                     tran.Complete();
                 }
@@ -190,7 +195,7 @@ namespace NMemory.Tables
             }
         }
 
-        IEnumerable<TEntity> IBatchTable<TEntity>.Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater)
+        IEnumerable<TEntity> IBatchTable<TEntity>.Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater, Transaction transaction)
         {
             updater = ExpressionHelper.ValidateAndCompleteUpdaterExpression(updater);
             Expression expression = ((IQueryable<TEntity>)query).Expression;
@@ -199,7 +204,7 @@ namespace NMemory.Tables
             {
                 using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
-                    IEnumerable<TEntity> result = UpdateCore(expression, updater);
+                    IEnumerable<TEntity> result = this.UpdateCore(expression, updater, transaction);
 
                     tran.Complete();
                     return result;
@@ -219,30 +224,35 @@ namespace NMemory.Tables
             }
         }
 
-        protected abstract void UpdateCore(TPrimaryKey key, TEntity entity);
+        protected abstract void UpdateCore(TPrimaryKey key, TEntity entity, Transaction transaction);
 
-        protected abstract IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater);
+        protected abstract IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater, Transaction transaction);
 
-        /// <summary>
-        /// Deletes an entity from the table.
-        /// </summary>
-        /// <param name="entity">An entity that contains the primary key of the entity to be deleted.</param>
+        
         public void Delete(TEntity entity)
         {
-            Delete(this.primaryKeyIndex.KeyInfo.GetKey(entity));
+            this.Delete(entity, null);
         }
 
-        /// <summary>
-        /// Deletes an entity from the table.
-        /// </summary>
-        /// <param name="key">The primary key of the entity to be deleted.</param>
+        public void Delete(TEntity entity, Transaction transaction)
+        {
+            TPrimaryKey key = this.primaryKeyIndex.KeyInfo.GetKey(entity);
+
+            this.Delete(key, transaction);
+        }
+
         public void Delete(TPrimaryKey key)
+        {
+            this.Delete(key, null);
+        }
+
+        public void Delete(TPrimaryKey key, Transaction transaction)
         {
             try
             {
                 using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
-                    DeleteCore(key);
+                    this.DeleteCore(key, transaction);
 
                     tran.Complete();
                 }
@@ -261,7 +271,7 @@ namespace NMemory.Tables
             }
         }
 
-        int IBatchTable<TEntity>.Delete(TableQuery<TEntity> query)
+        int IBatchTable<TEntity>.Delete(TableQuery<TEntity> query, Transaction transaction)
         {
             Expression expression = ((IQueryable<TEntity>)query).Expression;
 
@@ -269,7 +279,7 @@ namespace NMemory.Tables
             {
                 using (var tran = Transaction.EnsureTransaction(this.Database))
                 {
-                    int result = DeleteCore(expression);
+                    int result = this.DeleteCore(expression, transaction);
 
                     tran.Complete();
                     return result;
@@ -289,9 +299,9 @@ namespace NMemory.Tables
             }
         }
 
-        protected abstract int DeleteCore(Expression expression);
+        protected abstract int DeleteCore(Expression expression, Transaction transaction);
 
-        protected abstract void DeleteCore(TPrimaryKey key);
+        protected abstract void DeleteCore(TPrimaryKey key, Transaction transaction);
 
         #endregion
 

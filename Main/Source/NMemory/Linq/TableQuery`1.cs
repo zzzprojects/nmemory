@@ -44,7 +44,12 @@ namespace NMemory.Linq
             return this.GetEnumerator();
         }
 
-        public virtual IEnumerator<TEntity> GetEnumerator()
+        public IEnumerator<TEntity> GetEnumerator()
+        {
+            return GetEnumerator(null);
+        }
+
+        public IEnumerator<TEntity> GetEnumerator(Transaction transaction)
         {
             using (var tran = Transaction.EnsureTransaction(this.Database))
             {
@@ -59,6 +64,7 @@ namespace NMemory.Linq
                 return result;
             }
         }
+
     }
     
 }

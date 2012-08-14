@@ -15,7 +15,7 @@ namespace NMemory.Test.Data
         private Table<TimestampEntity, int> timestampEntities;
 
 
-        public TestDatabase(bool createIdentityForGroup = false, bool createNcharContraintForGroup = false)
+        public TestDatabase(bool createIdentityForGroup = true, bool createNcharContraintForGroup = false)
         {
             var members = this.Tables.Create<Member, string>(x => x.Id);
             var groups = this.Tables.Create<Group, int>(x => x.Id, createIdentityForGroup ? new IdentitySpecification<Group>(x => x.Id, 1, 1) : null);

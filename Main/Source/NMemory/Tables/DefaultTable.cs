@@ -100,7 +100,7 @@ namespace NMemory.Tables
 
         #region Update
 
-        protected override void UpdateCore(TPrimaryKey key, TEntity entity)
+        protected override void UpdateCore(TPrimaryKey key, TEntity entity, Transaction transactionx)
         {
             Transaction transaction = this.CurrentTransaction;
 
@@ -122,7 +122,7 @@ namespace NMemory.Tables
             }
         }
 
-        protected override IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater)
+        protected override IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater, Transaction transactionx)
         {
             Transaction transaction = this.CurrentTransaction;
 
@@ -257,7 +257,7 @@ namespace NMemory.Tables
 
         #region Delete
 
-        protected override int DeleteCore(Expression expression)
+        protected override int DeleteCore(Expression expression, Transaction transactionx)
         {
             Transaction transaction = this.CurrentTransaction;
 
@@ -279,7 +279,7 @@ namespace NMemory.Tables
             return result != null ? result.Count : 0;
         }
 
-        protected override void DeleteCore(TPrimaryKey key)
+        protected override void DeleteCore(TPrimaryKey key, Transaction transactionx)
         {
             Transaction transaction = this.CurrentTransaction;
 
