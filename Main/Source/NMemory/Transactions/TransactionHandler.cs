@@ -31,7 +31,7 @@ namespace NMemory.Transactions
 
         internal void EnsureSubscription(Transaction transaction)
         {
-            transaction.Subsribe(this);
+            transaction.Subscribe(this);
         }
 
         internal TransactionLog GetTransactionLog(Transaction transaction)
@@ -46,7 +46,6 @@ namespace NMemory.Transactions
 
         internal void Rollback(Transaction transaction)
         {
-            // TODO: Rollback
             GetTransactionLog(transaction).Rollback();
 
             this.ReleaseResources(transaction);

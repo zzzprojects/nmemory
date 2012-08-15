@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NMemory.Tables;
+using NMemory.Transactions;
 
 namespace NMemory.Execution
 {
@@ -10,6 +11,8 @@ namespace NMemory.Execution
     {
         T GetParameter<T>(string name);
 
-        IList<ITable> Tables { get; }
+        IList<ITable> AffectedTables { get; }
+
+        Transaction Transaction { get; }
     }
 }

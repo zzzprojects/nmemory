@@ -117,7 +117,7 @@ namespace NMemory.Tables
 
         public void Insert(TEntity entity)
         {
-            this.Insert(entity, null);
+            this.Insert(entity, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
         public void Insert(TEntity entity, Transaction transaction)
@@ -129,9 +129,9 @@ namespace NMemory.Tables
 
             try
             {
-                using (var tran = Transaction.EnsureTransaction(this.Database))
+                using (var tran = Transaction.EnsureTransaction(ref transaction, this.Database))
                 {
-                    this.InsertCore(entity);
+                    this.InsertCore(entity, transaction);
 
                     tran.Complete();
                 }
@@ -151,11 +151,11 @@ namespace NMemory.Tables
 
         }
 
-        protected abstract void InsertCore(TEntity entity);
+        protected abstract void InsertCore(TEntity entity, Transaction transaction);
 
         public void Update(TEntity entity)
         {
-            this.Update(entity, null);
+            this.Update(entity, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
         public void Update(TEntity entity, Transaction transaction)
@@ -167,14 +167,14 @@ namespace NMemory.Tables
 
         public void Update(TPrimaryKey key, TEntity entity)
         {
-            this.Update(key, entity, null);
+            this.Update(key, entity, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
         public void Update(TPrimaryKey key, TEntity entity, Transaction transaction)
         {
             try
             {
-                using (var tran = Transaction.EnsureTransaction(this.Database))
+                using (var tran = Transaction.EnsureTransaction(ref transaction, this.Database))
                 {
                     this.UpdateCore(key, entity, transaction);
 
@@ -202,7 +202,7 @@ namespace NMemory.Tables
 
             try
             {
-                using (var tran = Transaction.EnsureTransaction(this.Database))
+                using (var tran = Transaction.EnsureTransaction(ref transaction, this.Database))
                 {
                     IEnumerable<TEntity> result = this.UpdateCore(expression, updater, transaction);
 
@@ -231,7 +231,7 @@ namespace NMemory.Tables
         
         public void Delete(TEntity entity)
         {
-            this.Delete(entity, null);
+            this.Delete(entity, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
         public void Delete(TEntity entity, Transaction transaction)
@@ -243,14 +243,14 @@ namespace NMemory.Tables
 
         public void Delete(TPrimaryKey key)
         {
-            this.Delete(key, null);
+            this.Delete(key, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
         public void Delete(TPrimaryKey key, Transaction transaction)
         {
             try
             {
-                using (var tran = Transaction.EnsureTransaction(this.Database))
+                using (var tran = Transaction.EnsureTransaction(ref transaction, this.Database))
                 {
                     this.DeleteCore(key, transaction);
 
@@ -277,7 +277,7 @@ namespace NMemory.Tables
 
             try
             {
-                using (var tran = Transaction.EnsureTransaction(this.Database))
+                using (var tran = Transaction.EnsureTransaction(ref transaction, this.Database))
                 {
                     int result = this.DeleteCore(expression, transaction);
 

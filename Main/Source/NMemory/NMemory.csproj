@@ -182,7 +182,8 @@
     <Compile Include="Transactions\Logs\UpdateEntityLogItem.cs" />
     <Compile Include="Transactions\Transaction.cs" />
     <Compile Include="Transactions\TransactionHandler.cs" />
-    <Compile Include="Transactions\TransactionWrapper.cs" />
+    <Compile Include="Transactions\TransactionContext.cs" />
+    <Compile Include="Transactions\AmbientTransactionStore.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

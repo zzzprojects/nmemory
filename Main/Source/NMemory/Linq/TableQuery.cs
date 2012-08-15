@@ -97,20 +97,5 @@ namespace NMemory.Linq
         {
             return null;
         }
-
-        protected Transaction CurrentTransaction
-        {
-            get
-            {
-                Transaction transaction = Transaction.Current;
-
-                if (transaction == null)
-                {
-                    throw new InvalidOperationException();
-                }
-
-                return transaction;
-            }
-        }
     }
 }

@@ -21,7 +21,7 @@ namespace NMemory.Execution
 
         public IEnumerator<T> Execute<T>(Func<IExecutionContext, IEnumerable<T>> compiledQuery, IExecutionContext context)
         {
-            Transaction transaction = Transaction.Current;
+            Transaction transaction = context.Transaction;
 
             if (transaction == null)
             {
@@ -31,7 +31,7 @@ namespace NMemory.Execution
             IEnumerable<T> query = compiledQuery.Invoke(context);
             IConcurrencyManager cm = this.database.ConcurrencyManager;
 
-            ITable[] tables = context.Tables.ToArray();
+            ITable[] tables = context.AffectedTables.ToArray();
 
             EntityPropertyCloner<T> cloner = null;
             if (this.database.Tables.IsEntityType<T>())
@@ -73,7 +73,6 @@ namespace NMemory.Execution
             }
 
                
-
             return result.GetEnumerator();
         }
 
@@ -82,7 +81,7 @@ namespace NMemory.Execution
 
         public T Execute<T>(Func<IExecutionContext, T> compiledQuery, IExecutionContext context)
         {
-            Transaction transaction = Transaction.Current;
+            Transaction transaction = context.Transaction;
 
             if (transaction == null)
             {

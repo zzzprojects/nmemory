@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace NMemory.Execution.Locks
 {
-    internal struct LightweightSpinLock
+    internal class LightweightSpinLock
     {
         private static readonly int processorCount = Environment.ProcessorCount; 
         private int held;

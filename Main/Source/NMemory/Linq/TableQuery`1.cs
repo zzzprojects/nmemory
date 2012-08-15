@@ -46,20 +46,22 @@ namespace NMemory.Linq
 
         public IEnumerator<TEntity> GetEnumerator()
         {
-            return GetEnumerator(null);
+            return GetEnumerator(Transaction.TryGetAmbientEnlistedTransaction());
         }
 
         public IEnumerator<TEntity> GetEnumerator(Transaction transaction)
         {
-            using (var tran = Transaction.EnsureTransaction(this.Database))
+            using (var ctx = Transaction.EnsureTransaction(ref transaction, this.Database))
             {
+                // TODO: Ensure transaction
+
                 var tables = TableSearchVisitor.FindTables(((IQueryable)this).Expression);
                 var compiledQuery = this.Database.Compiler.Compile<IEnumerable<TEntity>>(((IQueryable)this).Expression);
 
-                var context = new ExecutionContext(tables);
+                var context = new ExecutionContext(transaction, tables);
                 var result = this.Database.Executor.Execute(compiledQuery, context);
 
-                tran.Complete();
+                ctx.Complete();
 
                 return result;
             }

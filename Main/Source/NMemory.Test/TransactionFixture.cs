@@ -80,7 +80,7 @@ namespace NMemory.Test
             }
             catch { }
 
-            Assert.AreEqual(database.Members.Count, 0);
+            Assert.AreEqual(0, database.Members.Count);
             Assert.IsFalse(database.Members.Any(m => m.Id == "A"));
             Assert.IsTrue(enlistment.WasRollback);
             Assert.IsFalse(enlistment.WasCommit);
@@ -127,9 +127,9 @@ namespace NMemory.Test
             TestDatabase database = new TestDatabase();
 
             CommittableTransaction external = new CommittableTransaction();
-            NMemory.Transactions.Transaction.EnlistOnExternal(external);
+            NMemory.Transactions.Transaction transaction = NMemory.Transactions.Transaction.Create(external);
 
-            database.Members.Insert(new Member { Id = "A" });
+            database.Members.Insert(new Member { Id = "A" }, transaction);
             external.Commit();
 
             Assert.AreEqual(database.Members.Count, 1);
@@ -145,9 +145,9 @@ namespace NMemory.Test
             TestDatabase database = new TestDatabase();
 
             CommittableTransaction external = new CommittableTransaction();
-            NMemory.Transactions.Transaction.EnlistOnExternal(external);
+            NMemory.Transactions.Transaction transaction = NMemory.Transactions.Transaction.Create(external);
 
-            database.Members.Insert(new Member { Id = "A" });
+            database.Members.Insert(new Member { Id = "A" }, transaction);
             external.Rollback();
 
             Assert.AreEqual(database.Members.Count, 0);
@@ -164,11 +164,11 @@ namespace NMemory.Test
             TestDatabase database = new TestDatabase();
 
             CommittableTransaction external = new CommittableTransaction(TimeSpan.FromMilliseconds(50));
-            NMemory.Transactions.Transaction.EnlistOnExternal(external);
+            NMemory.Transactions.Transaction transaction = NMemory.Transactions.Transaction.Create(external);
 
-            database.Groups.Insert(new Group { Name = "Group1" });
+            database.Groups.Insert(new Group { Name = "Group1" }, transaction);
             Thread.Sleep(1000);
-            database.Groups.Insert(new Group { Name = "Group2" });
+            database.Groups.Insert(new Group { Name = "Group2" }, transaction);
         }
 
         /// <summary>

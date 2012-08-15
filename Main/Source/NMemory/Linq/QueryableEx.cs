@@ -17,7 +17,7 @@ namespace NMemory.Linq
         public static IEnumerable<T> Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater)
             where T : class
         {
-            return Update<T>(queryable, updater, null);
+            return Update<T>(queryable, updater, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
 		public static IEnumerable<T> Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater, Transaction transaction)
@@ -54,7 +54,7 @@ namespace NMemory.Linq
         public static int Delete<T>(this IQueryable<T> queryable)
             where T : class
         {
-            return Delete<T>(queryable, null);
+            return Delete<T>(queryable, Transaction.TryGetAmbientEnlistedTransaction());
         }
         
 		public static int Delete<T>(this IQueryable<T> queryable, Transaction transaction)
@@ -86,7 +86,7 @@ namespace NMemory.Linq
 
         public static IEnumerable<T> Execute<T>(this IQueryable<T> queryable)
         {
-            return Execute<T>(queryable, null);
+            return Execute<T>(queryable, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
         public static IEnumerable<T> Execute<T>(this IQueryable<T> queryable, Transaction transaction)

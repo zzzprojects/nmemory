@@ -34,10 +34,8 @@ namespace NMemory.Tables
 
         #region Insert
 
-        protected override void InsertCore(TEntity entity)
+        protected override void InsertCore(TEntity entity, Transaction transaction)
         {
-            Transaction transaction = this.CurrentTransaction;
-
             TEntity storedEntity = this.CreateStoredEntity();
             this.cloner.Clone(entity, storedEntity);
 
@@ -100,10 +98,8 @@ namespace NMemory.Tables
 
         #region Update
 
-        protected override void UpdateCore(TPrimaryKey key, TEntity entity, Transaction transactionx)
+        protected override void UpdateCore(TPrimaryKey key, TEntity entity, Transaction transaction)
         {
-            Transaction transaction = this.CurrentTransaction;
-
             this.AcquireWriteLock(transaction);
 
             try
@@ -111,7 +107,7 @@ namespace NMemory.Tables
                 TEntity storedEntity = this.PrimaryKeyIndex.GetByUniqueIndex(key);
                 Expression<Func<TEntity, TEntity>> updater = CreateSingleEntityUpdater(entity, storedEntity);
 
-                this.UpdateCore(new TEntity[] { storedEntity }, updater);
+                this.UpdateCore(new TEntity[] { storedEntity }, updater, transaction);
 
                 // Copy back the modifications
                 this.cloner.Clone(storedEntity, entity);
@@ -122,10 +118,8 @@ namespace NMemory.Tables
             }
         }
 
-        protected override IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater, Transaction transactionx)
+        protected override IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater, Transaction transaction)
         {
-            Transaction transaction = this.CurrentTransaction;
-
             // Optimize and compile the query
             List<TEntity> result = null;
 
@@ -133,9 +127,9 @@ namespace NMemory.Tables
 
             try
             {
-                result = this.QueryEntities(expression);
+                result = this.QueryEntities(expression, transaction);
 
-                this.UpdateCore(result, updater);
+                this.UpdateCore(result, updater, transaction);
             }
             finally
             {
@@ -145,10 +139,8 @@ namespace NMemory.Tables
             return this.CloneEntities(result);
         }
 
-        private void UpdateCore(IList<TEntity> storedEntities, Expression<Func<TEntity, TEntity>> updater)
+        private void UpdateCore(IList<TEntity> storedEntities, Expression<Func<TEntity, TEntity>> updater, Transaction transaction)
         {
-            Transaction transaction = this.CurrentTransaction;
-
             Func<TEntity, TEntity> updaterFunc = updater.Compile();
             IList<TEntity> updated = new List<TEntity>(storedEntities.Count);
 
@@ -257,19 +249,17 @@ namespace NMemory.Tables
 
         #region Delete
 
-        protected override int DeleteCore(Expression expression, Transaction transactionx)
+        protected override int DeleteCore(Expression expression, Transaction transaction)
         {
-            Transaction transaction = this.CurrentTransaction;
-
             List<TEntity> result = null;
 
             this.AcquireWriteLock(transaction);
 
             try
             {
-                result = this.QueryEntities(expression);
+                result = this.QueryEntities(expression, transaction);
 
-                this.DeleteCore(result);
+                this.DeleteCore(result, transaction);
             }
             finally
             {
@@ -279,17 +269,15 @@ namespace NMemory.Tables
             return result != null ? result.Count : 0;
         }
 
-        protected override void DeleteCore(TPrimaryKey key, Transaction transactionx)
+        protected override void DeleteCore(TPrimaryKey key, Transaction transaction)
         {
-            Transaction transaction = this.CurrentTransaction;
-
             this.AcquireWriteLock(transaction);
 
             try
             {
                 TEntity storedEntity = this.PrimaryKeyIndex.GetByUniqueIndex(key);
 
-                this.DeleteCore(new TEntity[] { storedEntity });
+                this.DeleteCore(new TEntity[] { storedEntity }, transaction);
             }
             finally
             {
@@ -297,10 +285,8 @@ namespace NMemory.Tables
             }
         }
 
-        private void DeleteCore(IList<TEntity> storedEntities)
+        private void DeleteCore(IList<TEntity> storedEntities, Transaction transaction)
         {
-            Transaction transaction = this.CurrentTransaction;
-
             // Find relations
             List<IRelation> referringRelations = new List<IRelation>();
             List<IRelation> referredRelations = new List<IRelation>();
@@ -353,15 +339,13 @@ namespace NMemory.Tables
 
         #endregion
 
-        private List<TEntity> QueryEntities(Expression expression)
+        private List<TEntity> QueryEntities(Expression expression, Transaction transaction)
         {
-            Transaction transaction = this.CurrentTransaction;
-
             var compiledQuery = this.Database.Compiler.Compile<IEnumerable<TEntity>>(expression);
             
             // Find the remaining tables of the query
             ITable[] tables = TableSearchVisitor.FindTables(expression).Except(new ITable[] { this }).ToArray();
-            IExecutionContext context = new ExecutionContext(tables);
+            IExecutionContext context = new ExecutionContext(transaction, tables);
 
             // Lock these tables
             for (int i = 0; i < tables.Length; i++)

@@ -23,117 +23,69 @@ namespace NMemory.Transactions
         private static int transactionCounter;
 
 
-        [ThreadStatic]
-        private static Transaction current;
-
-        public static Transaction Current
-        {
-            get 
-            {
-                Transaction tran = Transaction.current;
-
-                // Check if the transaction is enlisted on an ambient transaction
-                if (tran != null && tran.isAmbient)
-                {
-                    // Check if that ambient transaction is still present
-                    if (System.Transactions.Transaction.Current != tran.internalTransaction)
-                    {
-                        // If not, remove the transaction
-                        Transaction.current = null;
-                    }
-                }
-
-                return Transaction.current; 
-            }
-        }
-
         #endregion
 
         #region Static helpers
 
-        public static void EnlistOnExternal(System.Transactions.Transaction external)
+        public static Transaction Create(System.Transactions.Transaction external)
         {
-            CheckExistingTransaction();
-
-            Transaction.current = new Transaction(external, false);
+            return new Transaction(external, false);
         }
 
-        internal static TransactionWrapper EnsureTransaction(IDatabase database)
+        internal static TransactionContext EnsureTransaction(ref Transaction transaction, IDatabase database)
         {
-            TransactionWrapper result = null;
+            TransactionContext result = null;
 
-            if (Transaction.Current != null || Transaction.TryEnlistOnTransient())
+            if (transaction != null)
             {
-                if (Transaction.Current.Aborted)
+                if (transaction.Aborted)
                 {
                     throw new System.Transactions.TransactionAbortedException();
                 }
 
-                // Transaction is present, create empty wrapper
-                result = new TransactionWrapper(null);
+                // Just a mock result
+                result = new TransactionContext();
             }
             else
             {
-                // There is no transaction, create a local transaction
-                result = new TransactionWrapper(Transaction.CreateLocal());
+                // Create a local transaction for the current operation
+
+                System.Transactions.CommittableTransaction localTransaction = CreateDefaultTransaction();
+                transaction = Create(localTransaction);
+
+
+                result = new TransactionContext(localTransaction);
             }
 
-            // Ensure transaction event subscription
-            database.TransactionHandler.EnsureSubscription(Transaction.Current);
+            database.TransactionHandler.EnsureSubscription(transaction);
 
             return result;
         }
 
-        internal static bool TryEnlistOnTransient()
+        internal static Transaction TryGetAmbientEnlistedTransaction()
         {
-            CheckExistingTransaction();
+            System.Transactions.Transaction ambientTransaction = System.Transactions.Transaction.Current;
 
-            var tran = System.Transactions.Transaction.Current;
-
-            if (tran == null)
+            if (ambientTransaction == null)
             {
-                return false;
+                return null;
             }
 
-            Transaction.current = new Transaction(tran, true);
-
-            return true;
+            return AmbientTransactionStore.GetAmbientEnlistedTransaction(ambientTransaction);
         }
 
-        internal static System.Transactions.TransactionScope CreateLocal()
+        private static System.Transactions.CommittableTransaction CreateDefaultTransaction()
         {
-            CheckExistingTransaction();
-
-            // Instantiate internal transaction
-            var transactionScope = new System.Transactions.TransactionScope(
-                System.Transactions.TransactionScopeOption.RequiresNew,
+            System.Transactions.CommittableTransaction transaction = new System.Transactions.CommittableTransaction(
                 new System.Transactions.TransactionOptions
                 {
                     IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted,
                     Timeout = DefaultTransactionTimeout
                 });
 
-            Transaction.current = new Transaction(System.Transactions.Transaction.Current, true);
-
-            return transactionScope;
+            return transaction;
         }
 
-        private static void CheckExistingTransaction()
-        {
-            Transaction tran = Transaction.current;
-
-            if (tran != null)
-            {
-                // If the current transaction is ambient, the static member might not be erased
-                if (tran.isAmbient && System.Transactions.Transaction.Current != tran.internalTransaction)
-                {
-                    Transaction.current = null;
-                    return;
-                }
-
-                throw new InvalidOperationException("The current session is already in a transaction");
-            }
-        }
 
         #endregion
 
@@ -151,8 +103,6 @@ namespace NMemory.Transactions
         {
             this.internalTransaction = transaction;
             this.isAmbient = isAmbient;
-
-            ////this.internalTransaction.TransactionCompleted += OnTransactionCompleted;
 
             this.transactionId = Interlocked.Increment(ref transactionCounter);
             this.atomicSectionLock = new LightweightSpinLock();
@@ -177,20 +127,15 @@ namespace NMemory.Transactions
             get { return this.isolationLevel; }
         }
 
+        internal System.Transactions.Transaction InternalTransaction
+        {
+            get { return this.internalTransaction; }
+        }
+
         internal bool Aborted
         {
             get { return this.aborted; }
         }
-
-        ////private void OnTransactionCompleted(object sender, System.Transactions.TransactionEventArgs e)
-        ////{
-        ////    this.internalTransaction.TransactionCompleted -= OnTransactionCompleted;
-
-        ////    if (Transaction.current == this)
-        ////    {
-        ////        Transaction.current = null;
-        ////    }
-        ////}
 
         private IsolationLevels MapIsolationLevel(System.Transactions.IsolationLevel isolationLevel)
         {
@@ -210,7 +155,7 @@ namespace NMemory.Transactions
             }
         }
 
-        internal void Subsribe(TransactionHandler handler)
+        internal void Subscribe(TransactionHandler handler)
         {
             if (!this.registeredHandlers.Contains(handler))
             {
@@ -253,11 +198,7 @@ namespace NMemory.Transactions
 
         private void Release()
         {
-            // Ambient transactions are removed elsewhere
-            if (!this.isAmbient && Transaction.current == this)
-            {
-                Transaction.current = null;
-            }
+            
         }
 
         #region Transaction enlistment

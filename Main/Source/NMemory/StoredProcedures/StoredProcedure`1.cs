@@ -50,6 +50,11 @@ namespace NMemory.StoredProcedures
 
         public IEnumerable<T> Execute(IDictionary<string, object> parameters)
         {
+            return Execute(parameters, Transaction.TryGetAmbientEnlistedTransaction());
+        }
+
+        public IEnumerable<T> Execute(IDictionary<string, object> parameters, Transaction transaction)
+        {
             Func<IExecutionContext, IEnumerable<T>> compiledQuery = this.compiledQuery;
 
             // If the query is not compiled, it has to be done now
@@ -58,10 +63,9 @@ namespace NMemory.StoredProcedures
                 compiledQuery = this.Compile();
             }
 
-            IExecutionContext context = new ExecutionContext(this.tables, parameters);
-
-            using (var tran = Transaction.EnsureTransaction(this.database))
+            using (var tran = Transaction.EnsureTransaction(ref transaction, this.database))
             {
+                IExecutionContext context = new ExecutionContext(transaction, this.tables, parameters);
                 IEnumerable<T> result = this.database.Executor.Execute<T>(compiledQuery, context).ToEnumerable();
 
                 tran.Complete();
@@ -76,7 +80,12 @@ namespace NMemory.StoredProcedures
 
         IEnumerable IStoredProcedure.Execute(IDictionary<string, object> parameters)
         {
-            return Execute(parameters);
+            return Execute(parameters, Transaction.TryGetAmbientEnlistedTransaction());
+        }
+
+        IEnumerable IStoredProcedure.Execute(IDictionary<string, object> parameters, Transaction transaction)
+        {
+            return Execute(parameters, transaction);
         }
 
         protected Func<IExecutionContext, IEnumerable<T>> Compile()

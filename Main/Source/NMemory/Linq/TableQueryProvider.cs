@@ -31,11 +31,16 @@ namespace NMemory.Linq
 
         public TResult Execute<TResult>(Expression expression)
         {
-            using (var tran = Transaction.EnsureTransaction(this.database))
+            Transaction transaction = Transaction.TryGetAmbientEnlistedTransaction();
+            // TODO: Extract trasaction object
+
+            using (var tran = Transaction.EnsureTransaction(ref transaction, this.database))
             {
                 IList<ITable> tables = TableSearchVisitor.FindTables(expression);
                 Func<IExecutionContext, TResult> compiledQuery = this.database.Compiler.Compile<TResult>(expression);
-                TResult result = compiledQuery.Invoke(new ExecutionContext(tables));
+                IExecutionContext context = new ExecutionContext(transaction, tables);
+
+                TResult result = compiledQuery.Invoke(context);
 
                 tran.Complete();
                 return result;
