@@ -62,5 +62,12 @@ namespace NMemory.Common
                     .Cast<DebuggerDisplayAttribute>()
                     .Any(m => m.Type == "<Anonymous Type>");
         }
+
+        public static bool IsNullable(Type type)
+        {
+            return
+                !type.IsValueType ||
+                (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
+        }
     }
 }

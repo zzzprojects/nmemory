@@ -21,7 +21,7 @@ namespace NMemory.Indexes
                 comparer = Comparer<TKey>.Default;
             }
 
-            return CreateIndex(table, key, comparer); 
+            return CreateIndex(table, key, comparer);
         }
 
         public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, Expression<Func<TEntity, TUniqueKey>> key)

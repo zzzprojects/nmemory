@@ -22,6 +22,8 @@ namespace NMemory.Indexes
 			: base(table, key)
 		{
 			this.uniqueDataStructure = dataStructure;
+
+            this.Rebuild();
 		}
 
 		#endregion
@@ -51,29 +53,6 @@ namespace NMemory.Indexes
         {
             get { return uniqueDataStructure; }
         }
-
-
-		private void Rebuild()
-		{
-			this.uniqueDataStructure.Clear();
-
-			foreach(TEntity item in this.Table.PrimaryKeyIndex.SelectAll())
-			{
-				TUniqueKey i = Key(item);
-
-                // TODO: Insufficient
-				if(this.uniqueDataStructure.ContainsKey(i))
-				{
-					throw new MultipleUniqueKeyFoundException();
-				}
-				else
-				{
-					this.uniqueDataStructure.Insert(i, item);
-				}
-
-			}
-		}
-
 
 		#endregion
 

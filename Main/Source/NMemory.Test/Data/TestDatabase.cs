@@ -57,11 +57,25 @@ namespace NMemory.Test.Data
             this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory<Group>(), g => g.Name);
         }
 
-        public void AddMemberGroupRelation()
+        public void AddMemberGroupRelation(bool createMultiField = false)
         {
-            var index = this.members.CreateIndex(new RedBlackTreeIndexFactory<Member>(), m => m.GroupId);
+            if (createMultiField)
+            {
+                var uniqueIndex = this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory<Group>(), g => new { g.Id, g.Id2 });
+                var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory<Member>(), m => new { m.GroupId, m.GroupId2 }); 
 
-            this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, index, x => x.Value, x => x); 
+                this.Tables.CreateRelation(uniqueIndex, foreignIndex, 
+                    x => new { Id = x.GroupId.Value, Id2 = x.GroupId2 }, 
+                    x => new { GroupId = (int?)x.Id, GroupId2 = x.Id2  });
+            }
+            else
+            {
+                var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory<Member>(), m => m.GroupId);
+
+                this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex, x => x.Value, x => x); 
+            }
+
+
         }
     }
 }

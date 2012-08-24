@@ -55,16 +55,13 @@ namespace NMemory.Tables
             : base(database)
         {
             this.VerifyType();
-
+            
             this.indexes = new List<IIndex<TEntity>>();
             this.constraints = new List<IConstraint<TEntity>>();
 
             this.RegisterTimestampConstraints();
 
-            this.primaryKeyIndex =
-                this.CreateUniqueIndex<TPrimaryKey>(
-                    new RedBlackTreeIndexFactory<TEntity>(),
-                    primaryKey);
+            this.primaryKeyIndex = CreateUniqueIndex(new RedBlackTreeIndexFactory<TEntity>(), primaryKey);
 
             this.InitializeData(initialEntities);
 
@@ -414,7 +411,7 @@ namespace NMemory.Tables
             get { return this.primaryKeyIndex; }
         }
 
-        IIndex<TEntity> ITable<TEntity>.PrimaryKeyIndex
+        IUniqueIndex<TEntity> ITable<TEntity>.PrimaryKeyIndex
         {
             get { return this.primaryKeyIndex; }
         }

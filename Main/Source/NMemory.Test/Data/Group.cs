@@ -9,6 +9,8 @@ namespace NMemory.Test.Data
     {
         public int Id { get; set; }
 
+        public int Id2 { get; set; }
+
         public string Name { get; set; }
     }
 }

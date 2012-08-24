@@ -5,7 +5,11 @@ using System.Text;
 
 namespace NMemory.Indexes
 {
-    public interface IUniqueIndex : IIndex
+    public interface IUniqueIndex<TEntity> :
+        IIndex<TEntity>,
+        IUniqueIndex
+
+        where TEntity : class
     {
     }
 }

@@ -81,6 +81,8 @@
     <Compile Include="Data\Binary.cs" />
     <Compile Include="Data\Timestamp.cs" />
     <Compile Include="Diagnostics\ConsoleLoggingPort.cs" />
+    <Compile Include="Indexes\IUniqueIndex.cs" />
+    <Compile Include="Indexes\IUniqueIndex`1.cs" />
     <Compile Include="Linq\TableQueryTransactionWrapper`1.cs" />
     <Compile Include="Modularity\ILoggingPort.cs" />
     <Compile Include="Diagnostics\MessageBuffer.cs" />
@@ -121,7 +123,7 @@
     <Compile Include="Indexes\IIndexFactory.cs" />
     <Compile Include="Indexes\IIndex`2.cs" />
     <Compile Include="Indexes\IndexFactoryBase.cs" />
-    <Compile Include="Indexes\IUniqueIndex.cs" />
+    <Compile Include="Indexes\IUniqueIndex`2.cs" />
     <Compile Include="Indexes\KeyInfo.cs" />
     <Compile Include="Indexes\RedBlackTreeIndexFactory.cs" />
     <Compile Include="Indexes\SimpleKeyInfo.cs" />
@@ -159,6 +161,7 @@
     <Compile Include="Tables\DefaultTable.cs" />
     <Compile Include="Tables\IBatchTable.cs" />
     <Compile Include="Tables\IRelation.cs" />
+    <Compile Include="Tables\IRelationContraint.cs" />
     <Compile Include="Tables\Relation.cs" />
     <Compile Include="StoredProcedures\StoredProcedureCollection.cs" />
     <Compile Include="Tables\EntityPropertyChangeDetector.cs" />
@@ -169,6 +172,8 @@
     <Compile Include="Tables\ITable.cs" />
     <Compile Include="Tables\ITable`1.cs" />
     <Compile Include="Tables\ITable`2.cs" />
+    <Compile Include="Tables\RelationConstraint.cs" />
+    <Compile Include="Tables\RelationConstraint`2.cs" />
     <Compile Include="Tables\Table`2.cs" />
     <Compile Include="Tables\TableCollection.cs" />
     <Compile Include="Tables\TableExtensions.cs" />

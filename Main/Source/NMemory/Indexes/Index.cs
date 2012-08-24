@@ -46,18 +46,6 @@ namespace NMemory.Indexes
             return this.dataStructure.SelectAll();
 		}
 
-		public virtual void Rebuild()
-		{
-			this.dataStructure.Clear();
-
-			foreach(TEntity entity in Table.PrimaryKeyIndex.SelectAll())
-			{
-				TKey i = Key(entity);
-
-				dataStructure.Insert(i, entity);
-			}
-		}
-
 		public override void Insert(TEntity entity)
 		{
 			TKey key = Key(entity);

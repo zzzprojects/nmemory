@@ -6,6 +6,7 @@ using System.Text;
 namespace NMemory.Indexes
 {
     public interface IIndex<TEntity, TKey> : IIndex<TEntity>
+        where TEntity : class
     {
         bool Contains(TKey key);
 

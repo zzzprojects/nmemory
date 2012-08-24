@@ -162,5 +162,29 @@ namespace NMemory.Indexes
         {
             return this.DataStructure.ContainsKey(key);
         }
+
+        public void Rebuild()
+        {
+            if (this.Table.PrimaryKeyIndex == null)
+            {
+                // Primary index has not been initialized yet
+                // Probably we are in the constructor of the Table class now
+                return;
+            }
+
+            IEnumerable<TEntity> tableData = this.Table.PrimaryKeyIndex.SelectAll();
+
+            if (this.Table.PrimaryKeyIndex == this)
+            {
+                tableData = tableData.ToList();
+            }
+
+            this.DataStructure.Clear();
+
+            foreach (TEntity entity in tableData)
+            {
+                this.DataStructure.Insert(this.KeyInfo.GetKey(entity), entity);
+            }
+        }
     }
 }

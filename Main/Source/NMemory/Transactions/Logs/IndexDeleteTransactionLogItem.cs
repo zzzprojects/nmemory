@@ -7,6 +7,7 @@ using NMemory.Indexes;
 namespace NMemory.Transactions.Logs
 {
     internal class IndexDeleteTransactionLogItem<TEntity> : IndexTransactionLogItemBase<TEntity>
+        where TEntity : class
     {
         public IndexDeleteTransactionLogItem(IIndex<TEntity> index, TEntity entity) 
             : base(index, entity)

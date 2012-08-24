@@ -7,6 +7,7 @@ using NMemory.Indexes;
 namespace NMemory.Transactions.Logs
 {
     internal abstract class IndexTransactionLogItemBase<TEntity> : ITransactionLogItem
+        where TEntity : class
     {
         private IIndex<TEntity> index;
         private TEntity entity;

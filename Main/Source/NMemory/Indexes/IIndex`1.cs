@@ -7,6 +7,7 @@ using NMemory.Tables;
 namespace NMemory.Indexes
 {
     public interface IIndex<TEntity> : IIndex
+        where TEntity : class
     {
         IEnumerable<TEntity> SelectAll();
 

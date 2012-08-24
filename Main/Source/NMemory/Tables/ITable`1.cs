@@ -10,11 +10,12 @@ namespace NMemory.Tables
     /// </summary>
     /// <typeparam name="TEntity">The type of the entities, contained by the table.</typeparam>
     public interface ITable<TEntity> : ITable, IQueryable<TEntity>
+        where TEntity : class
     {
         /// <summary>
         /// Gets the primary key index of the table.
         /// </summary>
-        new IIndex<TEntity> PrimaryKeyIndex { get; }
+        new IUniqueIndex<TEntity> PrimaryKeyIndex { get; }
 
         /// <summary>
         /// Inserts a new entity into the table.

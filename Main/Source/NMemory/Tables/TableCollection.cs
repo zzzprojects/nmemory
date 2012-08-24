@@ -112,6 +112,17 @@ namespace NMemory.Tables
             return result;
         }
 
+        public Relation<TPrimary, TPrimaryKey, TForeign, TForeignKey> CreateRelation<TPrimary, TPrimaryKey, TForeign, TForeignKey>(
+                IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex,
+                IIndex<TForeign, TForeignKey> foreignIndex,
+                IRelationContraint[] constraints
+            )
+            where TPrimary : class
+            where TForeign : class
+        {
+            throw new NotImplementedException();
+        }
+
         internal IList<IRelation> GetReferringRelations(ITable primaryTable)
         {
             return this.referringRelations[primaryTable].AsReadOnly();
@@ -138,6 +149,7 @@ namespace NMemory.Tables
         }
 
         internal ITable<T> FindTable<T>()
+            where T : class
         {
             return this.tables.SingleOrDefault(t => t.EntityType == typeof(T)) as ITable<T>;
         }

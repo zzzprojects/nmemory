@@ -42,16 +42,19 @@ namespace NMemory.Transactions.Logs
         }
 
         public void WriteIndexInsert<TEntity>(IIndex<TEntity> index, TEntity entity)
+            where TEntity : class
         {
             this.logItems.Add(new IndexInsertTransactionLogItem<TEntity>(index, entity));
         }
 
         public void WriteIndexDelete<TEntity>(IIndex<TEntity> index, TEntity entity)
+            where TEntity : class
         {
             this.logItems.Add(new IndexDeleteTransactionLogItem<TEntity>(index, entity));
         }
 
         public void WriteEntityUpdate<TEntity>(EntityPropertyCloner<TEntity> propertyCloner, TEntity storedEntity, TEntity oldEntity)
+            where TEntity : class
         {
             this.logItems.Add(new UpdateEntityLogItem<TEntity>(propertyCloner, storedEntity, oldEntity));
         }

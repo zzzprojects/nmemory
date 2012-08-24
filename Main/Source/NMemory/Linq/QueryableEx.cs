@@ -108,16 +108,14 @@ namespace NMemory.Linq
 
 		#region JoinIndexed
 
-		/// <summary>
-		/// A Join operátor belső implementációja, amely indexeken éri el a belső tábla elemeit.
-		/// </summary>
 		internal static IEnumerable<TResult> JoinIndexedCore<TOuter, TInner, TInnerKey, TKey, TResult>(
 		    IQueryable<TOuter> outer,
 		    ConstantExpression inner,
 		    Expression<Func<TKey, TInnerKey>> keyToIndexKey,
 		    Expression outerKeySelector,
 		    Expression resultSelector)
-		//where TInner : class
+
+		    where TInner : class
 		{
 
 			Func<TKey, TInnerKey> keyToIndexKexFunc = keyToIndexKey.Compile();
@@ -165,17 +163,14 @@ namespace NMemory.Linq
 #endif
 		}
 
-		/// <summary>
-		/// Join operátor, amely indexeken éri el a belső reláció elemeit.
-		/// </summary>
 		public static IQueryable<TResult> JoinIndexed<TOuter, TInner, TInnerKey, TKey, TResult>(
-																				this IQueryable<TOuter> outer,
-																				ConstantExpression inner,
-																				Expression<Func<TKey, TInnerKey>> keyToIndexKey,
-																				Expression outerKeySelector,
-																				Expression resultSelector
-																			)
-		//where TInner : class
+		    this IQueryable<TOuter> outer,
+		    ConstantExpression inner,
+		    Expression<Func<TKey, TInnerKey>> keyToIndexKey,
+		    Expression outerKeySelector,
+		    Expression resultSelector)
+		
+            where TInner : class
 		{
 
 			IEnumerable<TResult> res = JoinIndexedCore<TOuter, TInner, TInnerKey, TKey, TResult>( outer, inner, keyToIndexKey, outerKeySelector, resultSelector );
@@ -187,15 +182,14 @@ namespace NMemory.Linq
 
 		#region JoinIndexed
 
-		/// <summary>
-		/// A Join operátor belső implementációja, amely indexeken éri el a belső tábla elemeit.
-		/// </summary>
 		internal static IEnumerable<TResult> JoinIndexedCore<TOuter, TInner, TInnerKey, TKey, TResult>(
 			IQueryable<TOuter> outer,
 			IIndex<TInner, TInnerKey> inner,
 			Func<TKey, TInnerKey> keyToIndexKey,
 			Func<TOuter, TKey> outerKeySelector,
 			Func<TOuter, TInner, TResult> resultSelector)
+
+            where TInner : class
 		{
 
 			Func<TKey, TInnerKey> keyToIndexKexFunc = keyToIndexKey;
@@ -223,6 +217,8 @@ namespace NMemory.Linq
 			Func<TKey, TInnerKey> keyToIndexKey,
 			Func<TOuter, TKey> outerKeySelector,
 			Func<TOuter, TInner, TResult> resultSelector)
+
+            where TInner : class
 		{
 			IEnumerable<TResult> res = JoinIndexedCore<TOuter, TInner, TInnerKey, TKey, TResult>( outer, inner, keyToIndexKey, outerKeySelector, resultSelector );
 
@@ -394,6 +390,7 @@ namespace NMemory.Linq
 
 
         public static int Count<T>(IQueryable<T> source)
+            where T : class
         {
             if (source is ITable<T>)
             {

@@ -12,5 +12,7 @@ namespace NMemory.Test.Data
         public string Name { get; set; }
 
         public int? GroupId { get; set; }
+
+        public int GroupId2 { get; set; }
     }
 }

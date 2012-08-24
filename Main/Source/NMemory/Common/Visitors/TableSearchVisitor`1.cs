@@ -4,6 +4,7 @@ using NMemory.Tables;
 namespace NMemory.Common.Visitors
 {
     public class TableSearchVisitor<T> : ExpressionVisitor
+        where T : class
     {
         private ITable table;
 

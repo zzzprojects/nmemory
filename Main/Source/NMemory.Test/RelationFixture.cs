@@ -202,6 +202,43 @@ namespace NMemory.Test
             database.Groups.Delete();
         }
 
+        [TestMethod]
+        public void CreateMultiFieldRelation()
+        {
+            TestDatabase database = new TestDatabase();
+            database.AddMemberGroupRelation(createMultiField: true);
+        }
 
+        [TestMethod]
+        [ExpectedException(typeof(ForeignKeyViolationException))]
+        public void CreateMultiFieldRelationWithInconsistentData()
+        {
+            TestDatabase database = new TestDatabase();
+
+            database.Members.Insert(new Member { Id = "A", GroupId = 1, GroupId2 = 2 });
+
+            database.AddMemberGroupRelation(createMultiField: true);
+        }
+
+        [TestMethod]
+        public void CreateMultiFieldRelationWithEmptyData()
+        {
+            TestDatabase database = new TestDatabase();
+
+            database.Members.Insert(new Member { Id = "A", GroupId = null, GroupId2 = 2 });
+
+            database.AddMemberGroupRelation(createMultiField: true);
+        }
+
+        [TestMethod]
+        public void CreateMultiFieldRelationWithConsistentData()
+        {
+            TestDatabase database = new TestDatabase();
+
+            database.Groups.Insert(new Group { Id = 1, Id2 = 2, Name = "A" });
+            database.Members.Insert(new Member { Id = "A", GroupId = 1, GroupId2 = 2 });
+
+            database.AddMemberGroupRelation(createMultiField: true);
+        }
     }
 }

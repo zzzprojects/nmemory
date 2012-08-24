@@ -16,5 +16,9 @@ namespace NMemory.Indexes
         bool SupportsIntervalSearch { get; }
 
         long Count { get; }
+
+        ////void Clear();
+
+        void Rebuild();
     }
 }
