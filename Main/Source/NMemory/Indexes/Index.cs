@@ -19,10 +19,10 @@ namespace NMemory.Indexes
 
 		internal Index(
             ITable<TEntity> table, 
-            Expression<Func<TEntity, TKey>> key, 
+            IKeyInfo<TEntity, TKey> keyInfo, 
             IDataStructure<TKey, TEntity> dataStructure)
-
-			: base(table, key)
+                
+            : base(table, keyInfo)
 		{
 			this.dataStructure = dataStructure;
 

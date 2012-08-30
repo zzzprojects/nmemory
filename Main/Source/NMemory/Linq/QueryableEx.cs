@@ -35,7 +35,7 @@ namespace NMemory.Linq
                 throw new ArgumentException("Delete command can be executed only on NMemory queries.", "queryable");
             }
 
-            IBatchTable<T> table = query.Database.Tables.FindTable<T>() as IBatchTable<T>;
+            IBulkTable<T> table = query.Database.Tables.FindTable<T>() as IBulkTable<T>;
 
             if (table == null)
             {
@@ -72,7 +72,7 @@ namespace NMemory.Linq
                 throw new ArgumentException("Delete command can be executed only on NMemory queries.", "queryable");
             }
 
-            IBatchTable<T> table = query.Database.Tables.FindTable<T>() as IBatchTable<T>;
+            IBulkTable<T> table = query.Database.Tables.FindTable<T>() as IBulkTable<T>;
 
             if (table == null)
             {

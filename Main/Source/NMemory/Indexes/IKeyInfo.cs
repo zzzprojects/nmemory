@@ -9,7 +9,7 @@ namespace NMemory.Indexes
 {
 	public interface IKeyInfo
 	{
-		MemberInfo[] KeyMembers { get; }
+        MemberInfo[] EntityKeyMembers { get; }
 
 		Type KeyType { get; }
 	}

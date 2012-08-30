@@ -18,8 +18,11 @@ namespace NMemory.Indexes
 
 		#region Ctor
 
-		internal UniqueIndex(ITable<TEntity> table, Expression<Func<TEntity, TUniqueKey>> key, IUniqueDataStructure<TUniqueKey, TEntity> dataStructure)
-			: base(table, key)
+		internal UniqueIndex(
+            ITable<TEntity> table, 
+            IKeyInfo<TEntity, TUniqueKey> keyInfo, 
+            IUniqueDataStructure<TUniqueKey, TEntity> dataStructure)
+            : base(table, keyInfo)
 		{
 			this.uniqueDataStructure = dataStructure;
 

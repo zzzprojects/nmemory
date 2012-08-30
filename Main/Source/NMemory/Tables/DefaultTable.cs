@@ -156,7 +156,7 @@ namespace NMemory.Tables
             List<IIndex<TEntity>> potentialIndexes = new List<IIndex<TEntity>>();
             foreach (IIndex<TEntity> index in this.Indexes)
             {
-                if (index.KeyInfo.KeyMembers.Any(x => changes.Contains(x)))
+                if (index.KeyInfo.EntityKeyMembers.Any(x => changes.Contains(x)))
                 {
                     potentialIndexes.Add(index);
                 }

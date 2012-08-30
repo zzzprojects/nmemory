@@ -11,47 +11,39 @@ namespace NMemory.Indexes
 {
     public abstract class IndexFactoryBase<TEntity> : IIndexFactory<TEntity> where TEntity : class
     {
-        public IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, Expression<Func<TEntity, TKey>> key)
+        public IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, Expression<Func<TEntity, TKey>> keySelector)
         {
-            // Check if a custom comparer is needed
-            IComparer<TKey> comparer;
-
-            if (!CreateComparerIfNeeded<TKey>(out comparer))
-            {
-                comparer = Comparer<TKey>.Default;
-            }
-
-            return CreateIndex(table, key, comparer);
+            return CreateIndex(table, CreateKeyInfo<TKey>(keySelector));
         }
 
-        public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, Expression<Func<TEntity, TUniqueKey>> key)
+        public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, Expression<Func<TEntity, TUniqueKey>> keySelector)
         {
-            // Check if a custom comparer is needed
-            IComparer<TUniqueKey> comparer;
-
-            if (!CreateComparerIfNeeded<TUniqueKey>(out comparer))
-            {
-                comparer = Comparer<TUniqueKey>.Default;
-            }
-
-            return CreateUniqueIndex(table, key, comparer);
+            return CreateUniqueIndex(table, CreateKeyInfo<TUniqueKey>(keySelector));
         }
 
-        public abstract IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, Expression<Func<TEntity, TKey>> key, IComparer<TKey> keyComparer);
+        public abstract IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo);
 
-        public abstract IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, Expression<Func<TEntity, TUniqueKey>> key, IComparer<TUniqueKey> keyComparer);
+        public abstract IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo);
 
-        private bool CreateComparerIfNeeded<TKey>(out IComparer<TKey> comparer)
+        private static IKeyInfo<TEntity, TKey> CreateKeyInfo<TKey>(Expression<Func<TEntity, TKey>> keySelector)
         {
-            comparer = null;
-
-            if (ReflectionHelper.IsAnonymousType(typeof(TKey)))
+            if (typeof(TKey).IsValueType || (typeof(TKey) == typeof(string)))
             {
-                comparer = new AnonymousTypeComparer<TKey>();
-                return true;
+                return new PrimitiveKeyInfo<TEntity, TKey>(keySelector);
             }
-
-            return false;
+            else if (ReflectionHelper.IsAnonymousType(typeof(TKey)))
+            {
+                return new AnonymousTypeKeyInfo<TEntity, TKey>(keySelector);
+            }
+            else if (ReflectionHelper.IsTuple(typeof(TKey)))
+            {
+                return new TupleKeyInfo<TEntity, TKey>(keySelector);
+            }
+            else
+            {
+                throw new ArgumentException("", "keySelector");
+            }
         }
+
     }
 }

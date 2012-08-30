@@ -69,5 +69,24 @@ namespace NMemory.Common
                 !type.IsValueType ||
                 (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
         }
+
+        public static bool IsTuple(Type type)
+        {
+            if (!type.IsGenericType)
+            {
+                return false;
+            }
+
+            Type t = type.GetGenericTypeDefinition();
+
+            return
+                t == typeof(Tuple<>) ||
+                t == typeof(Tuple<,>) ||
+                t == typeof(Tuple<,,>) ||
+                t == typeof(Tuple<,,,>) ||
+                t == typeof(Tuple<,,,,>) ||
+                t == typeof(Tuple<,,,,,>) ||
+                t == typeof(Tuple<,,,,,,>);
+        }
     }
 }

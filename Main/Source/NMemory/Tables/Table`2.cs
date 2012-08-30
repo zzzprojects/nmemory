@@ -25,7 +25,7 @@ namespace NMemory.Tables
 
         ITable<TEntity, TPrimaryKey>,
         IQueryable<TEntity>,
-        IBatchTable<TEntity>,
+        IBulkTable<TEntity>,
         IReflectionTable
 
         where TEntity : class
@@ -157,7 +157,7 @@ namespace NMemory.Tables
 
         public void Update(TEntity entity, Transaction transaction)
         {
-            TPrimaryKey key = this.primaryKeyIndex.KeyInfo.GetKey(entity);
+            TPrimaryKey key = this.primaryKeyIndex.KeyInfo.SelectKey(entity);
 
             this.Update(key, entity, transaction);
         }
@@ -192,7 +192,7 @@ namespace NMemory.Tables
             }
         }
 
-        IEnumerable<TEntity> IBatchTable<TEntity>.Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater, Transaction transaction)
+        IEnumerable<TEntity> IBulkTable<TEntity>.Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater, Transaction transaction)
         {
             updater = ExpressionHelper.ValidateAndCompleteUpdaterExpression(updater);
             Expression expression = ((IQueryable<TEntity>)query).Expression;
@@ -233,7 +233,7 @@ namespace NMemory.Tables
 
         public void Delete(TEntity entity, Transaction transaction)
         {
-            TPrimaryKey key = this.primaryKeyIndex.KeyInfo.GetKey(entity);
+            TPrimaryKey key = this.primaryKeyIndex.KeyInfo.SelectKey(entity);
 
             this.Delete(key, transaction);
         }
@@ -268,7 +268,7 @@ namespace NMemory.Tables
             }
         }
 
-        int IBatchTable<TEntity>.Delete(TableQuery<TEntity> query, Transaction transaction)
+        int IBulkTable<TEntity>.Delete(TableQuery<TEntity> query, Transaction transaction)
         {
             Expression expression = ((IQueryable<TEntity>)query).Expression;
 
@@ -356,9 +356,9 @@ namespace NMemory.Tables
         public IIndex<TEntity, TKey> CreateIndex<TKey>(
             IIndexFactory<TEntity> indexFactory,
             Expression<Func<TEntity, TKey>> key,
-            IComparer<TKey> keyComparer)
+            IKeyInfo<TEntity, TKey> keyInfo)
         {
-            var index = indexFactory.CreateIndex(this, key, keyComparer);
+            var index = indexFactory.CreateIndex(this, keyInfo);
 
             this.indexes.Add(index);
             this.OnIndexChanged();
@@ -381,9 +381,9 @@ namespace NMemory.Tables
         public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
             IIndexFactory<TEntity> indexFactory,
             Expression<Func<TEntity, TUniqueKey>> key,
-            IComparer<TUniqueKey> keyComparer)
+            IKeyInfo<TEntity, TUniqueKey> keyInfo)
         {
-            var index = indexFactory.CreateUniqueIndex(this, key, keyComparer);
+            var index = indexFactory.CreateUniqueIndex(this, keyInfo);
 
             this.indexes.Add(index);
             this.OnIndexChanged();

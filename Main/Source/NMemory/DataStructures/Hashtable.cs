@@ -113,17 +113,17 @@ namespace NMemory.DataStructures
 
 		public IEnumerable<TEntity> Select(TKey from, TKey to, bool fromOpen, bool toOpen)
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException();
 		}
 
 		public IEnumerable<TEntity> SelectGreater(TKey from, bool open)
 		{
-			throw new NotImplementedException();
+            throw new NotSupportedException();
 		}
 
 		public IEnumerable<TEntity> SelectLess(TKey to, bool open)
 		{
-			throw new NotImplementedException();
+            throw new NotSupportedException();
 		}
 
     }

@@ -8,7 +8,8 @@ using NMemory.Transactions;
 
 namespace NMemory.Tables
 {
-    internal interface IBatchTable<TEntity>
+    internal interface IBulkTable<TEntity>
+        where TEntity : class
     {
         IEnumerable<TEntity> Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater, Transaction transaction);
 

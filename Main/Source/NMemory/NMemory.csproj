@@ -81,8 +81,15 @@
     <Compile Include="Data\Binary.cs" />
     <Compile Include="Data\Timestamp.cs" />
     <Compile Include="Diagnostics\ConsoleLoggingPort.cs" />
+    <Compile Include="Indexes\AnonymousTypeKeyInfo.cs" />
+    <Compile Include="Indexes\AnonymousTypeKeyInfo`2.cs" />
     <Compile Include="Indexes\IUniqueIndex.cs" />
     <Compile Include="Indexes\IUniqueIndex`1.cs" />
+    <Compile Include="Indexes\KeyInfoBase.cs" />
+    <Compile Include="Indexes\PrimitiveKeyInfo.cs" />
+    <Compile Include="Indexes\PrimitiveKeyInfo`2.cs" />
+    <Compile Include="Indexes\TupleKeyInfo.cs" />
+    <Compile Include="Indexes\TupleKeyInfo`2.cs" />
     <Compile Include="Linq\TableQueryTransactionWrapper`1.cs" />
     <Compile Include="Modularity\ILoggingPort.cs" />
     <Compile Include="Diagnostics\MessageBuffer.cs" />
@@ -113,7 +120,7 @@
     <Compile Include="Execution\QueryCompilerBase.cs" />
     <Compile Include="Execution\QueryExecutor.cs" />
     <Compile Include="Functions.cs" />
-    <Compile Include="Indexes\DictionaryIndexFactory.cs" />
+    <Compile Include="Indexes\HashTableIndexFactory.cs" />
     <Compile Include="Indexes\IIndex.cs" />
     <Compile Include="Indexes\IIndex`1.cs" />
     <Compile Include="Indexes\IKeyInfo.cs" />
@@ -124,9 +131,7 @@
     <Compile Include="Indexes\IIndex`2.cs" />
     <Compile Include="Indexes\IndexFactoryBase.cs" />
     <Compile Include="Indexes\IUniqueIndex`2.cs" />
-    <Compile Include="Indexes\KeyInfo.cs" />
     <Compile Include="Indexes\RedBlackTreeIndexFactory.cs" />
-    <Compile Include="Indexes\SimpleKeyInfo.cs" />
     <Compile Include="Indexes\UniqueIndex.cs" />
     <Compile Include="Linq\IIndexedQueryable.cs" />
     <Compile Include="Linq\IndexedQueryable.cs" />
@@ -159,7 +164,7 @@
     <Compile Include="Execution\QueryCompiler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tables\DefaultTable.cs" />
-    <Compile Include="Tables\IBatchTable.cs" />
+    <Compile Include="Tables\IBulkTable.cs" />
     <Compile Include="Tables\IRelation.cs" />
     <Compile Include="Tables\IRelationContraint.cs" />
     <Compile Include="Tables\Relation.cs" />

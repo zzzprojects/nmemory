@@ -9,18 +9,18 @@ namespace NMemory.Indexes
     public class DictionaryIndexFactory<TEntity> : IndexFactoryBase<TEntity>
         where TEntity : class
     {
-        public override IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, Expression<Func<TEntity, TKey>> key, IComparer<TKey> keyComparer)
+        public override IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
         {
             Hashtable<TKey, TEntity> hashTable = new Hashtable<TKey, TEntity>();
-            Index<TEntity, TKey> index = new Index<TEntity, TKey>(table, key, hashTable);
+            Index<TEntity, TKey> index = new Index<TEntity, TKey>(table, keyInfo, hashTable);
 
             return index;
         }
 
-        public override IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, Expression<Func<TEntity, TUniqueKey>> key, IComparer<TUniqueKey> keyComparer)
+        public override IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo)
         {
             UniqueHashtable<TUniqueKey, TEntity> hashTable = new UniqueHashtable<TUniqueKey, TEntity>();
-            UniqueIndex<TEntity, TUniqueKey> index = new UniqueIndex<TEntity, TUniqueKey>(table, key, hashTable);
+            UniqueIndex<TEntity, TUniqueKey> index = new UniqueIndex<TEntity, TUniqueKey>(table, keyInfo, hashTable);
 
             return index;
         }

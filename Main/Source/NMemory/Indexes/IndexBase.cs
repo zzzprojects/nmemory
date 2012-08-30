@@ -6,11 +6,12 @@ using System.Reflection;
 using NMemory.DataStructures;
 using NMemory.Linq;
 using NMemory.Tables;
+using NMemory.Common;
 
 namespace NMemory.Indexes
 {
 
-	public abstract class IndexBase<TEntity, TKey> : IIndex<TEntity, TKey>, IIndex
+	public abstract class IndexBase<TEntity, TKey> : IIndex<TEntity, TKey>
 		where TEntity : class
 	{
 		#region Fields
@@ -22,18 +23,10 @@ namespace NMemory.Indexes
 
 		#region Ctor
 
-		internal IndexBase(ITable<TEntity> table, Expression<Func<TEntity, TKey>> key)
+		internal IndexBase(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo) 
 		{
-			if (typeof(TKey).IsValueType || (typeof(TKey) == typeof(string)))
-			{
-				this.keyInfo = new SimpleKeyInfo<TEntity, TKey>(key);
-			}
-			else
-			{
-				this.keyInfo = new KeyInfo<TEntity, TKey>(key);
-			}
-
 			this.table = table;
+            this.keyInfo = keyInfo;
 		}
 
 
@@ -43,7 +36,7 @@ namespace NMemory.Indexes
 
 		public TKey Key(TEntity entity)
 		{
-			return this.keyInfo.GetKey(entity);
+			return this.keyInfo.SelectKey(entity);
 		}
 
         public abstract IEnumerable<TEntity> Select(TKey value);
@@ -147,8 +140,8 @@ namespace NMemory.Indexes
 		{
 			return string.Format("{0} | {1} {2} | TABLE: {3}", 
                 this.GetType().Name, 
-                (this.KeyInfo.KeyMembers.Length > 1) ? "COLUMNS" : "COLUMN",
-                string.Join(", ", this.KeyInfo.KeyMembers.Select(mi => 
+                (this.KeyInfo.EntityKeyMembers.Length > 1) ? "COLUMNS" : "COLUMN",
+                string.Join(", ", this.KeyInfo.EntityKeyMembers.Select(mi => 
                     string.Format("{0} ({1})",
                         mi.Name, 
                         (mi.MemberType == MemberTypes.Property) ? 
@@ -176,6 +169,7 @@ namespace NMemory.Indexes
 
             if (this.Table.PrimaryKeyIndex == this)
             {
+                // Store the current data, if the primary index is being rebuilt
                 tableData = tableData.ToList();
             }
 
@@ -183,7 +177,7 @@ namespace NMemory.Indexes
 
             foreach (TEntity entity in tableData)
             {
-                this.DataStructure.Insert(this.KeyInfo.GetKey(entity), entity);
+                this.DataStructure.Insert(this.KeyInfo.SelectKey(entity), entity);
             }
         }
     }

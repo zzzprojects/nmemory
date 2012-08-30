@@ -15,21 +15,19 @@ namespace NMemory.Indexes
     {
         IIndex<TEntity, TKey> CreateIndex<TKey>(
             ITable<TEntity> table, 
-            Expression<Func<TEntity, TKey>> key);
+            Expression<Func<TEntity, TKey>> keySelector);
 
         IIndex<TEntity, TKey> CreateIndex<TKey>(
             ITable<TEntity> table, 
-            Expression<Func<TEntity, TKey>> key, 
-            IComparer<TKey> keyComparer);
+            IKeyInfo<TEntity, TKey> keyInfo);
 
         IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
-            ITable<TEntity> table, 
-            Expression<Func<TEntity, TUniqueKey>> key);
+            ITable<TEntity> table,
+            Expression<Func<TEntity, TUniqueKey>> keySelector);
 
         IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
-            ITable<TEntity> table, 
-            Expression<Func<TEntity, TUniqueKey>> key, 
-            IComparer<TUniqueKey> keyComparer);
+            ITable<TEntity> table,
+            IKeyInfo<TEntity, TUniqueKey> keyInfo);
     }
 
 }

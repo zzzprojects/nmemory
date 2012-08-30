@@ -36,8 +36,6 @@ namespace NMemory.Tables
 		private Func<TForeignKey, TPrimaryKey> convertForeignToPrimary;
 		private Func<TPrimaryKey, TForeignKey> convertPrimaryToForeign;
 
-        private Func<TForeignKey, bool> foreignKeyEmptinessDetector;
-
 		#endregion
 
 		#region Ctor
@@ -53,8 +51,6 @@ namespace NMemory.Tables
 
             this.convertForeignToPrimary = foreignToPrimary;
             this.convertPrimaryToForeign = primaryToForeign;
-
-            this.foreignKeyEmptinessDetector = this.CreateForeignKeyEmptinessDetector();
         }
 
         #endregion
@@ -83,10 +79,10 @@ namespace NMemory.Tables
         void IRelation.ValidateEntity(object foreign)
         {
             TForeign foreignEntity = (TForeign)foreign;
-            TForeignKey foreignKey = this.foreignIndex.KeyInfo.GetKey(foreignEntity);
+            TForeignKey foreignKey = this.foreignIndex.KeyInfo.SelectKey(foreignEntity);
 
             // Empty foreign key means, that it does not refer to anything
-            if (this.IsEmptyKey(foreignKey))
+            if (this.foreignIndex.KeyInfo.IsEmptyKey(foreignKey))
             {
                 return;
             }
@@ -104,7 +100,7 @@ namespace NMemory.Tables
         IEnumerable<object> IRelation.GetReferringEntities(object primary)
         {
             TPrimary primaryEntity = (TPrimary)primary;
-            TPrimaryKey primaryKey = this.primaryIndex.KeyInfo.GetKey(primaryEntity);
+            TPrimaryKey primaryKey = this.primaryIndex.KeyInfo.SelectKey(primaryEntity);
 
             TForeignKey foreignKey = this.convertPrimaryToForeign.Invoke(primaryKey);
 
@@ -114,10 +110,10 @@ namespace NMemory.Tables
         IEnumerable<object> IRelation.GetReferredEntities(object foreign)
         {
             TForeign foreignEntity = (TForeign)foreign;
-            TForeignKey foreignKey = this.foreignIndex.KeyInfo.GetKey(foreignEntity);
+            TForeignKey foreignKey = this.foreignIndex.KeyInfo.SelectKey(foreignEntity);
 
             // Empty key means that there are no referred entity
-            if (this.IsEmptyKey(foreignKey))
+            if (this.foreignIndex.KeyInfo.IsEmptyKey(foreignKey))
             {
                 return Enumerable.Empty<object>();
             }
@@ -125,60 +121,6 @@ namespace NMemory.Tables
             TPrimaryKey primaryKey = this.convertForeignToPrimary.Invoke(foreignKey);
 
             return this.primaryIndex.Select(primaryKey);
-        }
-
-        private bool IsEmptyKey(TForeignKey key)
-        {
-            if (key == null)
-            {
-                return true;
-            }
-
-            return this.foreignKeyEmptinessDetector.Invoke(key);
-        }
-
-        private Func<TForeignKey, bool> CreateForeignKeyEmptinessDetector()
-        {
-            Type foreignKeyType = this.foreignIndex.KeyInfo.KeyType;
-
-            ParameterExpression keyParam = Expression.Parameter(foreignKeyType);
-            Expression body = null;
-
-            if (ReflectionHelper.IsAnonymousType(foreignKeyType))
-            {
-                PropertyInfo[] properties = foreignKeyType.GetProperties();
-                for (int i = 0; i < properties.Length; i++)
-                {
-                    PropertyInfo property = properties[i];
-                    Type propertyType = property.PropertyType;
-
-                    if (ReflectionHelper.IsNullable(propertyType))
-                    {
-                        Expression equalityTest =
-                            Expression.Equal(
-                                Expression.Property(keyParam, property),
-                                Expression.Constant(null, propertyType));
-
-                        if (body == null)
-                        {
-                            body = equalityTest;
-                        }
-                        else
-                        {
-                            body = Expression.Or(body, equalityTest);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                body = Expression.Constant(false);
-            }
-
-            Expression<Func<TForeignKey, bool>> resultExpression =
-                Expression.Lambda<Func<TForeignKey, bool>>(body, keyParam);
-
-            return resultExpression.Compile();
         }
     }
 }
