@@ -10,6 +10,7 @@ namespace NMemory.Indexes
         where TEntity : class
     {
         private MemberInfo[] entityKeyMembers;
+        private SortOrder[] sortOrders;
 
         private IComparer<TKey> keyComparer;
         private Func<TEntity, TKey> keySelector;
@@ -17,11 +18,15 @@ namespace NMemory.Indexes
 
         public KeyInfoBase(
             MemberInfo[] entityKeyMembers,
+            SortOrder[] sortOrders,
+
             IComparer<TKey> keyComparer,
             Func<TEntity, TKey> keySelector,
             Func<TKey, bool> keyEmptinessDetector)
         {
             this.entityKeyMembers = entityKeyMembers;
+            this.sortOrders = sortOrders;
+
             this.keyComparer = keyComparer;
             this.keySelector = keySelector;
             this.keyEmptinessDetector = keyEmptinessDetector;
@@ -47,12 +52,14 @@ namespace NMemory.Indexes
             get { return this.entityKeyMembers.ToArray(); }
         }
 
+        public SortOrder[] SortOrders
+        {
+            get { return this.sortOrders.ToArray(); }
+        }
+
         public Type KeyType
         {
             get { return typeof(TKey); }
         }
-
-
-        
     }
 }

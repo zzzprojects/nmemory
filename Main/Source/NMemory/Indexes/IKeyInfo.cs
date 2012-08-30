@@ -11,6 +11,8 @@ namespace NMemory.Indexes
 	{
         MemberInfo[] EntityKeyMembers { get; }
 
+        SortOrder[] SortOrders { get; }
+
 		Type KeyType { get; }
 	}
 }

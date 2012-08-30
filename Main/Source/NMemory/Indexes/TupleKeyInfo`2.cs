@@ -10,14 +10,33 @@ namespace NMemory.Indexes
     public class TupleKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>
         where TEntity : class
     {
-        public TupleKeyInfo(Expression<Func<TEntity, TKey>> keyExpression) : 
+        public TupleKeyInfo(Expression<Func<TEntity, TKey>> keyExpression, SortOrder[] sortOrders) : 
             base(
                 GetEntityKeyMembers(keyExpression),
+                sortOrders,
                 Comparer<TKey>.Default,
                 keyExpression.Compile(),
                 TupleKeyInfo<TEntity, TKey>.CreateKeyEmptinessDetector())
         {
 
+        }
+
+        public TupleKeyInfo(Expression<Func<TEntity, TKey>> keyExpression) :
+            base(
+                GetEntityKeyMembers(keyExpression),
+                GetDefaultSortOrders(keyExpression),
+                Comparer<TKey>.Default,
+                keyExpression.Compile(),
+                TupleKeyInfo<TEntity, TKey>.CreateKeyEmptinessDetector())
+        {
+
+        }
+
+        private static SortOrder[] GetDefaultSortOrders(Expression<Func<TEntity, TKey>> keySelector)
+        {
+            int fieldCount = GetEntityKeyMembers(keySelector).Length;
+
+            return Enumerable.Repeat(SortOrder.Ascending, fieldCount).ToArray();
         }
 
         private static MemberInfo[] GetKeyMembers(Expression<Func<TEntity, TKey>> keyExpression)

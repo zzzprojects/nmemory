@@ -39,6 +39,8 @@
   <ItemGroup>
     <Compile Include="Common\CollectionExtensions.cs" />
     <Compile Include="Common\ExpressionHelper.cs" />
+    <Compile Include="Indexes\PrimitiveComparer.cs" />
+    <Compile Include="Indexes\PrimitiveKeyComparer`1.cs" />
     <Compile Include="Common\QueryMethods.cs" />
     <Compile Include="Common\ReflectionHelper.cs" />
     <Compile Include="Common\Visitors\ParameterChangeVisitor.cs" />
@@ -61,7 +63,7 @@
     <Compile Include="Constraints\NVarCharConstraint.cs" />
     <Compile Include="Constraints\TimestampConstraint.cs" />
     <Compile Include="Database.cs" />
-    <Compile Include="Common\AnonymousTypeComparer.cs" />
+    <Compile Include="Indexes\AnonymousTypeKeyComparer.cs" />
     <Compile Include="DataStructures\Hashtable.cs" />
     <Compile Include="DataStructures\IDataStructure.cs" />
     <Compile Include="DataStructures\IIntervalSearchable.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="Indexes\KeyInfoBase.cs" />
     <Compile Include="Indexes\PrimitiveKeyInfo.cs" />
     <Compile Include="Indexes\PrimitiveKeyInfo`2.cs" />
+    <Compile Include="Indexes\SortOrder.cs" />
     <Compile Include="Indexes\TupleKeyInfo.cs" />
     <Compile Include="Indexes\TupleKeyInfo`2.cs" />
     <Compile Include="Linq\TableQueryTransactionWrapper`1.cs" />

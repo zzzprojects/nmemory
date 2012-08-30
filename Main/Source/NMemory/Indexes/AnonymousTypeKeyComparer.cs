@@ -4,14 +4,16 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using NMemory.Indexes;
+using NMemory.Common;
 
-namespace NMemory.Common
+namespace NMemory.Indexes
 {
-    internal class AnonymousTypeComparer<T> : IComparer<T>
+    internal class AnonymousTypeKeyComparer<T> : IComparer<T>
     {
         private Func<T, T, int> comparer;
 
-        public AnonymousTypeComparer()
+        public AnonymousTypeKeyComparer(SortOrder[] sortOrders)
         {
             var marker = typeof(T).GetCustomAttributes(typeof(DebuggerDisplayAttribute), false).Cast<DebuggerDisplayAttribute>();
 
@@ -25,6 +27,16 @@ namespace NMemory.Common
             if (properties.Length == 0)
             {
                 throw new InvalidOperationException("No properties");
+            }
+
+            if (sortOrders == null)
+            {
+                sortOrders = Enumerable.Repeat(SortOrder.Ascending, properties.Length).ToArray();
+            }
+
+            if (sortOrders.Length != properties.Length)
+            {
+                throw new ArgumentException("The count of sort ordering values does not match the count of anonymous type propeties", "sortOrders");
             }
 
             ParameterExpression x = Expression.Parameter(typeof(T), "x");
@@ -43,15 +55,15 @@ namespace NMemory.Common
 		            blockBody.Add(
                         Expression.Assign(
                             variable, 
-                            CreateComparsion(p, x, y)));
+                            CreateComparsion(p, x, y, sortOrders[i])));
 	            }
                 else
                 {
                     blockBody.Add(
                         Expression.IfThen(
                             Expression.Equal(variable, Expression.Constant(0)),
-                                
-                            Expression.Assign(variable, CreateComparsion(p, x, y))
+
+                            Expression.Assign(variable, CreateComparsion(p, x, y, sortOrders[i]))
                                 
                             ));
                 }
@@ -70,44 +82,38 @@ namespace NMemory.Common
             this.comparer = lambda.Compile();
         }
 
-        private Expression CreateComparsion(PropertyInfo p, ParameterExpression x, ParameterExpression y)
+        private Expression CreateComparsion(PropertyInfo p, ParameterExpression x, ParameterExpression y, SortOrder ordering)
         {
-            var comparerType = typeof(Comparer<>).MakeGenericType(p.PropertyType);
+            MethodInfo compareMethod = 
+                ReflectionHelper.GetStaticMethodInfo(() => 
+                    PrimitiveKeyComparer.Compare<object>(null, null, SortOrder.Ascending));
 
-            var comparer = comparerType
-                .GetProperty("Default", BindingFlags.Static | BindingFlags.Public)
-                .GetValue(null, null);
-
-            var comparerMethod = comparerType
-                .GetMethod("Compare");
+            compareMethod = compareMethod.GetGenericMethodDefinition().MakeGenericMethod(p.PropertyType);
 
             return Expression.Call(
-                Expression.Constant(comparer), comparerMethod,
-                
+                compareMethod,
                 Expression.Property(x, p),
-                Expression.Property(y, p));
+                Expression.Property(y, p),
+                Expression.Constant(ordering, typeof(SortOrder)));
         }
 
         public int Compare(T x, T y)
         {
-            if (x == null && y != null)
+            if (x == null)
             {
-                return -1;
+                throw new ArgumentException("Anonymous type key cannot be null", "x");
             }
 
-            if (x != null && y == null)
+            if (y == null)
             {
-                return 1;
-            }
-
-            if (x == null && y == null)
-            {
-                return 0;
+                throw new ArgumentException("Anonymous type key cannot be null", "y");
             }
 
             int result = this.comparer(x, y);
 
             return result;
         }
+
+
     }
 }

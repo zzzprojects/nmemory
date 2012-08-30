@@ -11,14 +11,35 @@ namespace NMemory.Indexes
     public class AnonymousTypeKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>
         where TEntity : class
     {
-        public AnonymousTypeKeyInfo(Expression<Func<TEntity, TKey>> keySelector) : 
+        public AnonymousTypeKeyInfo(Expression<Func<TEntity, TKey>> keySelector, SortOrder[] sortOrders) : 
             base(
                 GetEntityKeyMembers(keySelector),
-                new AnonymousTypeComparer<TKey>(),
+                sortOrders,
+
+                new AnonymousTypeKeyComparer<TKey>(sortOrders),
                 keySelector.Compile(),
                 CreateKeyEmptinessDetector())
         {
 
+        }
+
+        public AnonymousTypeKeyInfo(Expression<Func<TEntity, TKey>> keySelector) :
+            base(
+                GetEntityKeyMembers(keySelector),
+                GetDefaultSortOrders(keySelector),
+
+                new AnonymousTypeKeyComparer<TKey>(GetDefaultSortOrders(keySelector)),
+                keySelector.Compile(),
+                CreateKeyEmptinessDetector())
+        {
+
+        }
+
+        private static SortOrder[] GetDefaultSortOrders(Expression<Func<TEntity, TKey>> keySelector)
+        {
+            int fieldCount = GetEntityKeyMembers(keySelector).Length;
+
+            return Enumerable.Repeat(SortOrder.Ascending, fieldCount).ToArray();
         }
 
         private static MemberInfo[] GetEntityKeyMembers(Expression<Func<TEntity, TKey>> keySelector)

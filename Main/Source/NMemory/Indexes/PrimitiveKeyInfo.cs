@@ -13,5 +13,11 @@ namespace NMemory.Indexes
         {
             return new PrimitiveKeyInfo<TEntity, TKey>(keySelector);
         }
+
+        public static PrimitiveKeyInfo<TEntity, TKey> Create<TEntity, TKey>(Expression<Func<TEntity, TKey>> keySelector, SortOrder sortOrder)
+            where TEntity : class
+        {
+            return new PrimitiveKeyInfo<TEntity, TKey>(keySelector, sortOrder);
+        }
     }
 }

@@ -15,14 +15,22 @@ namespace NMemory.Common
         //    return method.Method;
         //}
 
-        public static MethodInfo GetMethodInfo<T>(Expression<Action<T>> expression)
+        public static MethodInfo GetMethodInfo<TClass>(Expression<Action<TClass>> expression)
         {
             var method = expression.Body as MethodCallExpression;
 
             return method.Method;
         }
 
-        public static PropertyInfo GetPropertyInfo<T>(Expression<Func<T, object>> expression)
+        public static MethodInfo GetStaticMethodInfo<TResult>(Expression<Func<TResult>> expression)
+        {
+            var method = expression.Body as MethodCallExpression;
+
+            return method.Method;
+        }
+
+
+        public static PropertyInfo GetPropertyInfo<TClass, TResult>(Expression<Func<TClass, TResult>> expression)
         {
             var member = expression.Body as MemberExpression;
 

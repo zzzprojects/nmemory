@@ -29,15 +29,15 @@ namespace NMemory.Indexes
         {
             if (typeof(TKey).IsValueType || (typeof(TKey) == typeof(string)))
             {
-                return new PrimitiveKeyInfo<TEntity, TKey>(keySelector);
+                return PrimitiveKeyInfo.Create(keySelector);
             }
             else if (ReflectionHelper.IsAnonymousType(typeof(TKey)))
             {
-                return new AnonymousTypeKeyInfo<TEntity, TKey>(keySelector);
+                return AnonymousTypeKeyInfo.Create(keySelector);
             }
             else if (ReflectionHelper.IsTuple(typeof(TKey)))
             {
-                return new TupleKeyInfo<TEntity, TKey>(keySelector);
+                return TupleKeyInfo.Create(keySelector);
             }
             else
             {
