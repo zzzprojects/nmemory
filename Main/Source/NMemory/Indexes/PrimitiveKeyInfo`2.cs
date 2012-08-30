@@ -23,38 +23,31 @@ namespace NMemory.Indexes
         }
 
         public PrimitiveKeyInfo(Expression<Func<TEntity, TKey>> keySelector) :
-            base(
-                GetEntityKeyMembers(keySelector),
-                GetDefaultSortOrders(),
-                Comparer<TKey>.Default,
-                keySelector.Compile(),
-                PrimitiveKeyInfo<TEntity, TKey>.IsKeyEmpty)
+            this(keySelector, SortOrder.Ascending)
         {
 
-        }
-
-        private static SortOrder[] GetDefaultSortOrders()
-        {
-            return Enumerable.Repeat(SortOrder.Ascending, 1).ToArray();
         }
 
         private static MemberInfo[] GetEntityKeyMembers(Expression<Func<TEntity, TKey>> keySelector)
         {
-            MemberExpression memberSelection = keySelector.Body as MemberExpression;
+            MemberExpression member = keySelector.Body as MemberExpression;
 
-            if (memberSelection == null)
+            if (member == null)
             {
                 throw new ArgumentException("Invalid expression", "keySelector");
             }
 
-            return new MemberInfo[] { memberSelection.Member };
+            if (member.Expression.NodeType != ExpressionType.Parameter)
+            {
+                throw new ArgumentException("Invalid expression", "keySelector");
+            }
+
+            return new MemberInfo[] { member.Member };
         }
 
         private static bool IsKeyEmpty(TKey key)
         {
             return key == null;
         }
-
-
     }
 }

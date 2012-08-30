@@ -114,7 +114,6 @@ namespace NMemory.Test
             var keyInfo = AnonymousTypeKeyInfo.Create((Member m) => new { m.GroupId, m.GroupId2 }, SortOrder.Descending, SortOrder.Ascending);
             var comparer = keyInfo.KeyComparer;
 
-
             Assert.AreEqual(0, comparer.Compare(
                 new { GroupId = (int?)null, GroupId2 = 1 },
                 new { GroupId = (int?)null, GroupId2 = 1 }));
@@ -128,7 +127,6 @@ namespace NMemory.Test
                 new { GroupId = (int?)null, GroupId2 = 1 }));
 
 
-
             Assert.AreEqual(-1, comparer.Compare(
                 new { GroupId = (int?)null, GroupId2 = 1 },
                 new { GroupId = (int?)null, GroupId2 = 2 }));
@@ -138,6 +136,122 @@ namespace NMemory.Test
                 new { GroupId = (int?)1, GroupId2 = 1 }));
         }
 
+        [TestMethod]
+        public void TupleKeyInfoCreation()
+        {
+            var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId, m.GroupId2));
 
+            Assert.AreEqual(2, keyInfo.EntityKeyMembers.Length);
+        }
+
+        [TestMethod]
+        public void TupleKeyInfoCreation2()
+        {
+            var keyInfo = TupleKeyInfo.Create((Member m) => new Tuple<int?, int>(m.GroupId, m.GroupId2));
+
+            Assert.AreEqual(2, keyInfo.EntityKeyMembers.Length);
+        }
+
+        [TestMethod]
+        public void TupleKeyInfoIsEmpty()
+        {
+            var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId, m.GroupId2));
+
+            Assert.AreEqual(false, keyInfo.IsEmptyKey(Tuple.Create((int?)1, 1)));
+            Assert.AreEqual(true, keyInfo.IsEmptyKey(Tuple.Create((int?)null, 1)));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TupleKeyInfoComparerNullThrowsException()
+        {
+            var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId, m.GroupId2));
+            var comparer = keyInfo.KeyComparer;
+
+            comparer.Compare(null, null);
+        }
+
+        [TestMethod]
+        public void TupleKeyInfoComparerDescending()
+        {
+            var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId, m.GroupId2), SortOrder.Descending, SortOrder.Ascending);
+            var comparer = keyInfo.KeyComparer;
+
+            Assert.AreEqual(0, comparer.Compare(
+                Tuple.Create((int?)null, 1), 
+                Tuple.Create((int?)null, 1)));
+
+            Assert.AreEqual(-1, comparer.Compare(
+                Tuple.Create((int?)null, 1),
+                Tuple.Create((int?)1, 1)));
+
+            Assert.AreEqual(1, comparer.Compare(
+                Tuple.Create((int?)1, 1),
+                Tuple.Create((int?)null, 1)));
+
+
+            Assert.AreEqual(0, comparer.Compare(
+               Tuple.Create((int?)1, 1),
+               Tuple.Create((int?)1, 1)));
+
+            Assert.AreEqual(-1, comparer.Compare(
+                Tuple.Create((int?)1, 1),
+                Tuple.Create((int?)2, 1)));
+
+            Assert.AreEqual(1, comparer.Compare(
+                Tuple.Create((int?)2, 1),
+                Tuple.Create((int?)1, 1)));
+
+
+            Assert.AreEqual(-1, comparer.Compare(
+                Tuple.Create((int?)1, 1),
+                Tuple.Create((int?)1, 2)));
+
+            Assert.AreEqual(1, comparer.Compare(
+                Tuple.Create((int?)1, 2),
+                Tuple.Create((int?)1, 1)));
+
+        }
+
+        [TestMethod]
+        public void TupleKeyInfoComparer()
+        {
+            var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId, m.GroupId2));
+            var comparer = keyInfo.KeyComparer;
+
+            Assert.AreEqual(0, comparer.Compare(
+                Tuple.Create((int?)null, 1),
+                Tuple.Create((int?)null, 1)));
+
+            Assert.AreEqual(-1, comparer.Compare(
+                Tuple.Create((int?)null, 1),
+                Tuple.Create((int?)1, 1)));
+
+            Assert.AreEqual(1, comparer.Compare(
+                Tuple.Create((int?)1, 1),
+                Tuple.Create((int?)null, 1)));
+            
+            Assert.AreEqual(0, comparer.Compare(
+               Tuple.Create((int?)1, 1),
+               Tuple.Create((int?)1, 1)));
+
+            Assert.AreEqual(-1, comparer.Compare(
+                Tuple.Create((int?)1, 1),
+                Tuple.Create((int?)2, 1)));
+
+            Assert.AreEqual(1, comparer.Compare(
+                Tuple.Create((int?)2, 1),
+                Tuple.Create((int?)1, 1)));
+
+
+            Assert.AreEqual(-1, comparer.Compare(
+                Tuple.Create((int?)1, 1),
+                Tuple.Create((int?)1, 2)));
+
+            Assert.AreEqual(1, comparer.Compare(
+                Tuple.Create((int?)1, 2),
+                Tuple.Create((int?)1, 1)));
+
+        }
     }
 }

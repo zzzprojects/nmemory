@@ -24,13 +24,7 @@ namespace NMemory.Indexes
         }
 
         public AnonymousTypeKeyInfo(Expression<Func<TEntity, TKey>> keySelector) :
-            base(
-                GetEntityKeyMembers(keySelector),
-                GetDefaultSortOrders(keySelector),
-
-                new AnonymousTypeKeyComparer<TKey>(GetDefaultSortOrders(keySelector)),
-                keySelector.Compile(),
-                CreateKeyEmptinessDetector())
+            this(keySelector, GetDefaultSortOrders(keySelector))
         {
 
         }
@@ -60,14 +54,19 @@ namespace NMemory.Indexes
 
             foreach (Expression arg in resultCreator.Arguments)
             {
-                MemberExpression memberSelector = arg as MemberExpression;
+                MemberExpression member = arg as MemberExpression;
 
-                if (memberSelector == null)
+                if (member == null)
                 {
                     throw new ArgumentException("Invalid expression", "keySelector");
                 }
 
-                result.Add(memberSelector.Member);
+                if (member.Expression.NodeType != ExpressionType.Parameter)
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+
+                result.Add(member.Member);
             }
 
             return result.ToArray();
