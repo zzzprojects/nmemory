@@ -2,9 +2,9 @@
 namespace NMemory.Modularity
 {
     /// <summary>
-    /// Provides funtionality to instantiate <see cref="NMemory.Database">Database</see> instances.
+    /// Provides funtionality to instantiate the components of a database engine.
     /// </summary>
-    public interface IDatabaseEngineFactory
+    public interface IDatabaseComponentFactory
     {
         /// <summary>
         /// Creates a concurrency manager that handles the concurrent access of transactions.
@@ -29,6 +29,12 @@ namespace NMemory.Modularity
         /// </summary>
         /// <returns>A query executor.</returns>
         IQueryExecutor CreateQueryExecutor();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        ILoggingPort CreateLoggingPort();
 
 
     }

@@ -57,7 +57,7 @@ namespace NMemory.Transactions
                 result = new TransactionContext(localTransaction);
             }
 
-            database.TransactionHandler.EnsureSubscription(transaction);
+            database.DatabaseEngine.TransactionHandler.EnsureSubscription(transaction);
 
             return result;
         }

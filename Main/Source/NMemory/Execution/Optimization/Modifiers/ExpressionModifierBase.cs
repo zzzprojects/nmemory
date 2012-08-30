@@ -20,7 +20,7 @@ namespace NMemory.Execution.Optimization.Modifiers
 
         protected ILoggingPort LoggingPort
         {
-            get { return this.database.LoggingPort; }
+            get { return this.database.DatabaseEngine.LoggingPort; }
         }
     }
 }

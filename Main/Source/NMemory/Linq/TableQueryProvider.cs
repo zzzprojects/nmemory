@@ -37,7 +37,7 @@ namespace NMemory.Linq
             using (var tran = Transaction.EnsureTransaction(ref transaction, this.database))
             {
                 IList<ITable> tables = TableSearchVisitor.FindTables(expression);
-                Func<IExecutionContext, TResult> compiledQuery = this.database.Compiler.Compile<TResult>(expression);
+                Func<IExecutionContext, TResult> compiledQuery = this.database.DatabaseEngine.Compiler.Compile<TResult>(expression);
                 IExecutionContext context = new ExecutionContext(transaction, tables);
 
                 TResult result = compiledQuery.Invoke(context);

@@ -89,22 +89,22 @@ namespace NMemory.Tables
 
         protected void AcquireWriteLock(Transaction transaction)
         {
-            this.Database.ConcurrencyManager.AcquireTableWriteLock(this, transaction);
+            this.Database.DatabaseEngine.ConcurrencyManager.AcquireTableWriteLock(this, transaction);
         }
 
         protected void ReleaseWriteLock(Transaction transaction)
         {
-            this.Database.ConcurrencyManager.ReleaseTableWriteLock(this, transaction);
+            this.Database.DatabaseEngine.ConcurrencyManager.ReleaseTableWriteLock(this, transaction);
         }
 
         protected void AcquireReadLock(Transaction transaction)
         {
-            this.Database.ConcurrencyManager.AcquireTableReadLock(this, transaction);
+            this.Database.DatabaseEngine.ConcurrencyManager.AcquireTableReadLock(this, transaction);
         }
 
         protected void ReleaseReadLock(Transaction transaction)
         {
-            this.Database.ConcurrencyManager.ReleaseTableReadLock(this, transaction);
+            this.Database.DatabaseEngine.ConcurrencyManager.ReleaseTableReadLock(this, transaction);
         }
 
         #endregion

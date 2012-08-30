@@ -29,7 +29,7 @@ namespace NMemory.Execution
             }
 
             IEnumerable<T> query = compiledQuery.Invoke(context);
-            IConcurrencyManager cm = this.database.ConcurrencyManager;
+            IConcurrencyManager cm = this.database.DatabaseEngine.ConcurrencyManager;
 
             ITable[] tables = context.AffectedTables.ToArray();
 

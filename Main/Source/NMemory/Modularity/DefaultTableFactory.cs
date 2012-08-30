@@ -22,7 +22,7 @@ namespace NMemory.Modularity
         {
             Table<TEntity, TPrimaryKey> table = new DefaultTable<TEntity, TPrimaryKey>(database, primaryKey, identitySpecification, initialEntities);
 
-            TableLockConcurrencyManager manager = this.database.ConcurrencyManager as TableLockConcurrencyManager;
+            TableLockConcurrencyManager manager = this.database.DatabaseEngine.ConcurrencyManager as TableLockConcurrencyManager;
             manager.RegisterTable(table);
 
             return table;

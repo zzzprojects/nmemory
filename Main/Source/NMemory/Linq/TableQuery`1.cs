@@ -56,10 +56,10 @@ namespace NMemory.Linq
                 // TODO: Ensure transaction
 
                 var tables = TableSearchVisitor.FindTables(((IQueryable)this).Expression);
-                var compiledQuery = this.Database.Compiler.Compile<IEnumerable<TEntity>>(((IQueryable)this).Expression);
+                var compiledQuery = this.Database.DatabaseEngine.Compiler.Compile<IEnumerable<TEntity>>(((IQueryable)this).Expression);
 
                 var context = new ExecutionContext(transaction, tables);
-                var result = this.Database.Executor.Execute(compiledQuery, context);
+                var result = this.Database.DatabaseEngine.Executor.Execute(compiledQuery, context);
 
                 ctx.Complete();
 

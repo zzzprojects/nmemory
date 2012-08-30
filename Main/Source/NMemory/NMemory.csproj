@@ -91,6 +91,8 @@
     <Compile Include="Indexes\TupleKeyInfo.cs" />
     <Compile Include="Indexes\TupleKeyInfo`2.cs" />
     <Compile Include="Linq\TableQueryTransactionWrapper`1.cs" />
+    <Compile Include="Modularity\DefaultDatabaseEngine.cs" />
+    <Compile Include="Modularity\IDatabase.cs" />
     <Compile Include="Modularity\ILoggingPort.cs" />
     <Compile Include="Diagnostics\MessageBuffer.cs" />
     <Compile Include="Diagnostics\Messages\IndexFoundMessage.cs" />
@@ -141,12 +143,12 @@
     <Compile Include="Linq\TableQueryProvider.cs" />
     <Compile Include="Linq\QueryableEx.cs" />
     <Compile Include="Common\DynamicMethodBuilder.cs" />
-    <Compile Include="Modularity\DefaultDatabaseEngineFactory.cs" />
+    <Compile Include="Modularity\DefaultDatabaseComponentFactory.cs" />
     <Compile Include="Modularity\DefaultTableFactory.cs" />
     <Compile Include="Modularity\IConcurrencyManager.cs" />
-    <Compile Include="Modularity\IDatabase.cs" />
+    <Compile Include="Modularity\IDatabaseEngine.cs" />
     <Compile Include="Modularity\IDatabaseComponent.cs" />
-    <Compile Include="Modularity\IDatabaseEngineFactory.cs" />
+    <Compile Include="Modularity\IDatabaseComponentFactory.cs" />
     <Compile Include="Modularity\ITableFactory.cs" />
     <Compile Include="Modularity\IExtensible.cs" />
     <Compile Include="Modularity\IQueryCompiler.cs" />

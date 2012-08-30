@@ -62,7 +62,7 @@ namespace NMemory.Transactions
                 log.Release();
             }
 
-            this.database.ConcurrencyManager.ReleaseAllLocks(transaction);
+            this.database.DatabaseEngine.ConcurrencyManager.ReleaseAllLocks(transaction);
         }
 
 

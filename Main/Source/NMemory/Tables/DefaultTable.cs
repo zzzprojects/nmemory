@@ -53,7 +53,7 @@ namespace NMemory.Tables
             // Lock the related tables
             this.LockRelatedTables(transaction, relatedTables);
 
-            TransactionLog log = this.Database.TransactionHandler.GetTransactionLog(transaction);
+            TransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
             int logPosition = log.CurrentPosition;
 
             try
@@ -179,7 +179,7 @@ namespace NMemory.Tables
             this.FindRelatedEntities(storedEntities, referringRelations, referredRelations, referringEntities, referredEntities);
 
             // Get the transaction log
-            TransactionLog log = this.Database.TransactionHandler.GetTransactionLog(transaction);
+            TransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
             int logPosition = log.CurrentPosition;
 
             transaction.EnterAtomicSection();
@@ -303,7 +303,7 @@ namespace NMemory.Tables
             HashSet<object> referredEntities = new HashSet<object>();
             this.FindRelatedEntities(storedEntities, referringRelations, referredRelations, referringEntities, referredEntities);
 
-            TransactionLog log = this.Database.TransactionHandler.GetTransactionLog(transaction);
+            TransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
             int logPosition = log.CurrentPosition;
 
             transaction.EnterAtomicSection();
@@ -341,7 +341,7 @@ namespace NMemory.Tables
 
         private List<TEntity> QueryEntities(Expression expression, Transaction transaction)
         {
-            var compiledQuery = this.Database.Compiler.Compile<IEnumerable<TEntity>>(expression);
+            var compiledQuery = this.Database.DatabaseEngine.Compiler.Compile<IEnumerable<TEntity>>(expression);
             
             // Find the remaining tables of the query
             ITable[] tables = TableSearchVisitor.FindTables(expression).Except(new ITable[] { this }).ToArray();
@@ -350,7 +350,7 @@ namespace NMemory.Tables
             // Lock these tables
             for (int i = 0; i < tables.Length; i++)
             {
-                this.Database.ConcurrencyManager.AcquireTableReadLock(tables[i], transaction);
+                this.Database.DatabaseEngine.ConcurrencyManager.AcquireTableReadLock(tables[i], transaction);
             }
 
             try
@@ -362,7 +362,7 @@ namespace NMemory.Tables
                 // Release the tables locks
                 for (int i = 0; i < tables.Length; i++)
                 {
-                    this.Database.ConcurrencyManager.AcquireTableReadLock(tables[i], transaction);
+                    this.Database.DatabaseEngine.ConcurrencyManager.AcquireTableReadLock(tables[i], transaction);
                 }
             }
         }
@@ -380,7 +380,7 @@ namespace NMemory.Tables
         {
             foreach (ITable table in relatedTables)
             {
-                this.Database.ConcurrencyManager.AcquireRelatedTableLock(table, transaction);
+                this.Database.DatabaseEngine.ConcurrencyManager.AcquireRelatedTableLock(table, transaction);
             }
         }
 

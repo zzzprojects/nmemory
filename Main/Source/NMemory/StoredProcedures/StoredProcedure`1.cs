@@ -66,7 +66,7 @@ namespace NMemory.StoredProcedures
             using (var tran = Transaction.EnsureTransaction(ref transaction, this.database))
             {
                 IExecutionContext context = new ExecutionContext(transaction, this.tables, parameters);
-                IEnumerable<T> result = this.database.Executor.Execute<T>(compiledQuery, context).ToEnumerable();
+                IEnumerable<T> result = this.database.DatabaseEngine.Executor.Execute<T>(compiledQuery, context).ToEnumerable();
 
                 tran.Complete();
                 return result;
@@ -90,7 +90,7 @@ namespace NMemory.StoredProcedures
 
         protected Func<IExecutionContext, IEnumerable<T>> Compile()
         {
-            return this.database.Compiler.Compile<IEnumerable<T>>(this.expression);
+            return this.database.DatabaseEngine.Compiler.Compile<IEnumerable<T>>(this.expression);
         }
     }
 }
