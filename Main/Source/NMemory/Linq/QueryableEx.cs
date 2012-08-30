@@ -390,11 +390,10 @@ namespace NMemory.Linq
 
 
         public static int Count<T>(IQueryable<T> source)
-            where T : class
         {
-            if (source is ITable<T>)
+            if (source is ITable)
             {
-                return (int)(source as ITable<T>).Count;
+                return (int)(source as ITable).Count;
             }
 
             if (source is IIndexedQueryable<T>)
