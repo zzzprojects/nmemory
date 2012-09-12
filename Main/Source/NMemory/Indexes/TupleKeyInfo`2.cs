@@ -9,7 +9,7 @@ using System.Collections.ObjectModel;
 
 namespace NMemory.Indexes
 {
-    public class TupleKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>
+    public class TupleKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>, IKeyInfoExpressionBuilderProvider
         where TEntity : class
     {
         public TupleKeyInfo(Expression<Func<TEntity, TKey>> keySelector, SortOrder[] sortOrders) : 
@@ -146,5 +146,12 @@ namespace NMemory.Indexes
         }
 
 
+        IKeyInfoExpressionBuilder IKeyInfoExpressionBuilderProvider.KeyInfoExpressionBuilder
+        {
+            get 
+            {
+                return new TupleKeyInfoExpressionBuilder(typeof(TKey));
+            }
+        }
     }
 }

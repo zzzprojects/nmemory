@@ -84,6 +84,8 @@
     <Compile Include="Diagnostics\ConsoleLoggingPort.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfo.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfo`2.cs" />
+    <Compile Include="Indexes\IKeyInfoExpressionBuilder.cs" />
+    <Compile Include="Indexes\IKeyInfoExpressionBuilderProvider.cs" />
     <Compile Include="Indexes\IUniqueIndex.cs" />
     <Compile Include="Indexes\IUniqueIndex`1.cs" />
     <Compile Include="Indexes\KeyInfoBase.cs" />
@@ -91,6 +93,7 @@
     <Compile Include="Indexes\PrimitiveKeyInfo`2.cs" />
     <Compile Include="Indexes\SortOrder.cs" />
     <Compile Include="Indexes\TupleKeyInfo.cs" />
+    <Compile Include="Indexes\TupleKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\TupleKeyInfo`2.cs" />
     <Compile Include="Linq\TableQueryTransactionWrapper`1.cs" />
     <Compile Include="Modularity\DefaultDatabaseEngine.cs" />
