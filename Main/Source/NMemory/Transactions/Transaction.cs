@@ -57,7 +57,8 @@ namespace NMemory.Transactions
                 result = new TransactionContext(localTransaction);
             }
 
-            database.DatabaseEngine.TransactionHandler.EnsureSubscription(transaction);
+            transaction.Subscribe(database.DatabaseEngine.TransactionHandler);
+            // database.DatabaseEngine.TransactionHandler.EnsureSubscription(transaction);
 
             return result;
         }
@@ -97,7 +98,7 @@ namespace NMemory.Transactions
 
         private volatile bool aborted;
 
-        private HashSet<TransactionHandler> registeredHandlers;
+        private HashSet<ITransactionHandler> registeredHandlers;
 
         internal Transaction(System.Transactions.Transaction transaction, bool isAmbient)
         {
@@ -110,7 +111,7 @@ namespace NMemory.Transactions
 
             this.aborted = false;
 
-            this.registeredHandlers = new HashSet<TransactionHandler>();
+            this.registeredHandlers = new HashSet<ITransactionHandler>();
 
             this.internalTransaction.EnlistVolatile(this, System.Transactions.EnlistmentOptions.EnlistDuringPrepareRequired);
         }
@@ -155,7 +156,7 @@ namespace NMemory.Transactions
             }
         }
 
-        internal void Subscribe(TransactionHandler handler)
+        internal void Subscribe(ITransactionHandler handler)
         {
             if (!this.registeredHandlers.Contains(handler))
             {
@@ -182,7 +183,7 @@ namespace NMemory.Transactions
 
         private void Commit()
         {
-            foreach (TransactionHandler handler in this.registeredHandlers)
+            foreach (ITransactionHandler handler in this.registeredHandlers)
             {
                 handler.Commit(this);
             }
@@ -190,7 +191,7 @@ namespace NMemory.Transactions
 
         private void Rollback()
         {
-            foreach (TransactionHandler handler in this.registeredHandlers)
+            foreach (ITransactionHandler handler in this.registeredHandlers)
             {
                 handler.Rollback(this);
             }

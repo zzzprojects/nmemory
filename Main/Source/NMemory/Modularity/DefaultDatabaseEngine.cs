@@ -13,7 +13,7 @@ namespace NMemory.Modularity
         private IQueryExecutor executor;
         private IConcurrencyManager concurrencyManager;
         private ITableFactory tableFactory;
-        private TransactionHandler transactionHandler;
+        private ITransactionHandler transactionHandler;
         private ILoggingPort loggingPort;
 
         public DefaultDatabaseEngine(IDatabaseComponentFactory databaseEngineFactory, IDatabase database)
@@ -22,7 +22,7 @@ namespace NMemory.Modularity
             this.executor = databaseEngineFactory.CreateQueryExecutor();     
             this.concurrencyManager = databaseEngineFactory.CreateConcurrencyManager();
             this.tableFactory = databaseEngineFactory.CreateTableFactory();
-            this.transactionHandler = new TransactionHandler();
+            this.transactionHandler = databaseEngineFactory.CreateTransactionHandler();
             this.loggingPort = databaseEngineFactory.CreateLoggingPort();
 
             this.compiler.Initialize(database);
@@ -52,7 +52,7 @@ namespace NMemory.Modularity
             get { return this.executor; }
         }
 
-        public TransactionHandler TransactionHandler
+        public ITransactionHandler TransactionHandler
         {
             get { return this.transactionHandler; }
         }

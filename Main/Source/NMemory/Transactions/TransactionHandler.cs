@@ -9,7 +9,7 @@ using NMemory.Modularity;
 
 namespace NMemory.Transactions
 {
-    public class TransactionHandler : IDatabaseComponent
+    public class TransactionHandler : ITransactionHandler
     {
         private IDatabase database;
         private ConcurrentDictionary<Transaction, TransactionLog> transactionLogs;
@@ -29,22 +29,17 @@ namespace NMemory.Transactions
         }
 
 
-        internal void EnsureSubscription(Transaction transaction)
-        {
-            transaction.Subscribe(this);
-        }
-
-        internal TransactionLog GetTransactionLog(Transaction transaction)
+        public ITransactionLog GetTransactionLog(Transaction transaction)
         {
             return this.transactionLogs.GetOrAdd(transaction, tran => new TransactionLog());
         }
 
-        internal void Commit(Transaction transaction)
+        public void Commit(Transaction transaction)
         {
             this.ReleaseResources(transaction);
         }
 
-        internal void Rollback(Transaction transaction)
+        public void Rollback(Transaction transaction)
         {
             GetTransactionLog(transaction).Rollback();
 

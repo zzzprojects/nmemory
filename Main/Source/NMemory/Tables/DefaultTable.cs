@@ -53,7 +53,7 @@ namespace NMemory.Tables
             // Lock the related tables
             this.LockRelatedTables(transaction, relatedTables);
 
-            TransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
+            ITransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
             int logPosition = log.CurrentPosition;
 
             try
@@ -179,7 +179,7 @@ namespace NMemory.Tables
             this.FindRelatedEntities(storedEntities, referringRelations, referredRelations, referringEntities, referredEntities);
 
             // Get the transaction log
-            TransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
+            ITransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
             int logPosition = log.CurrentPosition;
 
             transaction.EnterAtomicSection();
@@ -303,7 +303,7 @@ namespace NMemory.Tables
             HashSet<object> referredEntities = new HashSet<object>();
             this.FindRelatedEntities(storedEntities, referringRelations, referredRelations, referringEntities, referredEntities);
 
-            TransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
+            ITransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
             int logPosition = log.CurrentPosition;
 
             transaction.EnterAtomicSection();

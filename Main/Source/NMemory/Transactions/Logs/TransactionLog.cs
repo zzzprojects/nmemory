@@ -8,7 +8,7 @@ using NMemory.Tables;
 
 namespace NMemory.Transactions.Logs
 {
-    internal class TransactionLog
+    public class TransactionLog : ITransactionLog
     {
         private List<ITransactionLogItem> logItems;
 
@@ -36,27 +36,14 @@ namespace NMemory.Transactions.Logs
             }
         }
 
+        public void Write(ITransactionLogItem item)
+        {
+            this.logItems.Add(item);
+        }
+
         public void Release()
         {
             this.logItems.Clear();
-        }
-
-        public void WriteIndexInsert<TEntity>(IIndex<TEntity> index, TEntity entity)
-            where TEntity : class
-        {
-            this.logItems.Add(new IndexInsertTransactionLogItem<TEntity>(index, entity));
-        }
-
-        public void WriteIndexDelete<TEntity>(IIndex<TEntity> index, TEntity entity)
-            where TEntity : class
-        {
-            this.logItems.Add(new IndexDeleteTransactionLogItem<TEntity>(index, entity));
-        }
-
-        public void WriteEntityUpdate<TEntity>(EntityPropertyCloner<TEntity> propertyCloner, TEntity storedEntity, TEntity oldEntity)
-            where TEntity : class
-        {
-            this.logItems.Add(new UpdateEntityLogItem<TEntity>(propertyCloner, storedEntity, oldEntity));
         }
     }
 }

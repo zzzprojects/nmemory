@@ -96,12 +96,12 @@ namespace NMemory.Indexes
         {
             if (x == null)
             {
-                throw new ArgumentException("Anonymous type key cannot be null", "x");
+                throw new ArgumentException("Tuple key cannot be null", "x");
             }
 
             if (y == null)
             {
-                throw new ArgumentException("Anonymous type key cannot be null", "y");
+                throw new ArgumentException("Typle key cannot be null", "y");
             }
 
             int result = this.comparer(x, y);

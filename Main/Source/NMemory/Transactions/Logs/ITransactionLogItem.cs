@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NMemory.Transactions.Logs
 {
-    internal interface ITransactionLogItem
+    public interface ITransactionLogItem
     {
         void Undo();
     }

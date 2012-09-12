@@ -34,6 +34,12 @@ namespace NMemory.Modularity
         /// 
         /// </summary>
         /// <returns></returns>
+        ITransactionHandler CreateTransactionHandler();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         ILoggingPort CreateLoggingPort();
 
 

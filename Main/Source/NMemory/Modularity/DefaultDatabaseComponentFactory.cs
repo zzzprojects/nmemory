@@ -1,5 +1,6 @@
 ﻿using NMemory.Execution;
 using NMemory.Diagnostics;
+using NMemory.Transactions;
 
 namespace NMemory.Modularity
 {
@@ -23,6 +24,11 @@ namespace NMemory.Modularity
         public virtual IQueryExecutor CreateQueryExecutor()
         {
             return new QueryExecutor();
+        }
+
+        public virtual ITransactionHandler CreateTransactionHandler()
+        {
+            return new TransactionHandler();
         }
 
         public virtual ILoggingPort CreateLoggingPort()

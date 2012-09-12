@@ -25,7 +25,7 @@ namespace NMemory.Modularity
             get;
         }
 
-        TransactionHandler TransactionHandler
+        ITransactionHandler TransactionHandler
         {
             get;
         }

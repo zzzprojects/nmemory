@@ -155,6 +155,7 @@
     <Compile Include="Modularity\IExtensible.cs" />
     <Compile Include="Modularity\IQueryCompiler.cs" />
     <Compile Include="Modularity\IQueryExecutor.cs" />
+    <Compile Include="Modularity\ITransactionHandler.cs" />
     <Compile Include="StoredProcedures\IParameter.cs" />
     <Compile Include="StoredProcedures\IStoredProcedure.cs" />
     <Compile Include="StoredProcedures\IStoredProcedure`1.cs" />
@@ -189,10 +190,12 @@
     <Compile Include="Tables\TableHints.cs" />
     <Compile Include="Transactions\Logs\IndexDeleteTransactionLogItem.cs" />
     <Compile Include="Transactions\Logs\IndexInsertTransactionLogItem.cs" />
+    <Compile Include="Transactions\Logs\ITransactionLog.cs" />
     <Compile Include="Transactions\Logs\ITransactionLogItem.cs" />
     <Compile Include="Transactions\IsolationLevels.cs" />
     <Compile Include="Transactions\Logs\TransactionLog.cs" />
     <Compile Include="Transactions\Logs\IndexTransactionLogItemBase.cs" />
+    <Compile Include="Transactions\Logs\TransactionLogExtensions.cs" />
     <Compile Include="Transactions\Logs\UpdateEntityLogItem.cs" />
     <Compile Include="Transactions\Transaction.cs" />
     <Compile Include="Transactions\TransactionHandler.cs" />

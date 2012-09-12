@@ -111,7 +111,7 @@ namespace NMemory.Test
         [TestMethod]
         public void AnonymousTypeKeyInfoComparerDescending()
         {
-            var keyInfo = AnonymousTypeKeyInfo.Create((Member m) => new { m.GroupId, m.GroupId2 }, SortOrder.Descending, SortOrder.Ascending);
+            var keyInfo = AnonymousTypeKeyInfo.Create((Member m) => new { m.GroupId, m.GroupId2 }, SortOrder.Descending, SortOrder.Descending);
             var comparer = keyInfo.KeyComparer;
 
             Assert.AreEqual(0, comparer.Compare(
@@ -127,11 +127,11 @@ namespace NMemory.Test
                 new { GroupId = (int?)null, GroupId2 = 1 }));
 
 
-            Assert.AreEqual(-1, comparer.Compare(
+            Assert.AreEqual(1, comparer.Compare(
                 new { GroupId = (int?)null, GroupId2 = 1 },
                 new { GroupId = (int?)null, GroupId2 = 2 }));
 
-            Assert.AreEqual(1, comparer.Compare(
+            Assert.AreEqual(-1, comparer.Compare(
                 new { GroupId = (int?)1, GroupId2 = 2 },
                 new { GroupId = (int?)1, GroupId2 = 1 }));
         }
@@ -172,13 +172,13 @@ namespace NMemory.Test
         }
 
         [TestMethod]
-        public void TupleKeyInfoComparerDescending()
+        public void TupleKeyInfoComparer()
         {
-            var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId, m.GroupId2), SortOrder.Descending, SortOrder.Ascending);
+            var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId, m.GroupId2));
             var comparer = keyInfo.KeyComparer;
 
             Assert.AreEqual(0, comparer.Compare(
-                Tuple.Create((int?)null, 1), 
+                Tuple.Create((int?)null, 1),
                 Tuple.Create((int?)null, 1)));
 
             Assert.AreEqual(-1, comparer.Compare(
@@ -188,7 +188,6 @@ namespace NMemory.Test
             Assert.AreEqual(1, comparer.Compare(
                 Tuple.Create((int?)1, 1),
                 Tuple.Create((int?)null, 1)));
-
 
             Assert.AreEqual(0, comparer.Compare(
                Tuple.Create((int?)1, 1),
@@ -214,44 +213,47 @@ namespace NMemory.Test
         }
 
         [TestMethod]
-        public void TupleKeyInfoComparer()
+        public void TupleKeyInfoComparerDescending()
         {
-            var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId, m.GroupId2));
+            var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId, m.GroupId2), SortOrder.Descending, SortOrder.Descending);
             var comparer = keyInfo.KeyComparer;
 
             Assert.AreEqual(0, comparer.Compare(
-                Tuple.Create((int?)null, 1),
+                Tuple.Create((int?)null, 1), 
                 Tuple.Create((int?)null, 1)));
 
-            Assert.AreEqual(-1, comparer.Compare(
+            Assert.AreEqual(1, comparer.Compare(
                 Tuple.Create((int?)null, 1),
                 Tuple.Create((int?)1, 1)));
 
-            Assert.AreEqual(1, comparer.Compare(
+            Assert.AreEqual(-1, comparer.Compare(
                 Tuple.Create((int?)1, 1),
                 Tuple.Create((int?)null, 1)));
-            
+
+
             Assert.AreEqual(0, comparer.Compare(
                Tuple.Create((int?)1, 1),
                Tuple.Create((int?)1, 1)));
 
-            Assert.AreEqual(-1, comparer.Compare(
+            Assert.AreEqual(1, comparer.Compare(
                 Tuple.Create((int?)1, 1),
                 Tuple.Create((int?)2, 1)));
 
-            Assert.AreEqual(1, comparer.Compare(
+            Assert.AreEqual(-1, comparer.Compare(
                 Tuple.Create((int?)2, 1),
                 Tuple.Create((int?)1, 1)));
 
 
-            Assert.AreEqual(-1, comparer.Compare(
+            Assert.AreEqual(1, comparer.Compare(
                 Tuple.Create((int?)1, 1),
                 Tuple.Create((int?)1, 2)));
 
-            Assert.AreEqual(1, comparer.Compare(
+            Assert.AreEqual(-1, comparer.Compare(
                 Tuple.Create((int?)1, 2),
                 Tuple.Create((int?)1, 1)));
 
         }
+
+        
     }
 }
