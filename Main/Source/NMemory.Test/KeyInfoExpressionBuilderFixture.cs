@@ -14,9 +14,7 @@ namespace NMemory.Test
         [TestMethod]
         public void TupleKeyInfoExpressionBuilderFactory()
         {
-            Type tupleType = typeof(Tuple<int, string>);
-
-            TupleKeyInfoExpressionBuilder builder = new TupleKeyInfoExpressionBuilder(tupleType);
+            TupleKeyInfoExpressionBuilder builder = new TupleKeyInfoExpressionBuilder(typeof(Tuple<int, string>));
 
             Expression factory = builder.CreateKeyFactoryExpression(
                 Expression.Constant(1, typeof(int)), 
@@ -32,11 +30,9 @@ namespace NMemory.Test
         [TestMethod]
         public void TupleKeyInfoExpressionBuilderSelector()
         {
-            Type tupleType = typeof(Tuple<int, string>);
+            TupleKeyInfoExpressionBuilder builder = new TupleKeyInfoExpressionBuilder(typeof(Tuple<int, string>));
+
             Expression source = Expression.Constant(Tuple.Create(1, "2"));
-
-            TupleKeyInfoExpressionBuilder builder = new TupleKeyInfoExpressionBuilder(tupleType);
-
             Expression selector1 = builder.CreateKeyMemberSelectorExpression(source, 0);
             Expression selector2 = builder.CreateKeyMemberSelectorExpression(source, 1);
 
@@ -45,6 +41,31 @@ namespace NMemory.Test
 
             Assert.AreEqual(1, result1);
             Assert.AreEqual("2", result2);
+        }
+
+        [TestMethod]
+        public void PrimitiveKeyInfoExpressionBuilderFactory()
+        {
+            PrimitiveKeyInfoExpressionBuilder builder = new PrimitiveKeyInfoExpressionBuilder(typeof(int));
+
+            Expression factory = builder.CreateKeyFactoryExpression(
+                Expression.Constant(1, typeof(int)));
+
+            int result = (int)Expression.Lambda(factory).Compile().DynamicInvoke();
+
+            Assert.AreEqual(1, result);
+        }
+
+        [TestMethod]
+        public void PrimitiveKeyInfoExpressionBuilderSelector()
+        {
+            PrimitiveKeyInfoExpressionBuilder builder = new PrimitiveKeyInfoExpressionBuilder(typeof(int));
+            Expression source = Expression.Constant(1, typeof(int));
+
+            Expression selector = builder.CreateKeyMemberSelectorExpression(source, 0);
+
+            int result = (int)Expression.Lambda(selector).Compile().DynamicInvoke();
+            Assert.AreEqual(1, result);
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace NMemory.Indexes
 {
-    public class PrimitiveKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>
+    public class PrimitiveKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>, IKeyInfoExpressionBuilderProvider
         where TEntity : class
     {
 
@@ -48,6 +48,14 @@ namespace NMemory.Indexes
         private static bool IsKeyEmpty(TKey key)
         {
             return key == null;
+        }
+
+        IKeyInfoExpressionBuilder IKeyInfoExpressionBuilderProvider.KeyInfoExpressionBuilder
+        {
+            get 
+            { 
+                return new PrimitiveKeyInfoExpressionBuilder(typeof(TKey)); 
+            }
         }
     }
 }

@@ -24,6 +24,27 @@ namespace NMemory.Indexes
 
         public Expression CreateKeyFactoryExpression(params Expression[] arguments)
         {
+            if (arguments == null)
+            {
+                throw new ArgumentNullException("arguments");
+            }
+
+            var genericArguments = this.tupleType.GetGenericArguments();
+
+            if (arguments.Length != genericArguments.Length)
+            {
+                throw new ArgumentException("", "arguments");
+            }
+
+            for (int i = 0; i < genericArguments.Length; i++)
+            {
+                if (genericArguments[i] != arguments[i].Type)
+                {
+                    throw new ArgumentException("", "arguments");
+                }
+            }
+
+
             return Expression.New(this.tupleType.GetConstructors()[0], arguments);
         }
 
@@ -36,6 +57,11 @@ namespace NMemory.Indexes
 
             string propertyName = string.Format("Item{0}", index + 1);
             PropertyInfo property = this.tupleType.GetProperty(propertyName);
+
+            if (property == null)
+            {
+                throw new ArgumentException("", "index");
+            }
 
             return Expression.Property(source, property);
         }
