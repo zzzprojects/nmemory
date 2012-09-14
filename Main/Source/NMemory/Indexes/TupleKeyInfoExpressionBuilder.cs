@@ -50,7 +50,12 @@ namespace NMemory.Indexes
 
         public Expression CreateKeyMemberSelectorExpression(Expression source, int index)
         {
-            if (source.Type != tupleType)
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            if (source.Type != this.tupleType)
             {
                 throw new ArgumentException("", "source");
             }

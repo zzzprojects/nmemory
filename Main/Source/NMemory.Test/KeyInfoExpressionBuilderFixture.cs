@@ -67,5 +67,38 @@ namespace NMemory.Test
             int result = (int)Expression.Lambda(selector).Compile().DynamicInvoke();
             Assert.AreEqual(1, result);
         }
+
+        [TestMethod]
+        public void AnonymousTypeKeyInfoExpressionBuilderFactory()
+        {
+            var key = new { Key1 = 1, Key2 = "2" };
+            AnonymousTypeKeyInfoExpressionBuilder builder = new AnonymousTypeKeyInfoExpressionBuilder(key.GetType());
+           
+            Expression factory = builder.CreateKeyFactoryExpression(
+                Expression.Constant(1, typeof(int)),
+                Expression.Constant("2", typeof(string)));
+
+            dynamic result = Expression.Lambda(factory).Compile().DynamicInvoke();
+
+            Assert.AreEqual(1, result.Key1);
+            Assert.AreEqual("2", result.Key2);
+        }
+
+        [TestMethod]
+        public void AnonymousTypeKeyInfoExpressionBuilderSelector()
+        {
+            var key = new { Key1 = 1, Key2 = "2" };
+            AnonymousTypeKeyInfoExpressionBuilder builder = new AnonymousTypeKeyInfoExpressionBuilder(key.GetType());
+
+            Expression source = Expression.Constant(key);
+            Expression selector1 = builder.CreateKeyMemberSelectorExpression(source, 0);
+            Expression selector2 = builder.CreateKeyMemberSelectorExpression(source, 1);
+
+            int result1 = (int)Expression.Lambda(selector1).Compile().DynamicInvoke();
+            string result2 = (string)Expression.Lambda(selector2).Compile().DynamicInvoke();
+
+            Assert.AreEqual(1, result1);
+            Assert.AreEqual("2", result2);
+        }
     }
 }
