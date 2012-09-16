@@ -5,6 +5,7 @@ using System.Text;
 using NMemory.Tables;
 using NMemory.Indexes;
 using NMemory.Constraints;
+using NMemory.Utilities;
 
 namespace NMemory.Test.Data
 {
@@ -57,16 +58,25 @@ namespace NMemory.Test.Data
             this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory<Group>(), g => g.Name);
         }
 
-        public void AddMemberGroupRelation(bool createMultiField = false)
+        public void AddMemberGroupRelation(bool createMultiField = false, bool useExpressionFactory = false)
         {
             if (createMultiField)
             {
                 var uniqueIndex = this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory<Group>(), g => new { g.Id, g.Id2 });
-                var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory<Member>(), m => new { m.GroupId, m.GroupId2 }); 
+                var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory<Member>(), m => new { m.GroupId, m.GroupId2 });
 
-                this.Tables.CreateRelation(uniqueIndex, foreignIndex, 
-                    x => new { Id = x.GroupId.Value, Id2 = x.GroupId2 }, 
-                    x => new { GroupId = (int?)x.Id, GroupId2 = x.Id2  });
+                if (useExpressionFactory)
+                {
+                    this.Tables.CreateRelation(uniqueIndex, foreignIndex,
+                        g => g.Id, m => m.GroupId,
+                        g => g.Id2, m => m.GroupId2);
+                }
+                else
+                {
+                    this.Tables.CreateRelation(uniqueIndex, foreignIndex,
+                        x => new { Id = x.GroupId.Value, Id2 = x.GroupId2 },
+                        x => new { GroupId = (int?)x.Id, GroupId2 = x.Id2 });
+                }
             }
             else
             {
@@ -74,8 +84,8 @@ namespace NMemory.Test.Data
 
                 this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex, x => x.Value, x => x); 
             }
-
-
         }
+
+
     }
 }

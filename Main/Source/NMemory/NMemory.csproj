@@ -206,6 +206,7 @@
     <Compile Include="Transactions\TransactionHandler.cs" />
     <Compile Include="Transactions\TransactionContext.cs" />
     <Compile Include="Transactions\AmbientTransactionStore.cs" />
+    <Compile Include="Utilities\TableCollectionExtensions.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

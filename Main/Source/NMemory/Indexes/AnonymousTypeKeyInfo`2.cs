@@ -8,7 +8,7 @@ using NMemory.Common;
 
 namespace NMemory.Indexes
 {
-    public class AnonymousTypeKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>
+    public class AnonymousTypeKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>, IKeyInfoExpressionBuilderProvider
         where TEntity : class
     {
         public AnonymousTypeKeyInfo(Expression<Func<TEntity, TKey>> keySelector, SortOrder[] sortOrders) : 
@@ -113,6 +113,14 @@ namespace NMemory.Indexes
                 Expression.Lambda<Func<TKey, bool>>(body, keyParam);
 
             return resultExpression.Compile();
+        }
+
+        IKeyInfoExpressionBuilder IKeyInfoExpressionBuilderProvider.KeyInfoExpressionBuilder
+        {
+            get 
+            {
+                return new AnonymousTypeKeyInfoExpressionBuilder(typeof(TKey));
+            }
         }
     }
 }

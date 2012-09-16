@@ -8,8 +8,8 @@ namespace NMemory.Tables
 {
     public interface IRelationContraint
     {
-        PropertyInfo PrimaryField { get; }
+        MemberInfo PrimaryField { get; }
 
-        PropertyInfo ForeignField { get; }
+        MemberInfo ForeignField { get; }
     }
 }

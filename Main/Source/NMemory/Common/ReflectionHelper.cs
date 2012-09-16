@@ -15,6 +15,22 @@ namespace NMemory.Common
         //    return method.Method;
         //}
 
+        public static Type GetMemberUnderlyingType(MemberInfo member)
+        {
+            switch (member.MemberType)
+            {
+                case MemberTypes.Field:
+                    return ((FieldInfo)member).FieldType;
+                case MemberTypes.Property:
+                    return ((PropertyInfo)member).PropertyType;
+                case MemberTypes.Event:
+                    return ((EventInfo)member).EventHandlerType;
+                default:
+                    throw new ArgumentException("MemberInfo must be if type FieldInfo, PropertyInfo or EventInfo", "member");
+            }
+        }
+
+
         public static MethodInfo GetMethodInfo<TClass>(Expression<Action<TClass>> expression)
         {
             var method = expression.Body as MethodCallExpression;

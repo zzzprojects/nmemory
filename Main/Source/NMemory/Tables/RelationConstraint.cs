@@ -8,19 +8,19 @@ namespace NMemory.Tables
 {
     public class RelationConstraint : IRelationContraint
     {
-        public RelationConstraint(PropertyInfo primaryField, PropertyInfo foreignField)
+        public RelationConstraint(MemberInfo primaryField, MemberInfo foreignField)
         {
             this.PrimaryField = primaryField;
             this.ForeignField = foreignField;
         }
 
-        public PropertyInfo PrimaryField
+        public MemberInfo PrimaryField
         {
             get;
             private set;
         }
 
-        public PropertyInfo ForeignField
+        public MemberInfo ForeignField
         {
             get;
             private set;

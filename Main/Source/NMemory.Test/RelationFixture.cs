@@ -240,5 +240,23 @@ namespace NMemory.Test
 
             database.AddMemberGroupRelation(createMultiField: true);
         }
+
+        [TestMethod]
+        public void CreateMultiFieldRelationWithExpressionFactory()
+        {
+            TestDatabase database = new TestDatabase();
+            database.AddMemberGroupRelation(createMultiField: true, useExpressionFactory: true);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ForeignKeyViolationException))]
+        public void CreateMultiFieldRelationWithInconsistentDataAndExpressionFactory()
+        {
+            TestDatabase database = new TestDatabase();
+
+            database.Members.Insert(new Member { Id = "A", GroupId = 1, GroupId2 = 2 });
+
+            database.AddMemberGroupRelation(createMultiField: true, useExpressionFactory: true);
+        }
     }
 }

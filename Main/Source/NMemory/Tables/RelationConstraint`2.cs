@@ -7,9 +7,9 @@ using System.Linq.Expressions;
 
 namespace NMemory.Tables
 {
-    public class RelationConstraint<TPrimary, TForeign> : IRelationContraint
+    public class RelationConstraint<TPrimary, TForeign, TField> : IRelationContraint
     {
-        public RelationConstraint(Expression<Func<TPrimary, object>> primaryField, Expression<Func<TForeign, object>> foreignField)
+        public RelationConstraint(Expression<Func<TPrimary, TField>> primaryField, Expression<Func<TForeign, TField>> foreignField)
         {
             if (primaryField == null)
 	        {
@@ -25,25 +25,44 @@ namespace NMemory.Tables
             
             if (primaryMember == null)
 	        {
-                throw new ArgumentException("", "primaryField");
+                UnaryExpression convertExpression = primaryField.Body as UnaryExpression;
+
+                if (convertExpression.NodeType == ExpressionType.Convert)
+                {
+                    primaryMember = convertExpression.Operand as MemberExpression;
+                }
 	        }
 
-            this.PrimaryField = primaryMember.Member as PropertyInfo;
+            if (primaryMember == null)
+            {
+                throw new ArgumentException("", "primaryField");
+            }
+
+            this.PrimaryField = primaryMember.Member;
 
             if (this.PrimaryField == null)
             {
                 throw new ArgumentException("", "primaryField");
             }
 
+            MemberExpression foreignMember = foreignField.Body as MemberExpression;
 
-            MemberExpression foreignMember = primaryField.Body as MemberExpression;
+            if (foreignMember == null)
+            {
+                UnaryExpression convertExpression = foreignField.Body as UnaryExpression;
+
+                if (convertExpression.NodeType == ExpressionType.Convert)
+                {
+                    foreignMember = convertExpression.Operand as MemberExpression;
+                }
+            }
 
             if (foreignMember == null)
             {
                 throw new ArgumentException("", "foreignField");
             }
 
-            this.ForeignField = foreignMember.Member as PropertyInfo;
+            this.ForeignField = foreignMember.Member;
 
             if (this.ForeignField == null)
             {
@@ -51,13 +70,13 @@ namespace NMemory.Tables
             }
         }
 
-        public PropertyInfo PrimaryField
+        public MemberInfo PrimaryField
         {
             get;
             private set;
         }
 
-        public PropertyInfo ForeignField
+        public MemberInfo ForeignField
         {
             get;
             private set;
