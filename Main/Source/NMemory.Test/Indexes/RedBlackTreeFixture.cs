@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NMemory.DataStructures.Internal.Trees;
 
-namespace NMemory.Test
+namespace NMemory.Test.Indexes
 {
     [TestClass]
     public class RedBlackTreeFixture

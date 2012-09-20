@@ -3,10 +3,10 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NMemory.Test.Data;
+using NMemory.Test.Environment.Data;
 using System.Transactions;
 using System.Threading;
-using NMemory.Test.Fake;
+using NMemory.Test.Environment.Fake;
 
 namespace NMemory.Test
 {

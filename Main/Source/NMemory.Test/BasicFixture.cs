@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NMemory.Tables;
-using NMemory.Test.Data;
+using NMemory.Test.Environment.Data;
 using NMemory.Linq;
 
 namespace NMemory.Test

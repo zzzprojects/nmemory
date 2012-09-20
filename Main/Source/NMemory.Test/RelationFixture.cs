@@ -3,7 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NMemory.Test.Data;
+using NMemory.Test.Environment.Data;
 using NMemory.Exceptions;
 using NMemory.Linq;
 
@@ -239,6 +239,14 @@ namespace NMemory.Test
             database.Members.Insert(new Member { Id = "A", GroupId = 1, GroupId2 = 2 });
 
             database.AddMemberGroupRelation(createMultiField: true);
+        }
+
+
+        [TestMethod]
+        public void CreateSingleFieldRelationWithExpressionFactory()
+        {
+            TestDatabase database = new TestDatabase();
+            database.AddMemberGroupRelation(createMultiField: false, useExpressionFactory: true);
         }
 
         [TestMethod]

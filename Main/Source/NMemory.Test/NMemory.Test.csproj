@@ -51,25 +51,28 @@
     <Compile Include="BasicFixture.cs" />
     <Compile Include="BinaryFixture.cs" />
     <Compile Include="ConstraintFixture.cs" />
-    <Compile Include="Data\Group.cs">
+    <Compile Include="Environment\Data\Group.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\Member.cs">
+    <Compile Include="Environment\Data\Member.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\TestDatabase.cs">
+    <Compile Include="Environment\Data\TestDatabase.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data\TimestampEntity.cs">
+    <Compile Include="Environment\Data\TimestampEntity.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Fake\FakeEnlistmentNotification.cs" />
+    <Compile Include="Environment\Fake\FakeEnlistmentNotification.cs" />
+    <Compile Include="Environment\Utils\ExpressionUtils.cs" />
+    <Compile Include="ExpressionModifiers\PropertyAccessModifierFixture.cs" />
     <Compile Include="GeneratedFieldFixture.cs" />
     <Compile Include="IdentityFixture.cs" />
-    <Compile Include="KeyInfoExpressionBuilderFixture.cs" />
-    <Compile Include="KeyInfoFixture.cs" />
+    <Compile Include="Indexes\KeyInfoExpressionBuilderFixture.cs" />
+    <Compile Include="Indexes\KeyInfoFixture.cs" />
+    <Compile Include="JoinFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RedBlackTreeFixture.cs" />
+    <Compile Include="Indexes\RedBlackTreeFixture.cs" />
     <Compile Include="RelationFixture.cs" />
     <Compile Include="StoredProcedureFixture.cs" />
     <Compile Include="TimestampFixture.cs" />

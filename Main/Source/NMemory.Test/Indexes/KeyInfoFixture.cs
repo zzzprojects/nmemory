@@ -3,10 +3,10 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NMemory.Test.Data;
+using NMemory.Test.Environment.Data;
 using NMemory.Indexes;
 
-namespace NMemory.Test
+namespace NMemory.Test.Indexes
 {
     [TestClass]
     public class KeyInfoFixture

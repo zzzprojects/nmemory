@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NMemory.StoredProcedures;
-using NMemory.Test.Data;
+using NMemory.Test.Environment.Data;
 
 namespace NMemory.Test
 {

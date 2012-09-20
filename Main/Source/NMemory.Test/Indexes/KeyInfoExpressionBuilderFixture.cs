@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NMemory.Indexes;
 using System.Linq.Expressions;
 
-namespace NMemory.Test
+namespace NMemory.Test.Indexes
 {
     [TestClass]
     public class KeyInfoExpressionBuilderFixture

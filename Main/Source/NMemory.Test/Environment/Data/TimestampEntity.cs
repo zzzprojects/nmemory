@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using NMemory.Data;
 
-namespace NMemory.Test.Data
+namespace NMemory.Test.Environment.Data
 {
     public class TimestampEntity
     {

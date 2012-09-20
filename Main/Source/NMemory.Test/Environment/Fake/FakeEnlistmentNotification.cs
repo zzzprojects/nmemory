@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Transactions;
 
-namespace NMemory.Test.Fake
+namespace NMemory.Test.Environment.Fake
 {
     public class FakeEnlistmentNotification : IEnlistmentNotification
     {

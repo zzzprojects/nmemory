@@ -7,7 +7,7 @@ using NMemory.Indexes;
 using NMemory.Constraints;
 using NMemory.Utilities;
 
-namespace NMemory.Test.Data
+namespace NMemory.Test.Environment.Data
 {
     public class TestDatabase : Database
     {
@@ -82,8 +82,18 @@ namespace NMemory.Test.Data
             {
                 var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory<Member>(), m => m.GroupId);
 
-                this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex, x => x.Value, x => x); 
+
+                if (useExpressionFactory)
+                {
+                    this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex,
+                       new RelationConstraint<Group, Member, int?>(g => g.Id, m => m.GroupId));
+                }
+                else
+                {
+                    this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex, x => x.Value, x => x);
+                }
             }
+
         }
 
 

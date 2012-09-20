@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Common\CollectionExtensions.cs" />
     <Compile Include="Common\ExpressionHelper.cs" />
+    <Compile Include="Execution\Optimization\Modifiers\PropertyAccessModifier.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\PrimitiveKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\TupleKeyComparer.cs" />

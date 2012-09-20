@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NMemory.Test.Data
+namespace NMemory.Test.Environment.Data
 {
     public class Member
     {
