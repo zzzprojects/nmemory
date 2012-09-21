@@ -6,8 +6,7 @@ using NMemory.Tables;
 
 namespace NMemory.Indexes
 {
-    public class DictionaryIndexFactory<TEntity> : IndexFactoryBase<TEntity>
-        where TEntity : class
+    public class DictionaryIndexFactory : IndexFactoryBase
     {
         public DictionaryIndexFactory(IKeyInfoFactory keyInfoFactory)
             : base(keyInfoFactory)
@@ -20,7 +19,7 @@ namespace NMemory.Indexes
 
         }
 
-        public override IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
+        public override IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
         {
             Hashtable<TKey, TEntity> hashTable = new Hashtable<TKey, TEntity>();
             Index<TEntity, TKey> index = new Index<TEntity, TKey>(table, keyInfo, hashTable);
@@ -28,7 +27,7 @@ namespace NMemory.Indexes
             return index;
         }
 
-        public override IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo)
+        public override IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo)
         {
             UniqueHashtable<TUniqueKey, TEntity> hashTable = new UniqueHashtable<TUniqueKey, TEntity>();
             UniqueIndex<TEntity, TUniqueKey> index = new UniqueIndex<TEntity, TUniqueKey>(table, keyInfo, hashTable);

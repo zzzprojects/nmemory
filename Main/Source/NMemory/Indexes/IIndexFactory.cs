@@ -10,24 +10,27 @@ using System.Diagnostics;
 
 namespace NMemory.Indexes
 {
-    public interface IIndexFactory<TEntity>
-        where TEntity : class
+    public interface IIndexFactory
     {
-        IIndex<TEntity, TKey> CreateIndex<TKey>(
-            ITable<TEntity> table, 
-            Expression<Func<TEntity, TKey>> keySelector);
-
-        IIndex<TEntity, TKey> CreateIndex<TKey>(
-            ITable<TEntity> table, 
-            IKeyInfo<TEntity, TKey> keyInfo);
-
-        IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
+        IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(
             ITable<TEntity> table,
-            Expression<Func<TEntity, TUniqueKey>> keySelector);
+            Expression<Func<TEntity, TKey>> keySelector)
+            where TEntity : class;
 
-        IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
+        IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(
+            ITable<TEntity> table, 
+            IKeyInfo<TEntity, TKey> keyInfo)
+            where TEntity : class;
+
+        IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(
             ITable<TEntity> table,
-            IKeyInfo<TEntity, TUniqueKey> keyInfo);
+            Expression<Func<TEntity, TUniqueKey>> keySelector)
+            where TEntity : class;
+
+        IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(
+            ITable<TEntity> table,
+            IKeyInfo<TEntity, TUniqueKey> keyInfo)
+            where TEntity : class;
     }
 
 }

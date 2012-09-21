@@ -55,15 +55,15 @@ namespace NMemory.Test.Environment.Data
 
         public void AddGroupNameIndex()
         {
-            this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory<Group>(), g => g.Name);
+            this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory(), g => g.Name);
         }
 
         public void AddMemberGroupRelation(bool createMultiField = false, bool useExpressionFactory = false)
         {
             if (createMultiField)
             {
-                var uniqueIndex = this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory<Group>(), g => new { g.Id, g.Id2 });
-                var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory<Member>(), m => new { m.GroupId, m.GroupId2 });
+                var uniqueIndex = this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory(), g => new { g.Id, g.Id2 });
+                var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory(), m => new { m.GroupId, m.GroupId2 });
 
                 if (useExpressionFactory)
                 {
@@ -80,7 +80,7 @@ namespace NMemory.Test.Environment.Data
             }
             else
             {
-                var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory<Member>(), m => m.GroupId);
+                var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory(), m => m.GroupId);
 
 
                 if (useExpressionFactory)

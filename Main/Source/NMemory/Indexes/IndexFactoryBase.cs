@@ -9,7 +9,7 @@ using NMemory.Common;
 
 namespace NMemory.Indexes
 {
-    public abstract class IndexFactoryBase<TEntity> : IIndexFactory<TEntity> where TEntity : class
+    public abstract class IndexFactoryBase : IIndexFactory
     {
         private IKeyInfoFactory keyInfoFactory;
 
@@ -23,22 +23,26 @@ namespace NMemory.Indexes
             this.keyInfoFactory = keyInfoFactory;
         }
 
-        public IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, Expression<Func<TEntity, TKey>> keySelector)
+        public IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(ITable<TEntity> table, Expression<Func<TEntity, TKey>> keySelector)
+            where TEntity : class
         {
             IKeyInfo<TEntity, TKey> keyInfo = this.keyInfoFactory.Create(keySelector);
 
             return CreateIndex(table, keyInfo);
         }
 
-        public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, Expression<Func<TEntity, TUniqueKey>> keySelector)
+        public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(ITable<TEntity> table, Expression<Func<TEntity, TUniqueKey>> keySelector)
+            where TEntity : class
         {
             IKeyInfo<TEntity, TUniqueKey> keyInfo = this.keyInfoFactory.Create(keySelector);
 
             return CreateUniqueIndex(table, keyInfo);
         }
 
-        public abstract IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo);
+        public abstract IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
+            where TEntity : class;
 
-        public abstract IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo);
+        public abstract IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo)
+            where TEntity : class;
     }
 }

@@ -61,7 +61,7 @@ namespace NMemory.Tables
 
             this.RegisterTimestampConstraints();
 
-            this.primaryKeyIndex = CreateUniqueIndex(new RedBlackTreeIndexFactory<TEntity>(), primaryKey);
+            this.primaryKeyIndex = CreateUniqueIndex(new RedBlackTreeIndexFactory(), primaryKey);
 
             this.InitializeData(initialEntities);
 
@@ -342,7 +342,7 @@ namespace NMemory.Tables
         #region Index factory methods
 
         public IIndex<TEntity, TKey> CreateIndex<TKey>(
-            IIndexFactory<TEntity> indexFactory,
+            IIndexFactory indexFactory,
             Expression<Func<TEntity, TKey>> key)
         {
             var index = indexFactory.CreateIndex(this, key);
@@ -354,7 +354,7 @@ namespace NMemory.Tables
         }
 
         public IIndex<TEntity, TKey> CreateIndex<TKey>(
-            IIndexFactory<TEntity> indexFactory,
+            IIndexFactory indexFactory,
             Expression<Func<TEntity, TKey>> key,
             IKeyInfo<TEntity, TKey> keyInfo)
         {
@@ -367,7 +367,7 @@ namespace NMemory.Tables
         }
 
         public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
-            IIndexFactory<TEntity> indexFactory,
+            IIndexFactory indexFactory,
             Expression<Func<TEntity, TUniqueKey>> key)
         {
             var index = indexFactory.CreateUniqueIndex(this, key);
@@ -379,7 +379,7 @@ namespace NMemory.Tables
         }
 
         public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
-            IIndexFactory<TEntity> indexFactory,
+            IIndexFactory indexFactory,
             Expression<Func<TEntity, TUniqueKey>> key,
             IKeyInfo<TEntity, TUniqueKey> keyInfo)
         {
