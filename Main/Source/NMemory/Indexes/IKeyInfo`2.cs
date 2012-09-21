@@ -5,13 +5,9 @@ using System.Text;
 
 namespace NMemory.Indexes
 {
-    public interface IKeyInfo<TEntity, TKey> : IKeyInfo
+    public interface IKeyInfo<TEntity, TKey> : IKeyInfo<TKey>, IKeyInfo
         where TEntity : class
     {
         TKey SelectKey(TEntity entity);
-
-        bool IsEmptyKey(TKey key);
-
-        IComparer<TKey> KeyComparer { get; }
     }
 }

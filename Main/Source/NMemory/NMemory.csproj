@@ -41,6 +41,7 @@
     <Compile Include="Common\ExpressionHelper.cs" />
     <Compile Include="Execution\Optimization\Modifiers\PropertyAccessModifier.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfoExpressionBuilder.cs" />
+    <Compile Include="Indexes\IKeyInfo`1.cs" />
     <Compile Include="Indexes\PrimitiveKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\TupleKeyComparer.cs" />
     <Compile Include="Indexes\PrimitiveComparer.cs" />
