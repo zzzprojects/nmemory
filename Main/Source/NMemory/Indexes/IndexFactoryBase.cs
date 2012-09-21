@@ -11,39 +11,34 @@ namespace NMemory.Indexes
 {
     public abstract class IndexFactoryBase<TEntity> : IIndexFactory<TEntity> where TEntity : class
     {
+        private IKeyInfoFactory keyInfoFactory;
+
+        public IndexFactoryBase() : this(new DefaultKeyInfoFactory())
+        {
+
+        }
+
+        public IndexFactoryBase(IKeyInfoFactory keyInfoFactory)
+        {
+            this.keyInfoFactory = keyInfoFactory;
+        }
+
         public IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, Expression<Func<TEntity, TKey>> keySelector)
         {
-            return CreateIndex(table, CreateKeyInfo<TKey>(keySelector));
+            IKeyInfo<TEntity, TKey> keyInfo = this.keyInfoFactory.Create(keySelector);
+
+            return CreateIndex(table, keyInfo);
         }
 
         public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, Expression<Func<TEntity, TUniqueKey>> keySelector)
         {
-            return CreateUniqueIndex(table, CreateKeyInfo<TUniqueKey>(keySelector));
+            IKeyInfo<TEntity, TUniqueKey> keyInfo = this.keyInfoFactory.Create(keySelector);
+
+            return CreateUniqueIndex(table, keyInfo);
         }
 
         public abstract IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo);
 
         public abstract IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo);
-
-        private static IKeyInfo<TEntity, TKey> CreateKeyInfo<TKey>(Expression<Func<TEntity, TKey>> keySelector)
-        {
-            if (typeof(TKey).IsValueType || (typeof(TKey) == typeof(string)))
-            {
-                return PrimitiveKeyInfo.Create(keySelector);
-            }
-            else if (ReflectionHelper.IsAnonymousType(typeof(TKey)))
-            {
-                return AnonymousTypeKeyInfo.Create(keySelector);
-            }
-            else if (ReflectionHelper.IsTuple(typeof(TKey)))
-            {
-                return TupleKeyInfo.Create(keySelector);
-            }
-            else
-            {
-                throw new ArgumentException("", "keySelector");
-            }
-        }
-
     }
 }

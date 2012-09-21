@@ -9,6 +9,17 @@ namespace NMemory.Indexes
     public class DictionaryIndexFactory<TEntity> : IndexFactoryBase<TEntity>
         where TEntity : class
     {
+        public DictionaryIndexFactory(IKeyInfoFactory keyInfoFactory)
+            : base(keyInfoFactory)
+        {
+
+        }
+
+        public DictionaryIndexFactory()
+        {
+
+        }
+
         public override IIndex<TEntity, TKey> CreateIndex<TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
         {
             Hashtable<TKey, TEntity> hashTable = new Hashtable<TKey, TEntity>();

@@ -41,6 +41,8 @@
     <Compile Include="Common\ExpressionHelper.cs" />
     <Compile Include="Execution\Optimization\Modifiers\PropertyAccessModifier.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfoExpressionBuilder.cs" />
+    <Compile Include="Indexes\DefaultKeyInfoFactory.cs" />
+    <Compile Include="Indexes\IKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfo`1.cs" />
     <Compile Include="Indexes\PrimitiveKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\TupleKeyComparer.cs" />
@@ -131,7 +133,7 @@
     <Compile Include="Execution\QueryCompilerBase.cs" />
     <Compile Include="Execution\QueryExecutor.cs" />
     <Compile Include="Functions.cs" />
-    <Compile Include="Indexes\HashTableIndexFactory.cs" />
+    <Compile Include="Indexes\DictionaryIndexFactory.cs" />
     <Compile Include="Indexes\IIndex.cs" />
     <Compile Include="Indexes\IIndex`1.cs" />
     <Compile Include="Indexes\IKeyInfo.cs" />
