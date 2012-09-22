@@ -39,11 +39,13 @@
   <ItemGroup>
     <Compile Include="Common\CollectionExtensions.cs" />
     <Compile Include="Common\ExpressionHelper.cs" />
+    <Compile Include="Common\TableLocator.cs" />
     <Compile Include="Common\Visitors\EntityTypeSearchVisitor.cs" />
     <Compile Include="Execution\ExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan`1.cs" />
     <Compile Include="Execution\Optimization\Modifiers\PropertyAccessModifier.cs" />
+    <Compile Include="Execution\Optimization\Modifiers\SharedStoreProcedureDatabaseParameterModifier.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\DefaultKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfoFactory.cs" />
@@ -57,8 +59,6 @@
     <Compile Include="Common\Visitors\ParameterChangeVisitor.cs" />
     <Compile Include="Common\Visitors\ReplaceVisitor.cs" />
     <Compile Include="Common\Visitors\StoredProcedureParameterSearchVisitor.cs" />
-    <Compile Include="Common\Visitors\TableSearchVisitor.cs" />
-    <Compile Include="Common\Visitors\TableSearchVisitor`1.cs" />
     <Compile Include="Concurrency\ChaosConcurrencyManager.cs" />
     <Compile Include="Concurrency\TableLockConcurrencyManager.cs" />
     <Compile Include="Concurrency\EntrantCounter.cs" />

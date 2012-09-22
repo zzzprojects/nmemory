@@ -35,9 +35,8 @@ namespace NMemory.Linq
 
             using (var tran = Transaction.EnsureTransaction(ref transaction, this.database))
             {
-                IList<ITable> tables = TableSearchVisitor.FindTables(expression);
                 IExecutionPlan<TResult> plan = this.database.DatabaseEngine.Compiler.Compile<TResult>(expression);
-                IExecutionContext context = new ExecutionContext(this.database, transaction, tables);
+                IExecutionContext context = new ExecutionContext(this.database, transaction);
 
                 TResult result = plan.Execute(context);
 

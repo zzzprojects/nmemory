@@ -17,12 +17,9 @@ namespace NMemory.StoredProcedures
         where TDatabase : IDatabase
     {
         private Expression expression;
-        private IList<Type> entityTypes;
-
-        private IExecutionPlan<IEnumerable<TResult>> plan;
         private IList<ParameterDescription> parameters;
 
-        public SharedStoredProcedure(Expression<Func<TDatabase, IQueryable<TResult>>> expression, bool precompile)
+        public SharedStoredProcedure(Expression<Func<TDatabase, IQueryable<TResult>>> expression)
         {
             this.expression = expression.Body;
 
@@ -32,11 +29,6 @@ namespace NMemory.StoredProcedures
                 .Select(p => new ParameterDescription(p.Name, p.Type))
                 .ToList()
                 .AsReadOnly();
-
-            if (precompile)
-            {
-                this.plan = this.Compile(null);
-            }
         }
 
         public IList<ParameterDescription> Parameters
@@ -51,38 +43,21 @@ namespace NMemory.StoredProcedures
 
         public IEnumerable<TResult> Execute(IDatabase database, IDictionary<string, object> parameters, Transaction transaction)
         {
-            IExecutionPlan<IEnumerable<TResult>> plan = this.plan;
-
-            // If the query is not compiled, it has to be done now
-            if (plan == null)
-            {
-                plan = this.Compile(database);
-            }
+            IExecutionPlan<IEnumerable<TResult>> localPlan = 
+                database.DatabaseEngine.Compiler.Compile<IEnumerable<TResult>>(this.expression);
 
             using (var tran = Transaction.EnsureTransaction(ref transaction, database))
             {
                 IExecutionContext context =
-                    new ExecutionContext(database, transaction, this.entityTypes, parameters);
+                    new ExecutionContext(database, transaction, parameters);
 
                 IEnumerable<TResult> result =
-                    database.DatabaseEngine.Executor.Execute<TResult>(plan, context)
+                    database.DatabaseEngine.Executor.Execute<TResult>(localPlan, context)
                     .ToEnumerable();
 
                 tran.Complete();
                 return result;
             }
-        }
-
-        protected IExecutionPlan<IEnumerable<TResult>> Compile(IDatabase database)
-        {
-            if (database == null)
-            {
-                database = Activator.CreateInstance<TDatabase>();
-            }
-
-            this.entityTypes = TableSearchVisitor.FindEntityTypes(this.expression);
-
-            return database.DatabaseEngine.Compiler.Compile<IEnumerable<TResult>>(this.expression);
         }
 
         IEnumerable ISharedStoredProcedure.Execute(IDatabase database, IDictionary<string, object> parameters)

@@ -8,12 +8,10 @@ using System.Collections;
 
 namespace NMemory.StoredProcedures
 {
-    public interface ISharedStoredProcedure<TEntity>
+    public interface ISharedStoredProcedure<TEntity> : ISharedStoredProcedure
     {
-        IList<ParameterDescription> Parameters { get; }
+        new IEnumerable<TEntity> Execute(IDatabase database, IDictionary<string, object> parameters);
 
-        IEnumerable<TEntity> Execute(IDatabase database, IDictionary<string, object> parameters);
-
-        IEnumerable<TEntity> Execute(IDatabase database, IDictionary<string, object> parameters, Transaction transaction);
+        new IEnumerable<TEntity> Execute(IDatabase database, IDictionary<string, object> parameters, Transaction transaction);
     }
 }

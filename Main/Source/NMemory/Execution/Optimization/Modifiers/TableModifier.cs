@@ -15,13 +15,13 @@ namespace NMemory.Execution.Optimization.Modifiers
         {
             if (node.Value is ITable)
             {
-                return SelectTableExpression(node.Value);
+                return CreateSelectTableExpression(node.Value);
             }
 
             return base.VisitConstant(node);
         }
 
-        private static Expression SelectTableExpression(object obj)
+        private static Expression CreateSelectTableExpression(object obj)
         {
             ITable table = obj as ITable;
 
@@ -44,5 +44,7 @@ namespace NMemory.Execution.Optimization.Modifiers
 
             return result;
         }
+
+        // TODO: Search for FindTable method call expression
     }
 }

@@ -7,6 +7,7 @@ using NMemory.Linq;
 using System.Linq;
 using System.Linq.Expressions;
 using NMemory.Common.Visitors;
+using NMemory.Common;
 
 namespace NMemory.Execution
 {
@@ -31,7 +32,7 @@ namespace NMemory.Execution
             IEnumerable<T> query = plan.Execute(context);
             IConcurrencyManager cm = this.database.DatabaseEngine.ConcurrencyManager;
 
-            ITable[] tables = context.AffectedTables.ToArray();
+            ITable[] tables = TableLocator.FindAffectedTables(context.Database, plan);
 
             EntityPropertyCloner<T> cloner = null;
             if (this.database.Tables.IsEntityType<T>())

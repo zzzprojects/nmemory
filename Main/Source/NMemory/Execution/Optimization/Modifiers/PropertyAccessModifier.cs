@@ -43,6 +43,24 @@ namespace NMemory.Execution.Optimization.Modifiers
         {
             Expression[] blockContent = new Expression[3];
 
+            // original:
+            //
+            //  x.Member
+            //
+            // transformed:
+            //
+            //  {
+            //      var source = x;
+            //      var result;
+            //
+            //      if (source == null)
+            //          result = source.Member;
+            //      else
+            //          result = null
+            //
+            //      return result;
+            // }
+
             ParameterExpression source = Expression.Variable(memberNode.Expression.Type);
             ParameterExpression result = Expression.Variable(resultType);
 

@@ -21,7 +21,7 @@ namespace NMemory.Execution
         public IExecutionPlan<T> Compile<T>(Expression expression)
         {
             // Define execution context as parameter
-            ParameterExpression parameter = Expression.Parameter(typeof(IExecutionContext));
+            ParameterExpression parameter = Expression.Parameter(typeof(IExecutionContext), "executionContext");
             
             // Execute optimization
             expression = this.TransformExpression(expression, parameter);
@@ -68,7 +68,16 @@ namespace NMemory.Execution
             // Collect expressions
             IEnumerable<IExpressionModifier> modifiers = this.GetModifiers(expression, context);
             // Add essential modifiers
-            modifiers = modifiers.Concat(new IExpressionModifier[] { new TableModifier(), new StoredProcedureParameterModifier(parameter) });
+            modifiers =
+                new IExpressionModifier[] 
+                { 
+                    new SharedStoreProcedureDatabaseParameterModifier(context), 
+                    new StoredProcedureParameterModifier(context), 
+                }
+                .Concat(modifiers.Concat(new IExpressionModifier[] 
+                { 
+                    new TableModifier() 
+                }));
 
             // Initialize modifiers
             foreach (IDatabaseComponent databaseComponent in modifiers)

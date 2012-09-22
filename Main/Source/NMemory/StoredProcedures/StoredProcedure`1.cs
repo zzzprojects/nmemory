@@ -21,7 +21,6 @@ namespace NMemory.StoredProcedures
     public class StoredProcedure<T> : IStoredProcedure<T>, IStoredProcedure
     {
         private IDatabase database;
-        private IList<ITable> tables;
 
         private Expression expression;
 
@@ -40,8 +39,6 @@ namespace NMemory.StoredProcedures
                 .ToList()
                 .AsReadOnly();
 
-            this.tables = TableSearchVisitor.FindTables(this.expression);
-
             if (precompile)
             {
                 this.plan = this.Compile();
@@ -55,21 +52,21 @@ namespace NMemory.StoredProcedures
 
         public IEnumerable<T> Execute(IDictionary<string, object> parameters, Transaction transaction)
         {
-            IExecutionPlan<IEnumerable<T>> plan = this.plan;
+            IExecutionPlan<IEnumerable<T>> localPlan = this.plan;
 
             // If the query is not compiled, it has to be done now
-            if (plan == null)
+            if (localPlan == null)
             {
-                plan = this.Compile();
+                localPlan = this.Compile();
             }
 
             using (var tran = Transaction.EnsureTransaction(ref transaction, this.database))
             {
                 IExecutionContext context = 
-                    new ExecutionContext(this.database, transaction, this.tables,  parameters);
+                    new ExecutionContext(this.database, transaction, parameters);
                 
                 IEnumerable<T> result = 
-                    this.database.DatabaseEngine.Executor.Execute<T>(plan, context)
+                    this.database.DatabaseEngine.Executor.Execute<T>(localPlan, context)
                     .ToEnumerable();
 
                 tran.Complete();

@@ -9,6 +9,7 @@ using NMemory.Indexes;
 using NMemory.Modularity;
 using NMemory.Transactions;
 using NMemory.Transactions.Logs;
+using NMemory.Common;
 
 namespace NMemory.Tables
 {
@@ -342,9 +343,9 @@ namespace NMemory.Tables
             IExecutionPlan<IEnumerable<TEntity>> plan = this.Database.DatabaseEngine.Compiler.Compile<IEnumerable<TEntity>>(expression);
             
             // Find the remaining tables of the query
-            ITable[] tables = TableSearchVisitor.FindTables(expression).Except(new ITable[] { this }).ToArray();
+            ITable[] tables = TableLocator.FindAffectedTables(this.Database, plan).Except(new ITable[] { this }).ToArray();
             
-            IExecutionContext context = new ExecutionContext(this.Database, transaction, tables);
+            IExecutionContext context = new ExecutionContext(this.Database, transaction);
 
             // Lock these tables
             for (int i = 0; i < tables.Length; i++)

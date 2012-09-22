@@ -8,11 +8,11 @@ namespace NMemory.Execution.Optimization.Modifiers
 {
     internal class StoredProcedureParameterModifier : ExpressionModifierBase
     {
-        private ParameterExpression executionContext;
+        private TransformationContext context;
 
-        public StoredProcedureParameterModifier(ParameterExpression executionContext)
+        public StoredProcedureParameterModifier(TransformationContext context)
         {
-            this.executionContext = executionContext;
+            this.context = context;
         }
 
 
@@ -48,7 +48,7 @@ namespace NMemory.Execution.Optimization.Modifiers
 
             return 
                 Expression.Call(
-                    executionContext,
+                    context.Parameter,
                     method.MakeGenericMethod(type),
                     Expression.Constant(name));
         }

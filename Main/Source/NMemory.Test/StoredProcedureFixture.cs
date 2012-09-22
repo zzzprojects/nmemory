@@ -41,7 +41,25 @@ namespace NMemory.Test
 
             var result = procedure.Execute(new Dictionary<string, object> { { "param1", 1 } }).ToList();
 
-            Assert.AreEqual(result.Count, 2);
+            Assert.AreEqual(2, result.Count);
+            Assert.IsTrue(result.All(g => g.Id > 1));
+        }
+
+        [TestMethod]
+        public void SharedStoredProcedure()
+        {
+            TestDatabase database = new TestDatabase();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            database.Groups.Insert(new Group { Name = "Group 3" });
+
+            var procedure = new SharedStoredProcedure<TestDatabase, Group>(
+                d => d.Groups.Where(g => g.Id > 1));
+
+            var result = procedure.Execute(database, null).ToList();
+
+            Assert.AreEqual(2, result.Count);
             Assert.IsTrue(result.All(g => g.Id > 1));
         }
     }

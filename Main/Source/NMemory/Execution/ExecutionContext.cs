@@ -12,8 +12,6 @@ namespace NMemory.Execution
     internal class ExecutionContext : IExecutionContext
     {
         private Transaction transaction;
-        private IList<Type> affectedEntityTypes;
-        private IList<ITable> affectedTables;
         private IDictionary<string, object> parameters;
         private IDatabase database;
        
@@ -21,41 +19,22 @@ namespace NMemory.Execution
         {
             this.database = database;
             this.transaction = transaction;
-            this.affectedEntityTypes = new List<Type>();
             this.parameters = new Dictionary<string, object>();
         }
 
-        public ExecutionContext(IDatabase database, Transaction transaction, IList<ITable> affectedTables)
+        public ExecutionContext(IDatabase database, Transaction transaction,  IDictionary<string, object> parameters)
         {
             this.database = database;
             this.transaction = transaction;
-            this.affectedEntityTypes = affectedTables.Select(t => t.EntityType).ToList();
-            this.parameters = new Dictionary<string, object>();
-        }
-
-        public ExecutionContext(IDatabase database, Transaction transaction, IList<Type> affectedEntityTypes)
-        {
-            this.database = database;
-            this.transaction = transaction;
-            this.affectedEntityTypes = affectedEntityTypes;
-            this.parameters = new Dictionary<string, object>();
-        }
-
-        public ExecutionContext(IDatabase database, Transaction transaction, IList<ITable> affectedTables, IDictionary<string, object> parameters)
-        {
-            this.database = database;
-            this.transaction = transaction;
-            this.affectedEntityTypes = affectedTables.Select(t => t.EntityType).ToList();
             this.parameters = parameters;
+
+            // Ensure initialization
+            if (this.parameters == null)
+            {
+                this.parameters = new Dictionary<string, object>();
+            }
         }
 
-        public ExecutionContext(IDatabase database, Transaction transaction, IList<Type> affectedEntityTypes, IDictionary<string, object> parameters)
-        {
-            this.database = database;
-            this.transaction = transaction;
-            this.affectedEntityTypes = affectedEntityTypes;
-            this.parameters = parameters;
-        }
 
         public T GetParameter<T>(string name)
         {
@@ -72,25 +51,6 @@ namespace NMemory.Execution
         public IDatabase Database
         {
             get { return this.database; }
-        }
-
-        public IList<ITable> AffectedTables
-        {
-            get 
-            {
-                if (this.affectedTables == null)
-                {
-                    this.affectedTables = new List<ITable>();
-
-                    foreach (Type entityType in this.affectedEntityTypes)
-                    {
-                        ITable table = this.Database.Tables.FindTable(entityType);
-
-                        this.affectedTables.Add(table);
-                    }
-                }
-                return this.affectedTables; 
-            }
         }
 
         public Transaction Transaction

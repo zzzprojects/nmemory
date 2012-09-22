@@ -12,8 +12,6 @@ namespace NMemory.Execution
     {
         T GetParameter<T>(string name);
 
-        IList<ITable> AffectedTables { get; }
-
         IDatabase Database { get; }
 
         Transaction Transaction { get; }
