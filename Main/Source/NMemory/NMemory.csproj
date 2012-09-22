@@ -194,6 +194,7 @@
     <Compile Include="Tables\ITable`2.cs" />
     <Compile Include="Tables\RelationConstraint.cs" />
     <Compile Include="Tables\RelationConstraint`2.cs" />
+    <Compile Include="Tables\RelationKeyConverterFactory.cs" />
     <Compile Include="Tables\Table`2.cs" />
     <Compile Include="Tables\TableCollection.cs" />
     <Compile Include="Tables\TableExtensions.cs" />
