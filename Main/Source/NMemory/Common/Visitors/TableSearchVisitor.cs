@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using NMemory.Exceptions;
 using NMemory.Tables;
+using System;
 
 namespace NMemory.Common.Visitors
 {
@@ -12,6 +13,11 @@ namespace NMemory.Common.Visitors
         {
             TableSearchVisitor visitor = new TableSearchVisitor() { AllowMultiple = true };
             return visitor.SearchTables(expression);
+        }
+
+        public static IList<Type> FindEntityTypes(Expression expression)
+        {
+            return FindTables(expression).Select(t => t.EntityType).ToList();
         }
 
         private List<ITable> tables;

@@ -18,7 +18,7 @@ namespace NMemory.Execution
             this.database = database;
         }
 
-        public Func<IExecutionContext, T> Compile<T>(Expression expression)
+        public IExecutionPlan<T> Compile<T>(Expression expression)
         {
             // Define execution context as parameter
             ParameterExpression parameter = Expression.Parameter(typeof(IExecutionContext));
@@ -33,7 +33,9 @@ namespace NMemory.Execution
             }
 
             // Compile query
-            return this.CompileCore(expression, parameter) as Func<IExecutionContext, T>;
+            Func<IExecutionContext, T> executable = this.CompileCore(expression, parameter) as Func<IExecutionContext, T>;
+
+            return new ExecutionPlan<T>(executable, expression);
         }
 
 

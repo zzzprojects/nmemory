@@ -339,7 +339,7 @@ namespace NMemory.Tables
 
         private List<TEntity> QueryEntities(Expression expression, Transaction transaction)
         {
-            var compiledQuery = this.Database.DatabaseEngine.Compiler.Compile<IEnumerable<TEntity>>(expression);
+            IExecutionPlan<IEnumerable<TEntity>> plan = this.Database.DatabaseEngine.Compiler.Compile<IEnumerable<TEntity>>(expression);
             
             // Find the remaining tables of the query
             ITable[] tables = TableSearchVisitor.FindTables(expression).Except(new ITable[] { this }).ToArray();
@@ -354,7 +354,7 @@ namespace NMemory.Tables
 
             try
             {
-                return compiledQuery.Invoke(context).Distinct().ToList();
+                return plan.Execute(context).Distinct().ToList();
             }
             finally
             {

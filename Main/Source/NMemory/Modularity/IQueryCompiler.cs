@@ -6,6 +6,6 @@ namespace NMemory.Modularity
 {
     public interface IQueryCompiler : IDatabaseComponent
     {
-        Func<IExecutionContext, T> Compile<T>(Expression expression);
+        IExecutionPlan<T> Compile<T>(Expression expression);
     }
 }

@@ -19,7 +19,7 @@ namespace NMemory.Execution
             this.database = database;
         }
 
-        public IEnumerator<T> Execute<T>(Func<IExecutionContext, IEnumerable<T>> compiledQuery, IExecutionContext context)
+        public IEnumerator<T> Execute<T>(IExecutionPlan<IEnumerable<T>> plan, IExecutionContext context)
         {
             Transaction transaction = context.Transaction;
 
@@ -28,7 +28,7 @@ namespace NMemory.Execution
                 throw new InvalidOperationException();
             }
 
-            IEnumerable<T> query = compiledQuery.Invoke(context);
+            IEnumerable<T> query = plan.Execute(context);
             IConcurrencyManager cm = this.database.DatabaseEngine.ConcurrencyManager;
 
             ITable[] tables = context.AffectedTables.ToArray();
@@ -71,15 +71,12 @@ namespace NMemory.Execution
                     cm.ReleaseTableReadLock(tables[i], transaction);
                 }
             }
-
-               
+             
             return result.GetEnumerator();
         }
 
 
-
-
-        public T Execute<T>(Func<IExecutionContext, T> compiledQuery, IExecutionContext context)
+        public T Execute<T>(IExecutionPlan<T> plan, IExecutionContext context)
         {
             Transaction transaction = context.Transaction;
 
@@ -90,7 +87,7 @@ namespace NMemory.Execution
 
             // TODO: Proper implementation
 
-            return compiledQuery.Invoke(context);
+            return plan.Execute(context);
         }
     }
 }

@@ -39,6 +39,10 @@
   <ItemGroup>
     <Compile Include="Common\CollectionExtensions.cs" />
     <Compile Include="Common\ExpressionHelper.cs" />
+    <Compile Include="Common\Visitors\EntityTypeSearchVisitor.cs" />
+    <Compile Include="Execution\ExecutionPlan.cs" />
+    <Compile Include="Execution\IExecutionPlan.cs" />
+    <Compile Include="Execution\IExecutionPlan`1.cs" />
     <Compile Include="Execution\Optimization\Modifiers\PropertyAccessModifier.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\DefaultKeyInfoFactory.cs" />
@@ -165,11 +169,14 @@
     <Compile Include="Modularity\IQueryCompiler.cs" />
     <Compile Include="Modularity\IQueryExecutor.cs" />
     <Compile Include="Modularity\ITransactionHandler.cs" />
+    <Compile Include="StoredProcedures\ISharedStoredProcedure`1.cs" />
     <Compile Include="StoredProcedures\IParameter.cs" />
+    <Compile Include="StoredProcedures\ISharedStoredProcedure.cs" />
     <Compile Include="StoredProcedures\IStoredProcedure.cs" />
     <Compile Include="StoredProcedures\IStoredProcedure`1.cs" />
     <Compile Include="StoredProcedures\ParameterDescription.cs" />
     <Compile Include="StoredProcedures\Parameter.cs" />
+    <Compile Include="StoredProcedures\SharedStoredProcedure`2.cs" />
     <Compile Include="StoredProcedures\StoredProcedure`1.cs" />
     <Compile Include="Concurrency\DeadlockManagementStrategies.cs" />
     <Compile Include="Concurrency\Locks\ILock.cs" />

@@ -24,11 +24,11 @@ namespace NMemory.StoredProcedures
         private IList<ITable> tables;
 
         private Expression expression;
-       
-        private Func<IExecutionContext, IEnumerable<T>> compiledQuery;
+
+        private IExecutionPlan<IEnumerable<T>> plan;
         private IList<ParameterDescription> parameters;
 
-        public StoredProcedure(IQueryable<T> query, bool precompiled)
+        public StoredProcedure(IQueryable<T> query, bool precompile)
         {
             this.database = ((ITableQuery)query).Database;
             this.expression = query.Expression;
@@ -42,9 +42,9 @@ namespace NMemory.StoredProcedures
 
             this.tables = TableSearchVisitor.FindTables(this.expression);
 
-            if (precompiled)
+            if (precompile)
             {
-                this.compiledQuery = this.Compile();
+                this.plan = this.Compile();
             }
         }
 
@@ -55,12 +55,12 @@ namespace NMemory.StoredProcedures
 
         public IEnumerable<T> Execute(IDictionary<string, object> parameters, Transaction transaction)
         {
-            Func<IExecutionContext, IEnumerable<T>> compiledQuery = this.compiledQuery;
+            IExecutionPlan<IEnumerable<T>> plan = this.plan;
 
             // If the query is not compiled, it has to be done now
-            if (compiledQuery == null)
+            if (plan == null)
             {
-                compiledQuery = this.Compile();
+                plan = this.Compile();
             }
 
             using (var tran = Transaction.EnsureTransaction(ref transaction, this.database))
@@ -69,7 +69,7 @@ namespace NMemory.StoredProcedures
                     new ExecutionContext(this.database, transaction, this.tables,  parameters);
                 
                 IEnumerable<T> result = 
-                    this.database.DatabaseEngine.Executor.Execute<T>(compiledQuery, context)
+                    this.database.DatabaseEngine.Executor.Execute<T>(plan, context)
                     .ToEnumerable();
 
                 tran.Complete();
@@ -92,7 +92,7 @@ namespace NMemory.StoredProcedures
             return Execute(parameters, transaction);
         }
 
-        protected Func<IExecutionContext, IEnumerable<T>> Compile()
+        protected IExecutionPlan<IEnumerable<T>> Compile()
         {
             return this.database.DatabaseEngine.Compiler.Compile<IEnumerable<T>>(this.expression);
         }
