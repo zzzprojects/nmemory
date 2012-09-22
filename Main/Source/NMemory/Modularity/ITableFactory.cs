@@ -12,7 +12,8 @@ namespace NMemory.Modularity
     {
         Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
             Expression<Func<TEntity, TPrimaryKey>> primaryKey,
-            IdentitySpecification<TEntity> identitySpecification,
-            IEnumerable<TEntity> initialEntities) where TEntity : class;
+            IdentitySpecification<TEntity> identitySpecification) 
+            
+            where TEntity : class;
     }
 }

@@ -16,7 +16,7 @@ namespace NMemory.Tables
         private long nextIdentity;
         private Type identityType;
 
-        internal IdentityField(IdentitySpecification<TEntity> identitySpecification, IEnumerable<TEntity> initialEntities)
+        internal IdentityField(IdentitySpecification<TEntity> identitySpecification)
         {
             this.identitySpecification = identitySpecification;
 
@@ -28,14 +28,17 @@ namespace NMemory.Tables
             this.identityType = identityInfo.PropertyType;
             this.identitySetter = DynamicMethodBuilder.CreatePropertySetter<TEntity>(identityInfo);
             this.identityGetter = this.identitySpecification.IdentityColumn.Compile();
+        }
 
+        internal void InitializeBasedOnData(IEnumerable<TEntity> initialEntities)
+        {
             long? currentNextIdentity = null;
 
             foreach (TEntity entity in initialEntities)
             {
                 long entityIdentity = this.identityGetter(entity);
 
-                if (!currentNextIdentity.HasValue || 
+                if (!currentNextIdentity.HasValue ||
                     (this.identitySpecification.Increment < 0 && entityIdentity < currentNextIdentity.Value) ||
                     (this.identitySpecification.Increment > 0 && entityIdentity > currentNextIdentity.Value))
                 {

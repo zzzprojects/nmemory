@@ -22,11 +22,9 @@ namespace NMemory.Tables
         internal DefaultTable(
             IDatabase database,
             Expression<Func<TEntity, TPrimaryKey>> primaryKey, 
+            IdentitySpecification<TEntity> identitySpecification) 
             
-            IdentitySpecification<TEntity> identitySpecification, 
-            IEnumerable<TEntity> initialEntities) 
-            
-            : base(database, primaryKey, identitySpecification, initialEntities)
+            : base(database, primaryKey, identitySpecification)
         {
             this.changeDetector = new EntityPropertyChangeDetector<TEntity>();
             this.cloner = new EntityPropertyCloner<TEntity>();

@@ -20,7 +20,7 @@ namespace NMemory.Test
         {
             Database database = new Database();
 
-            database.Tables.Create<Group, int>(g => g.Id);
+            database.Tables.Create<Group, int>(g => g.Id, null);
         }
 
         [TestMethod]

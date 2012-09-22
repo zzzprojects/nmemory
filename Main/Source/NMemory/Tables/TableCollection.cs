@@ -51,15 +51,13 @@ namespace NMemory.Tables
         public Table<TEntity, TPrimaryKey> Create<TEntity, TPrimaryKey>(
 
             Expression<Func<TEntity, TPrimaryKey>> primaryKey,
-            IdentitySpecification<TEntity> identitySpecification = null,
-            IEnumerable<TEntity> initialEntities = null)
+            IdentitySpecification<TEntity> identitySpecification)
 
             where TEntity : class
         {
             Table<TEntity, TPrimaryKey> table = this.database.DatabaseEngine.TableFactory.CreateTable<TEntity, TPrimaryKey>(
                 primaryKey,
-                identitySpecification,
-                initialEntities);
+                identitySpecification);
 
             this.tables.Add(table);
             this.entityTypes.Add(table.EntityType);

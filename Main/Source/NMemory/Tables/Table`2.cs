@@ -26,6 +26,7 @@ namespace NMemory.Tables
         ITable<TEntity, TPrimaryKey>,
         IQueryable<TEntity>,
         IBulkTable<TEntity>,
+        IInitializableTable<TEntity>,
         IReflectionTable
 
         where TEntity : class
@@ -48,29 +49,31 @@ namespace NMemory.Tables
         public Table(
             IDatabase database,
             Expression<Func<TEntity, TPrimaryKey>> primaryKey,
+            IdentitySpecification<TEntity> identitySpecification)
 
-            IdentitySpecification<TEntity> identitySpecification,
-            IEnumerable<TEntity> initialEntities)
+            : this(database, identitySpecification)
+        {
+            this.primaryKeyIndex = CreateUniqueIndex(new DictionaryIndexFactory(), primaryKey);
+        }
 
+        private Table(
+            IDatabase database,
+            IdentitySpecification<TEntity> identitySpecification) 
+            
             : base(database)
         {
+            this.id = Interlocked.Increment(ref counter);
             this.VerifyType();
-            
+
             this.indexes = new List<IIndex<TEntity>>();
             this.constraints = new List<IConstraint<TEntity>>();
 
             this.RegisterTimestampConstraints();
 
-            this.primaryKeyIndex = CreateUniqueIndex(new RedBlackTreeIndexFactory(), primaryKey);
-
-            this.InitializeData(initialEntities);
-
             if (identitySpecification != null)
             {
-                this.identityField = new IdentityField<TEntity>(identitySpecification, this.primaryKeyIndex.SelectAll());
+                this.identityField = new IdentityField<TEntity>(identitySpecification);
             }
-
-            this.id = Interlocked.Increment(ref counter);
         }
 
         #endregion
@@ -355,7 +358,6 @@ namespace NMemory.Tables
 
         public IIndex<TEntity, TKey> CreateIndex<TKey>(
             IIndexFactory indexFactory,
-            Expression<Func<TEntity, TKey>> key,
             IKeyInfo<TEntity, TKey> keyInfo)
         {
             var index = indexFactory.CreateIndex(this, keyInfo);
@@ -380,7 +382,6 @@ namespace NMemory.Tables
 
         public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
             IIndexFactory indexFactory,
-            Expression<Func<TEntity, TUniqueKey>> key,
             IKeyInfo<TEntity, TUniqueKey> keyInfo)
         {
             var index = indexFactory.CreateUniqueIndex(this, keyInfo);
@@ -445,6 +446,21 @@ namespace NMemory.Tables
         public void AddConstraint(IConstraint<TEntity> constraint)
         {
             this.constraints.Add(constraint);
+        }
+
+        void IInitializableTable<TEntity>.Initialize(IEnumerable<TEntity> initialEntities)
+        {
+            if (this.primaryKeyIndex.Count > 0)
+            {
+                throw new InvalidOperationException();
+            }
+
+            this.InitializeData(initialEntities);
+
+            if (this.identityField != null)
+            {
+                this.identityField.InitializeBasedOnData(this.primaryKeyIndex.SelectAll());
+            }
         }
 
         /// <summary>
@@ -542,5 +558,7 @@ namespace NMemory.Tables
                 this.primaryKeyIndex.Insert(insert);
             }
         }
+
+        
     }
 }

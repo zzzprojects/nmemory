@@ -18,7 +18,7 @@ namespace NMemory.Test.Environment.Data
 
         public TestDatabase(bool createIdentityForGroup = true, bool createNcharContraintForGroup = false)
         {
-            var members = this.Tables.Create<Member, string>(x => x.Id);
+            var members = this.Tables.Create<Member, string>(x => x.Id, null);
             var groups = this.Tables.Create<Group, int>(x => x.Id, createIdentityForGroup ? new IdentitySpecification<Group>(x => x.Id, 1, 1) : null);
 
             if (createNcharContraintForGroup)
@@ -46,7 +46,7 @@ namespace NMemory.Test.Environment.Data
             {
                 if (this.timestampEntities == null)
                 {
-                    this.timestampEntities = this.Tables.Create<TimestampEntity, int>(x => x.Id);
+                    this.timestampEntities = this.Tables.Create<TimestampEntity, int>(x => x.Id, null);
                 }
 
                 return this.timestampEntities; 
