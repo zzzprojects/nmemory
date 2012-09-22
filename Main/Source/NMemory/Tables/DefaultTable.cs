@@ -30,6 +30,17 @@ namespace NMemory.Tables
             this.cloner = new EntityPropertyCloner<TEntity>();
         }
 
+        internal DefaultTable(
+            IDatabase database,
+            IKeyInfo<TEntity, TPrimaryKey> primaryKey,
+            IdentitySpecification<TEntity> identitySpecification)
+
+            : base(database, primaryKey, identitySpecification)
+        {
+            this.changeDetector = new EntityPropertyChangeDetector<TEntity>();
+            this.cloner = new EntityPropertyCloner<TEntity>();
+        }
+
         #region Insert
 
         protected override void InsertCore(TEntity entity, Transaction transaction)

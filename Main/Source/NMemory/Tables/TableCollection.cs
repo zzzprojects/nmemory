@@ -44,12 +44,11 @@ namespace NMemory.Tables
         /// </summary>
         /// <typeparam name="TEntity">Specifies the type of the entities of the table.</typeparam>
         /// <typeparam name="TPrimaryKey">Specifies the type of the primary key of the entities.</typeparam>
-        /// <param name="primaryKey">An expression to determine the primary key of the entities.</param>
+        /// <param name="primaryKey">An expression that represents the primary key of the entities.</param>
         /// <param name="identitySpecification">An <c>IdentitySpecification</c> to set an identity field.</param>
         /// <param name="initialEntities">An <c>IEnumerable</c> to set the initial entities of the table.</param>
         /// <returns>An <c>Table</c> that represents the defined table object.</returns>
         public Table<TEntity, TPrimaryKey> Create<TEntity, TPrimaryKey>(
-
             Expression<Func<TEntity, TPrimaryKey>> primaryKey,
             IdentitySpecification<TEntity> identitySpecification)
 
@@ -59,11 +58,31 @@ namespace NMemory.Tables
                 primaryKey,
                 identitySpecification);
 
-            this.tables.Add(table);
-            this.entityTypes.Add(table.EntityType);
+            this.RegisterTable(table);
 
-            this.referredRelations.Add(table, new List<IRelation>());
-            this.referringRelations.Add(table, new List<IRelation>());
+            return table;
+        }
+
+        /// <summary>
+        /// Initializes a database table.
+        /// </summary>
+        /// <typeparam name="TEntity">Specifies the type of the entities of the table.</typeparam>
+        /// <typeparam name="TPrimaryKey">Specifies the type of the primary key of the entities.</typeparam>
+        /// <param name="primaryKey">An IKeyInfo object that represents the primary key of the entities.</param>
+        /// <param name="identitySpecification">An <c>IdentitySpecification</c> to set an identity field.</param>
+        /// <param name="initialEntities">An <c>IEnumerable</c> to set the initial entities of the table.</param>
+        /// <returns>An <c>Table</c> that represents the defined table object.</returns>
+        public Table<TEntity, TPrimaryKey> Create<TEntity, TPrimaryKey>(
+            IKeyInfo<TEntity, TPrimaryKey> primaryKey,
+            IdentitySpecification<TEntity> identitySpecification)
+
+            where TEntity : class
+        {
+            Table<TEntity, TPrimaryKey> table = this.database.DatabaseEngine.TableFactory.CreateTable<TEntity, TPrimaryKey>(
+                primaryKey,
+                identitySpecification);
+
+            this.RegisterTable(table);
 
             return table;
         }
@@ -139,6 +158,15 @@ namespace NMemory.Tables
             where T : class
         {
             return this.tables.SingleOrDefault(t => t.EntityType == typeof(T)) as ITable<T>;
+        }
+
+        private void RegisterTable(ITable table)
+        {
+            this.tables.Add(table);
+            this.entityTypes.Add(table.EntityType);
+
+            this.referredRelations.Add(table, new List<IRelation>());
+            this.referringRelations.Add(table, new List<IRelation>());
         }
 
     }

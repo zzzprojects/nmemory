@@ -56,6 +56,16 @@ namespace NMemory.Tables
             this.primaryKeyIndex = CreateUniqueIndex(new DictionaryIndexFactory(), primaryKey);
         }
 
+        public Table(
+            IDatabase database,
+            IKeyInfo<TEntity, TPrimaryKey> primaryKey,
+            IdentitySpecification<TEntity> identitySpecification)
+
+            : this(database, identitySpecification)
+        {
+            this.primaryKeyIndex = CreateUniqueIndex(new DictionaryIndexFactory(), primaryKey);
+        }
+
         private Table(
             IDatabase database,
             IdentitySpecification<TEntity> identitySpecification) 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using NMemory.Execution;
 using NMemory.Tables;
+using NMemory.Indexes;
 
 namespace NMemory.Modularity
 {
@@ -22,11 +23,27 @@ namespace NMemory.Modularity
             where TEntity : class
         {
             Table<TEntity, TPrimaryKey> table = new DefaultTable<TEntity, TPrimaryKey>(database, primaryKey, identitySpecification);
-
-            TableLockConcurrencyManager manager = this.database.DatabaseEngine.ConcurrencyManager as TableLockConcurrencyManager;
-            manager.RegisterTable(table);
+            this.RegisterTable(table);
 
             return table;
+        }
+
+        public Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
+            IKeyInfo<TEntity, TPrimaryKey> primaryKey,
+            IdentitySpecification<TEntity> identitySpecification)
+
+            where TEntity : class
+        {
+            Table<TEntity, TPrimaryKey> table = new DefaultTable<TEntity, TPrimaryKey>(database, primaryKey, identitySpecification);
+            this.RegisterTable(table);
+            
+            return table;
+        }
+
+        private void RegisterTable(ITable table)
+        {
+            TableLockConcurrencyManager manager = this.database.DatabaseEngine.ConcurrencyManager as TableLockConcurrencyManager;
+            manager.RegisterTable(table);
         }
     }
 }

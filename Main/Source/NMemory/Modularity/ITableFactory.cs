@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using NMemory.Tables;
+using NMemory.Indexes;
 
 namespace NMemory.Modularity
 {
@@ -14,6 +15,12 @@ namespace NMemory.Modularity
             Expression<Func<TEntity, TPrimaryKey>> primaryKey,
             IdentitySpecification<TEntity> identitySpecification) 
             
+            where TEntity : class;
+
+        Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
+            IKeyInfo<TEntity, TPrimaryKey> primaryKey,
+            IdentitySpecification<TEntity> identitySpecification)
+
             where TEntity : class;
     }
 }
