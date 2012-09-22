@@ -12,12 +12,6 @@ namespace NMemory.Modularity
     public interface ITableFactory : IDatabaseComponent
     {
         Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
-            Expression<Func<TEntity, TPrimaryKey>> primaryKey,
-            IdentitySpecification<TEntity> identitySpecification) 
-            
-            where TEntity : class;
-
-        Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
             IdentitySpecification<TEntity> identitySpecification)
 

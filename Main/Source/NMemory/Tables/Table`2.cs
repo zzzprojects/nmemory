@@ -48,16 +48,6 @@ namespace NMemory.Tables
 
         public Table(
             IDatabase database,
-            Expression<Func<TEntity, TPrimaryKey>> primaryKey,
-            IdentitySpecification<TEntity> identitySpecification)
-
-            : this(database, identitySpecification)
-        {
-            this.primaryKeyIndex = CreateUniqueIndex(new DictionaryIndexFactory(), primaryKey);
-        }
-
-        public Table(
-            IDatabase database,
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
             IdentitySpecification<TEntity> identitySpecification)
 

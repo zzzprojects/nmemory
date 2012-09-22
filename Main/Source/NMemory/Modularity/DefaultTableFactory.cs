@@ -17,18 +17,6 @@ namespace NMemory.Modularity
         }
 
         public Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
-            Expression<Func<TEntity, TPrimaryKey>> primaryKey, 
-            IdentitySpecification<TEntity> identitySpecification)  
-            
-            where TEntity : class
-        {
-            Table<TEntity, TPrimaryKey> table = new DefaultTable<TEntity, TPrimaryKey>(database, primaryKey, identitySpecification);
-            this.RegisterTable(table);
-
-            return table;
-        }
-
-        public Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
             IdentitySpecification<TEntity> identitySpecification)
 

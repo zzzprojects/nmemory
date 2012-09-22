@@ -21,17 +21,6 @@ namespace NMemory.Tables
 
         internal DefaultTable(
             IDatabase database,
-            Expression<Func<TEntity, TPrimaryKey>> primaryKey, 
-            IdentitySpecification<TEntity> identitySpecification) 
-            
-            : base(database, primaryKey, identitySpecification)
-        {
-            this.changeDetector = new EntityPropertyChangeDetector<TEntity>();
-            this.cloner = new EntityPropertyCloner<TEntity>();
-        }
-
-        internal DefaultTable(
-            IDatabase database,
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
             IdentitySpecification<TEntity> identitySpecification)
 

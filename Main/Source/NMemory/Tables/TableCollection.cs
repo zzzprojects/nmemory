@@ -54,13 +54,9 @@ namespace NMemory.Tables
 
             where TEntity : class
         {
-            Table<TEntity, TPrimaryKey> table = this.database.DatabaseEngine.TableFactory.CreateTable<TEntity, TPrimaryKey>(
-                primaryKey,
-                identitySpecification);
+            IKeyInfoFactory keyInfoFactory = new DefaultKeyInfoFactory();
 
-            this.RegisterTable(table);
-
-            return table;
+            return this.Create(keyInfoFactory.Create(primaryKey), identitySpecification);
         }
 
         /// <summary>
