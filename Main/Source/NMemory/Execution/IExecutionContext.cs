@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NMemory.Tables;
 using NMemory.Transactions;
+using NMemory.Modularity;
 
 namespace NMemory.Execution
 {
@@ -12,6 +13,8 @@ namespace NMemory.Execution
         T GetParameter<T>(string name);
 
         IList<ITable> AffectedTables { get; }
+
+        IDatabase Database { get; }
 
         Transaction Transaction { get; }
     }

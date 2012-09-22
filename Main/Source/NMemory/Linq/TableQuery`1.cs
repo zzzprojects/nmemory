@@ -58,7 +58,7 @@ namespace NMemory.Linq
                 var tables = TableSearchVisitor.FindTables(((IQueryable)this).Expression);
                 var compiledQuery = this.Database.DatabaseEngine.Compiler.Compile<IEnumerable<TEntity>>(((IQueryable)this).Expression);
 
-                var context = new ExecutionContext(transaction, tables);
+                var context = new ExecutionContext(this.Database, transaction, tables);
                 var result = this.Database.DatabaseEngine.Executor.Execute(compiledQuery, context);
 
                 ctx.Complete();

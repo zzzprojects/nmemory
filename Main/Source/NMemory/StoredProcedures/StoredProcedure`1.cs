@@ -65,8 +65,12 @@ namespace NMemory.StoredProcedures
 
             using (var tran = Transaction.EnsureTransaction(ref transaction, this.database))
             {
-                IExecutionContext context = new ExecutionContext(transaction, this.tables, parameters);
-                IEnumerable<T> result = this.database.DatabaseEngine.Executor.Execute<T>(compiledQuery, context).ToEnumerable();
+                IExecutionContext context = 
+                    new ExecutionContext(this.database, transaction, this.tables,  parameters);
+                
+                IEnumerable<T> result = 
+                    this.database.DatabaseEngine.Executor.Execute<T>(compiledQuery, context)
+                    .ToEnumerable();
 
                 tran.Complete();
                 return result;

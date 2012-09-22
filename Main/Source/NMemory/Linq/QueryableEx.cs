@@ -7,6 +7,7 @@ using NMemory.Indexes;
 using NMemory.Linq.Helpers;
 using NMemory.Tables;
 using NMemory.Transactions;
+using NMemory.Utilities;
 
 namespace NMemory.Linq
 {

@@ -150,10 +150,9 @@ namespace NMemory.Tables
             return this.entityTypes.Contains(typeof(T));
         }
 
-        internal ITable<T> FindTable<T>()
-            where T : class
+        public ITable FindTable(Type entityType)
         {
-            return this.tables.SingleOrDefault(t => t.EntityType == typeof(T)) as ITable<T>;
+            return this.tables.SingleOrDefault(t => t.EntityType == entityType);
         }
 
         private void RegisterTable(ITable table)

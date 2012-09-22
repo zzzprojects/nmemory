@@ -343,7 +343,8 @@ namespace NMemory.Tables
             
             // Find the remaining tables of the query
             ITable[] tables = TableSearchVisitor.FindTables(expression).Except(new ITable[] { this }).ToArray();
-            IExecutionContext context = new ExecutionContext(transaction, tables);
+            
+            IExecutionContext context = new ExecutionContext(this.Database, transaction, tables);
 
             // Lock these tables
             for (int i = 0; i < tables.Length; i++)

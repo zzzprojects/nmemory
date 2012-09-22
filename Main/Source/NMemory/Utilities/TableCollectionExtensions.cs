@@ -80,5 +80,16 @@ namespace NMemory.Utilities
                 new RelationConstraint<TPrimary, TForeign, TConstraint2>(constraint2P, constraint2F),
                 new RelationConstraint<TPrimary, TForeign, TConstraint2>(constraint3P, constraint3F));
         }
+
+        public static ITable<T> FindTable<T>(this TableCollection tableCollection)
+            where T : class
+        {
+            if (tableCollection == null)
+	        {
+		        throw new ArgumentNullException("tableCollection");
+	        }
+
+            return tableCollection.FindTable(typeof(T)) as ITable<T>;
+        }
     }
 }
