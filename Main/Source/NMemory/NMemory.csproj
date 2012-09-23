@@ -81,12 +81,8 @@
     <Compile Include="DataStructures\IDataStructure.cs" />
     <Compile Include="DataStructures\IIntervalSearchable.cs" />
     <Compile Include="DataStructures\Internal\Graphs\Graph.cs" />
-    <Compile Include="DataStructures\Internal\Trees\ITTreeNode.cs" />
     <Compile Include="DataStructures\Internal\Trees\RedBlackTree.cs" />
     <Compile Include="DataStructures\Internal\Trees\RedBlackTreeNode.cs" />
-    <Compile Include="DataStructures\Internal\Trees\TTree.cs" />
-    <Compile Include="DataStructures\Internal\Trees\TTreeNode.cs" />
-    <Compile Include="DataStructures\Internal\Trees\TTreeSearchResult.cs" />
     <Compile Include="DataStructures\IUniqueDataStructure.cs" />
     <Compile Include="DataStructures\RedBlackTree.cs" />
     <Compile Include="DataStructures\UniqueHashtable.cs" />
