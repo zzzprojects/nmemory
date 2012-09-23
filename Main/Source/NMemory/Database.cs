@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using NMemory.Diagnostics;
-using NMemory.Indexes;
 using NMemory.Modularity;
 using NMemory.StoredProcedures;
 using NMemory.Tables;
-using NMemory.Transactions;
 
 namespace NMemory
 {

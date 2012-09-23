@@ -1,6 +1,4 @@
-﻿using NMemory.Tables;
-using NMemory.Transactions;
-
+﻿
 namespace NMemory.Modularity
 {
     public interface IDatabaseEngine

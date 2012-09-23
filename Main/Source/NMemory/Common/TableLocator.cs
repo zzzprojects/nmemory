@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NMemory.Tables;
-using NMemory.Modularity;
-using NMemory.Execution;
 using NMemory.Common.Visitors;
+using NMemory.Execution;
+using NMemory.Modularity;
+using NMemory.Tables;
 
 namespace NMemory.Common
 {

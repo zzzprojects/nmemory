@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NMemory.Modularity;
 using System.Linq.Expressions;
 using NMemory.Execution.Optimization;
 using NMemory.Execution.Optimization.Modifiers;
+using NMemory.Modularity;
 
 namespace NMemory.Execution
 {

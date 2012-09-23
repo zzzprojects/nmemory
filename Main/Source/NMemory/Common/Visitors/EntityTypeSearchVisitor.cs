@@ -1,22 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Linq.Expressions;
 using NMemory.Tables;
-using System.Reflection;
-using NMemory.Utilities;
 
 namespace NMemory.Common.Visitors
 {
     internal class EntityTypeSearchVisitor : ExpressionVisitor
     {
-        private static readonly MethodInfo FindTable = 
-            ReflectionHelper.GetMethodInfo<TableCollection>(t => t.FindTable(null));
-
-        private static readonly MethodInfo FindTableGeneric =
-            ReflectionHelper.GetStaticMethodInfo(() => TableCollectionExtensions.FindTable<object>(null));
-
         private HashSet<Type> entityTypes;
 
         public EntityTypeSearchVisitor()
@@ -38,7 +29,7 @@ namespace NMemory.Common.Visitors
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (node.Method == FindTable)
+            if (node.Method == DatabaseMembers.TableCollection_FindTable)
             {
                 ConstantExpression nodeType = node.Arguments[0] as ConstantExpression;
 
@@ -50,7 +41,7 @@ namespace NMemory.Common.Visitors
                 return null;
             }
 
-            if (node.Method.IsGenericMethod && node.Method.GetGenericMethodDefinition() == FindTableGeneric)
+            if (node.Method.IsGenericMethod && node.Method.GetGenericMethodDefinition() == DatabaseMembers.TableCollectionExtensions_FindTable)
             {
                 this.entityTypes.Add(node.Method.GetGenericArguments()[0]);
             }
@@ -64,16 +55,12 @@ namespace NMemory.Common.Visitors
 
             if (typeof(ITable).IsAssignableFrom(type))
             {
-                // TODO: extract refactor
-                Type[] possibleInterfaces = node.Type.GetInterfaces().Concat(new Type[] { node.Type }).ToArray();
+                Type entityType = DatabaseReflectionHelper.GetTableEntityType(node.Type);
 
-                Type tableInterface =
-                    possibleInterfaces.SingleOrDefault(
-                        i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ITable<>));
-
-                if (tableInterface != null)
+                // Check if ITable<>
+                if (entityType != null)
                 {
-                    this.entityTypes.Add(tableInterface.GetGenericArguments()[0]);
+                    this.entityTypes.Add(entityType);
                 }
             }
             

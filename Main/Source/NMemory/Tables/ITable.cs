@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using NMemory.Indexes;
 using System.Linq;
+using NMemory.Indexes;
 using NMemory.Modularity;
 
 namespace NMemory.Tables

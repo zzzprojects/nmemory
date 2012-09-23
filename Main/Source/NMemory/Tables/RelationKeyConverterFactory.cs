@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NMemory.Indexes;
 using System.Linq.Expressions;
 using System.Reflection;
 using NMemory.Common;
+using NMemory.Indexes;
 
 namespace NMemory.Tables
 {

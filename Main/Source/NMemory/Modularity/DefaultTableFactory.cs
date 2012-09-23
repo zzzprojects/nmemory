@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using NMemory.Execution;
-using NMemory.Tables;
+﻿using NMemory.Execution;
 using NMemory.Indexes;
+using NMemory.Tables;
 
 namespace NMemory.Modularity
 {

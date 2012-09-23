@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using NMemory.Modularity;
-using System.Collections;
 using System.Linq.Expressions;
-using NMemory.Tables;
-using NMemory.Execution;
-using NMemory.Transactions;
 using NMemory.Common;
 using NMemory.Common.Visitors;
+using NMemory.Execution;
+using NMemory.Modularity;
+using NMemory.Transactions;
 
 namespace NMemory.StoredProcedures
 {

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using NMemory.StoredProcedures;
 using NMemory.Tables;
-using NMemory.StoredProcedures;
 
 namespace NMemory.Modularity
 {

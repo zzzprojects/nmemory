@@ -1,8 +1,7 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
-using NMemory.StoredProcedures;
-using System;
+﻿using System;
+using System.Linq.Expressions;
 using NMemory.Common;
+using NMemory.StoredProcedures;
 
 namespace NMemory.Execution.Optimization.Modifiers
 {
@@ -18,6 +17,15 @@ namespace NMemory.Execution.Optimization.Modifiers
 
         protected override Expression VisitUnary(UnaryExpression node)
         {
+            // original:
+            //
+            //  new Parameter<>("name")
+            //
+            // transformed:
+            //  
+            //  executionContext.GetParameter<>("name")
+            //
+
             IParameter parameter = ExpressionHelper.FindParameter(node);
 
             if (parameter == null)
@@ -31,6 +39,15 @@ namespace NMemory.Execution.Optimization.Modifiers
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
+            // original:
+            //
+            //  dbParam (constant)
+            //
+            // transformed:
+            //  
+            //  executionContext.GetParameter<>("name")
+            //
+
             IParameter parameter = node.Value as IParameter;
 
             if (parameter == null)
@@ -44,12 +61,10 @@ namespace NMemory.Execution.Optimization.Modifiers
 
         private Expression CreateParameterReader(Type type, string name)
         {
-            MethodInfo method = typeof(IExecutionContext).GetMethod("GetParameter");
-
             return 
                 Expression.Call(
                     context.Parameter,
-                    method.MakeGenericMethod(type),
+                    DatabaseMembers.ExecutionContext_GetParameter.MakeGenericMethod(type),
                     Expression.Constant(name));
         }
     }

@@ -38,6 +38,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\CollectionExtensions.cs" />
+    <Compile Include="Common\DatabaseMembers.cs" />
+    <Compile Include="Common\DatabaseReflectionHelper.cs" />
     <Compile Include="Common\ExpressionHelper.cs" />
     <Compile Include="Common\TableLocator.cs" />
     <Compile Include="Common\Visitors\EntityTypeSearchVisitor.cs" />
@@ -204,7 +206,6 @@
     <Compile Include="Tables\RelationKeyConverterFactory.cs" />
     <Compile Include="Tables\Table`2.cs" />
     <Compile Include="Tables\TableCollection.cs" />
-    <Compile Include="Tables\TableExtensions.cs" />
     <Compile Include="Tables\TableHints.cs" />
     <Compile Include="Transactions\Logs\IndexDeleteTransactionLogItem.cs" />
     <Compile Include="Transactions\Logs\IndexInsertTransactionLogItem.cs" />
@@ -220,6 +221,7 @@
     <Compile Include="Transactions\TransactionContext.cs" />
     <Compile Include="Transactions\AmbientTransactionStore.cs" />
     <Compile Include="Utilities\TableCollectionExtensions.cs" />
+    <Compile Include="Utilities\TableExtensions.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

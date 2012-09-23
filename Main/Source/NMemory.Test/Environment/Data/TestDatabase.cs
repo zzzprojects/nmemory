@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NMemory.Tables;
+﻿using NMemory.Constraints;
 using NMemory.Indexes;
-using NMemory.Constraints;
+using NMemory.Tables;
 using NMemory.Utilities;
 
 namespace NMemory.Test.Environment.Data

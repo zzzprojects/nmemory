@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using NMemory.Diagnostics;
 using NMemory.Modularity;
 
 namespace NMemory.Execution.Optimization.Modifiers

@@ -7,15 +7,11 @@ using System.Threading;
 using NMemory.Common;
 using NMemory.Constraints;
 using NMemory.Data;
-using NMemory.DataStructures;
 using NMemory.Exceptions;
-using NMemory.Execution;
 using NMemory.Indexes;
 using NMemory.Linq;
-using NMemory.Transactions;
-using NMemory.Transactions.Logs;
 using NMemory.Modularity;
-using NMemory.Common.Visitors;
+using NMemory.Transactions;
 
 namespace NMemory.Tables
 {
@@ -316,11 +312,6 @@ namespace NMemory.Tables
             {
                 return this.LongCount();
             }
-        }
-
-        internal IEnumerable<TEntity> SelectAll()
-        {
-            return this.primaryKeyIndex.SelectAll();
         }
 
         internal long GetCount()

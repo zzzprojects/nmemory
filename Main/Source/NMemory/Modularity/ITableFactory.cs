@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using NMemory.Indexes;
 using NMemory.Tables;
-using NMemory.Indexes;
 
 namespace NMemory.Modularity
 {

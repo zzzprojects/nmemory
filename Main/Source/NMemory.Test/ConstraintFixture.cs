@@ -1,10 +1,7 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NMemory.Test.Environment.Data;
 using NMemory.Exceptions;
+using NMemory.Test.Environment.Data;
 
 namespace NMemory.Test
 {

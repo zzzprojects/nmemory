@@ -1,5 +1,5 @@
-﻿using NMemory.Execution;
-using NMemory.Diagnostics;
+﻿using NMemory.Diagnostics;
+using NMemory.Execution;
 using NMemory.Transactions;
 
 namespace NMemory.Modularity

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Linq.Expressions;
-using NMemory.Tables;
-using NMemory.Common;
 using System.Reflection;
+using NMemory.Common;
 
 namespace NMemory.Execution.Optimization.Modifiers
 {
@@ -13,38 +9,57 @@ namespace NMemory.Execution.Optimization.Modifiers
     {
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (node.Value is ITable)
+            // original:
+            //
+            //  DatabaseTable
+            //
+            // transformed:
+            //  
+            //  DatabaseTable.SelectAll<>
+            //
+
+            Type entityType = DatabaseReflectionHelper.GetTableEntityType(node.Type);
+
+            if (entityType != null)
             {
-                return CreateSelectTableExpression(node.Value);
+                return CreateSelectTableExpression(node, entityType);
             }
 
             return base.VisitConstant(node);
         }
 
-        private static Expression CreateSelectTableExpression(object obj)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            ITable table = obj as ITable;
+            // original:
+            //
+            //  dbParam.FindTable<>
+            //
+            // transformed:
+            //  
+            //  dbParam.FindTable<>.SelectAll<>
+            //
 
-            if (table == null)
+            Type entityType = DatabaseReflectionHelper.GetTableEntityType(node.Type);
+
+            if (entityType != null && 
+                node.Method.IsGenericMethod && 
+                node.Method.GetGenericMethodDefinition() == DatabaseMembers.TableCollectionExtensions_FindTable)
             {
-                throw new InvalidOperationException("Constant is not a table.");
+                return CreateSelectTableExpression(node, entityType);
             }
 
-            string selectAll = ReflectionHelper.GetMethodName<Table<object, object>>(x => x.SelectAll());
-
-            MethodInfo selectAllMethod = table.GetType().GetMethod(selectAll, BindingFlags.NonPublic | BindingFlags.Instance);
-
-            Expression result =
-                Expression.Call(
-                    QueryMethods.AsQueryable.MakeGenericMethod(table.EntityType),
-                    Expression.Call(
-                        Expression.Constant(table),
-                        selectAllMethod)
-                    );
-
-            return result;
+            return base.VisitMethodCall(node);
         }
 
-        // TODO: Search for FindTable method call expression
+        private static Expression CreateSelectTableExpression(Expression source, Type entityType)
+        {
+            MethodInfo selectAllMethod = DatabaseMembers.TableExtensions_SelectAll.MakeGenericMethod(entityType);
+
+            Expression selectAllCall = Expression.Call(selectAllMethod, source);
+
+            return Expression.Call(
+                QueryMethods.AsQueryable.MakeGenericMethod(entityType),
+                selectAllCall);
+        }
     }
 }

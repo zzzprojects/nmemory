@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using NMemory.Common.Visitors;
+using NMemory.Common;
 using NMemory.Execution;
 using NMemory.Indexes;
 using NMemory.Modularity;
 using NMemory.Transactions;
 using NMemory.Transactions.Logs;
-using NMemory.Common;
 
 namespace NMemory.Tables
 {

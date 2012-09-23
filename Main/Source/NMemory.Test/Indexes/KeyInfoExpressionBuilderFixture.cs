@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NMemory.Indexes;
-using System.Linq.Expressions;
 
 namespace NMemory.Test.Indexes
 {

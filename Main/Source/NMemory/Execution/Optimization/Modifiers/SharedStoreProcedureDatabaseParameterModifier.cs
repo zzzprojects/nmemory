@@ -1,28 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Linq.Expressions;
-using NMemory.Modularity;
 using NMemory.Common;
-using System.Reflection;
-using NMemory.Tables;
-using NMemory.Utilities;
+using NMemory.Modularity;
 
 namespace NMemory.Execution.Optimization.Modifiers
 {
     public class SharedStoreProcedureDatabaseParameterModifier : ExpressionModifierBase
     {
         private TransformationContext context;
-
-        private static readonly MethodInfo FindTable =
-            ReflectionHelper.GetStaticMethodInfo(() => TableCollectionExtensions.FindTable<object>(null)).GetGenericMethodDefinition();
-
-        private static readonly PropertyInfo ExecutionContextDatabase =
-            ReflectionHelper.GetPropertyInfo<IExecutionContext, IDatabase>(c => c.Database);
-
-        private static readonly PropertyInfo DatabaseTableCollection =
-            ReflectionHelper.GetPropertyInfo<IDatabase, TableCollection>(d => d.Tables);
 
         public SharedStoreProcedureDatabaseParameterModifier(TransformationContext context)
         {
@@ -43,22 +28,15 @@ namespace NMemory.Execution.Optimization.Modifiers
             if (typeof(IDatabase).IsAssignableFrom(node.Member.DeclaringType) &&
                 node.Expression is ParameterExpression)
             {
-                // TODO : extract refactor
-                Type[] possibleInterfaces = node.Type.GetInterfaces().Concat(new Type[] { node.Type }).ToArray();
+                Type entityType = DatabaseReflectionHelper.GetTableEntityType(node.Type);
 
-                Type tableInterface =
-                    possibleInterfaces.SingleOrDefault(i =>
-                        i.IsGenericType &&
-                        i.GetGenericTypeDefinition() == typeof(ITable<>));
-
-                if (tableInterface != null)
+                // Check if ITable<>
+                if (entityType != null)
                 {
-                    Type entityType = tableInterface.GetGenericArguments()[0];
+                    Expression database = Expression.Property(this.context.Parameter, DatabaseMembers.ExecutionContext_Database);
+                    Expression tables = Expression.Property(database, DatabaseMembers.Database_Tables);
 
-                    Expression database = Expression.Property(this.context.Parameter, ExecutionContextDatabase);
-                    Expression tables = Expression.Property(database, DatabaseTableCollection);
-
-                    return Expression.Call(FindTable.MakeGenericMethod(entityType), tables);
+                    return Expression.Call(DatabaseMembers.TableCollectionExtensions_FindTable.MakeGenericMethod(entityType), tables);
                 }
             }
 
@@ -78,7 +56,7 @@ namespace NMemory.Execution.Optimization.Modifiers
 
             if (typeof(IDatabase).IsAssignableFrom(node.Type))
             {
-                return Expression.Property(this.context.Parameter, ExecutionContextDatabase);
+                return Expression.Property(this.context.Parameter, DatabaseMembers.ExecutionContext_Database);
             }
 
             return base.VisitParameter(node);
