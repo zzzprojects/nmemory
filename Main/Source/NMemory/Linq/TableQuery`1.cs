@@ -61,10 +61,10 @@ namespace NMemory.Linq
 
         public IEnumerator<TEntity> GetEnumerator()
         {
-            return GetEnumerator(Transaction.TryGetAmbientEnlistedTransaction());
+            return GetEnumerator(null, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
-        public IEnumerator<TEntity> GetEnumerator(Transaction transaction)
+        public IEnumerator<TEntity> GetEnumerator(IDictionary<string, object> parameters, Transaction transaction)
         {
             IExecutionPlan<IEnumerable<TEntity>> planToExecute = null;
 
@@ -79,12 +79,12 @@ namespace NMemory.Linq
                 planToExecute = this.CompilePlan();
             }
 
-            using (var ctx = Transaction.EnsureTransaction(ref transaction, this.Database))
+            using (TransactionContext transactionContext = Transaction.EnsureTransaction(ref transaction, this.Database))
             {
-                IExecutionContext context = new ExecutionContext(this.Database, transaction);
-                IEnumerator<TEntity> result = this.Database.DatabaseEngine.Executor.Execute(planToExecute, context);
+                IExecutionContext executionContext = new ExecutionContext(this.Database, transaction, parameters);
+                IEnumerator<TEntity> result = this.Database.DatabaseEngine.Executor.Execute(planToExecute, executionContext);
 
-                ctx.Complete();
+                transactionContext.Complete();
 
                 return result;
             }

@@ -103,7 +103,7 @@
     <Compile Include="Indexes\TupleKeyInfo.cs" />
     <Compile Include="Indexes\TupleKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\TupleKeyInfo`2.cs" />
-    <Compile Include="Linq\TableQueryTransactionWrapper`1.cs" />
+    <Compile Include="Linq\TableQueryWrapper`1.cs" />
     <Compile Include="Modularity\DefaultDatabaseEngine.cs" />
     <Compile Include="Modularity\IDatabase.cs" />
     <Compile Include="Modularity\ILoggingPort.cs" />

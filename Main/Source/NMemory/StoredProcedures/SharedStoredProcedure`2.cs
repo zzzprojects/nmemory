@@ -8,6 +8,7 @@ using NMemory.Common.Visitors;
 using NMemory.Execution;
 using NMemory.Modularity;
 using NMemory.Transactions;
+using NMemory.Linq;
 
 namespace NMemory.StoredProcedures
 {
@@ -41,21 +42,10 @@ namespace NMemory.StoredProcedures
 
         public IEnumerable<TResult> Execute(IDatabase database, IDictionary<string, object> parameters, Transaction transaction)
         {
-            IExecutionPlan<IEnumerable<TResult>> localPlan = 
-                database.DatabaseEngine.Compiler.Compile<IEnumerable<TResult>>(this.expression);
+            // A shared stored procedure creates the query everytime the Execute method was called
+            TableQuery<TResult> query = new TableQuery<TResult>(database, this.expression);
 
-            using (var tran = Transaction.EnsureTransaction(ref transaction, database))
-            {
-                IExecutionContext context =
-                    new ExecutionContext(database, transaction, parameters);
-
-                IEnumerable<TResult> result =
-                    database.DatabaseEngine.Executor.Execute<TResult>(localPlan, context)
-                    .ToEnumerable();
-
-                tran.Complete();
-                return result;
-            }
+            return query.Execute(parameters, transaction);
         }
 
         IEnumerable ISharedStoredProcedure.Execute(IDatabase database, IDictionary<string, object> parameters)

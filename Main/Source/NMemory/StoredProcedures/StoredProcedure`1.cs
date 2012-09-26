@@ -17,28 +17,26 @@ namespace NMemory.StoredProcedures
     /// <typeparam name="T">The type of the elements of the resultset.</typeparam>
     public class StoredProcedure<T> : IStoredProcedure<T>, IStoredProcedure
     {
-        private IDatabase database;
-
-        private Expression expression;
-
-        private IExecutionPlan<IEnumerable<T>> plan;
+        private TableQuery<T> query;
         private IList<ParameterDescription> parameters;
 
         public StoredProcedure(IQueryable<T> query, bool precompile)
         {
-            this.database = ((ITableQuery)query).Database;
-            this.expression = query.Expression;
+            IDatabase database = ((ITableQuery)query).Database;
+            Expression expression = query.Expression;
 
             // Create parameter description
             this.parameters = StoredProcedureParameterSearchVisitor
-                .FindParameters(this.expression)
+                .FindParameters(expression)
                 .Select(p => new ParameterDescription(p.Name, p.Type))
                 .ToList()
                 .AsReadOnly();
 
+            this.query = new TableQuery<T>(database, expression, precompile);
+
             if (precompile)
             {
-                this.plan = this.Compile();
+                this.query.Compile();
             }
         }
 
@@ -49,26 +47,7 @@ namespace NMemory.StoredProcedures
 
         public IEnumerable<T> Execute(IDictionary<string, object> parameters, Transaction transaction)
         {
-            IExecutionPlan<IEnumerable<T>> localPlan = this.plan;
-
-            // If the query is not compiled, it has to be done now
-            if (localPlan == null)
-            {
-                localPlan = this.Compile();
-            }
-
-            using (var tran = Transaction.EnsureTransaction(ref transaction, this.database))
-            {
-                IExecutionContext context = 
-                    new ExecutionContext(this.database, transaction, parameters);
-                
-                IEnumerable<T> result = 
-                    this.database.DatabaseEngine.Executor.Execute<T>(localPlan, context)
-                    .ToEnumerable();
-
-                tran.Complete();
-                return result;
-            }
+            return this.query.Execute(parameters, transaction);
         }
 
         IList<ParameterDescription> IStoredProcedure.Parameters
@@ -84,11 +63,6 @@ namespace NMemory.StoredProcedures
         IEnumerable IStoredProcedure.Execute(IDictionary<string, object> parameters, Transaction transaction)
         {
             return Execute(parameters, transaction);
-        }
-
-        protected IExecutionPlan<IEnumerable<T>> Compile()
-        {
-            return this.database.DatabaseEngine.Compiler.Compile<IEnumerable<T>>(this.expression);
         }
     }
 }

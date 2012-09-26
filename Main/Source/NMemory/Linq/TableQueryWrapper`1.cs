@@ -7,20 +7,23 @@ using NMemory.Transactions;
 
 namespace NMemory.Linq
 {
-    internal class TableQueryTransactionWrapper<T> : IEnumerable<T>
+    internal class TableQueryWrapper<T> : IEnumerable<T>
     {
         private TableQuery<T> tableQuery;
         private Transaction transaction;
+        private IDictionary<string, object> parameters;
 
-        public TableQueryTransactionWrapper(TableQuery<T> tableQuery, Transaction transaction)
+
+        public TableQueryWrapper(TableQuery<T> tableQuery, IDictionary<string, object> parameters, Transaction transaction)
         {
             this.tableQuery = tableQuery;
             this.transaction = transaction;
+            this.parameters = parameters;
         }
 
         public IEnumerator<T> GetEnumerator()
         {
-            return this.tableQuery.GetEnumerator();
+            return this.tableQuery.GetEnumerator(this.parameters, this.transaction);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
