@@ -56,7 +56,7 @@ namespace NMemory.Tables
             IDatabase database,
             IdentitySpecification<TEntity> identitySpecification) 
             
-            : base(database)
+            : base(database, false)
         {
             this.id = Interlocked.Increment(ref counter);
             this.VerifyType();
