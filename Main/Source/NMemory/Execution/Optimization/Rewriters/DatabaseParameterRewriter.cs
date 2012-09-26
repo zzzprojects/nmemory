@@ -3,13 +3,13 @@ using System.Linq.Expressions;
 using NMemory.Common;
 using NMemory.Modularity;
 
-namespace NMemory.Execution.Optimization.Modifiers
+namespace NMemory.Execution.Optimization.Rewriters
 {
-    public class SharedStoreProcedureDatabaseParameterModifier : ExpressionModifierBase
+    public class DatabaseParameterRewriter : ExpressionRewriterBase
     {
         private TransformationContext context;
 
-        public SharedStoreProcedureDatabaseParameterModifier(TransformationContext context)
+        public DatabaseParameterRewriter(TransformationContext context)
         {
             this.context = context;
         }

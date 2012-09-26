@@ -2,21 +2,21 @@
 using System.Linq;
 using System.Linq.Expressions;
 using NMemory.Execution.Optimization;
-using NMemory.Execution.Optimization.Modifiers;
+using NMemory.Execution.Optimization.Rewriters;
 
 namespace NMemory.Execution
 {
     public class QueryCompiler : QueryCompilerBase
     {
-        protected override IEnumerable<IExpressionModifier> GetModifiers(Expression expression, TransformationContext context)
+        protected override IEnumerable<IExpressionRewriter> GetRewriters(Expression expression, TransformationContext context)
         {
-            return base.GetModifiers(expression, context)
-                .Concat(GetCustomModifiers(expression, context));
+            return base.GetRewriters(expression, context)
+                .Concat(GetCustomRewriters(expression, context));
         }
 
-        private IEnumerable<IExpressionModifier> GetCustomModifiers(Expression expression, TransformationContext context)
+        private IEnumerable<IExpressionRewriter> GetCustomRewriters(Expression expression, TransformationContext context)
         {
-            yield return new PropertyAccessModifier();
+            yield return new PropertyAccessRewriter();
             yield break;
         }
 

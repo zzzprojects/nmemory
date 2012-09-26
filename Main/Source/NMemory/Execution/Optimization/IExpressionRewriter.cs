@@ -2,7 +2,7 @@
 
 namespace NMemory.Execution.Optimization
 {
-    public interface IExpressionModifier
+    public interface IExpressionRewriter
     {
         Expression ModifyExpression(Expression expression);
     }

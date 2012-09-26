@@ -3,9 +3,9 @@ using System.Linq.Expressions;
 using NMemory.Common;
 using NMemory.StoredProcedures;
 
-namespace NMemory.Execution.Optimization.Modifiers
+namespace NMemory.Execution.Optimization.Rewriters
 {
-    internal class StoredProcedureParameterModifier : ExpressionModifierBase
+    internal class StoredProcedureParameterModifier : ExpressionRewriterBase
     {
         private TransformationContext context;
 

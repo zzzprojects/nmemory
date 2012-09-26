@@ -46,8 +46,9 @@
     <Compile Include="Execution\ExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan`1.cs" />
-    <Compile Include="Execution\Optimization\Modifiers\PropertyAccessModifier.cs" />
-    <Compile Include="Execution\Optimization\Modifiers\SharedStoreProcedureDatabaseParameterModifier.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\PropertyAccessRewriter.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\QueryableRewriter.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\DatabaseParameterRewriter.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\DefaultKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfoFactory.cs" />
@@ -127,10 +128,10 @@
     <Compile Include="Exceptions\TransactionHasAlreadyOpen.cs" />
     <Compile Include="Execution\ExecutionContext.cs" />
     <Compile Include="Execution\IExecutionContext.cs" />
-    <Compile Include="Execution\Optimization\IExpressionModifier.cs" />
-    <Compile Include="Execution\Optimization\Modifiers\ExpressionModifierBase.cs" />
-    <Compile Include="Execution\Optimization\Modifiers\StoredProcedureParameterModifier.cs" />
-    <Compile Include="Execution\Optimization\Modifiers\TableModifier.cs" />
+    <Compile Include="Execution\Optimization\IExpressionRewriter.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\ExpressionRewriterBase.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\StoredProcedureParameterModifier.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\TableScanRewriter.cs" />
     <Compile Include="Execution\TransformationContext.cs" />
     <Compile Include="Execution\QueryCompilerBase.cs" />
     <Compile Include="Execution\QueryExecutor.cs" />

@@ -2,9 +2,9 @@
 using System.Linq.Expressions;
 using NMemory.Common;
 
-namespace NMemory.Execution.Optimization.Modifiers
+namespace NMemory.Execution.Optimization.Rewriters
 {
-    public class PropertyAccessModifier : ExpressionModifierBase
+    public class PropertyAccessRewriter : ExpressionRewriterBase
     {
         protected override Expression VisitMember(MemberExpression node)
         {

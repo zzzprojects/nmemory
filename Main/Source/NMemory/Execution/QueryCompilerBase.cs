@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using NMemory.Execution.Optimization;
-using NMemory.Execution.Optimization.Modifiers;
+using NMemory.Execution.Optimization.Rewriters;
 using NMemory.Modularity;
 
 namespace NMemory.Execution
@@ -43,7 +43,7 @@ namespace NMemory.Execution
             return expression;
         }
 
-        protected virtual IEnumerable<IExpressionModifier> GetModifiers(Expression expression, TransformationContext context)
+        protected virtual IEnumerable<IExpressionRewriter> GetRewriters(Expression expression, TransformationContext context)
         {
             yield break;
         }
@@ -65,29 +65,32 @@ namespace NMemory.Execution
             }
 
             // Collect expressions
-            IEnumerable<IExpressionModifier> modifiers = this.GetModifiers(expression, context);
-            // Add essential modifiers
-            modifiers =
-                new IExpressionModifier[] 
+            IEnumerable<IExpressionRewriter> rewriters = this.GetRewriters(expression, context);
+            
+            // Add essential rewriters
+            rewriters =
+                new IExpressionRewriter[] 
                 { 
-                    new SharedStoreProcedureDatabaseParameterModifier(context), 
+                    new DatabaseParameterRewriter(context), 
                     new StoredProcedureParameterModifier(context), 
                 }
-                .Concat(modifiers.Concat(new IExpressionModifier[] 
+                .Concat(rewriters)
+                .Concat(new IExpressionRewriter[] 
                 { 
-                    new TableModifier() 
-                }));
+                    new TableScanRewriter(),
+                    new QueryableRewriter()
+                });
 
-            // Initialize modifiers
-            foreach (IDatabaseComponent databaseComponent in modifiers)
+            // Initialize rewriters
+            foreach (IDatabaseComponent databaseComponent in rewriters)
             {
                 databaseComponent.Initialize(this.database);
             }
 
-            // Execute modifiers
-            foreach (IExpressionModifier modifier in modifiers)
+            // Execute rewriters
+            foreach (IExpressionRewriter rewriter in rewriters)
             {
-                expression = modifier.ModifyExpression(expression);
+                expression = rewriter.ModifyExpression(expression);
             }
 
             expression = this.PostprocessExpression(expression, context);

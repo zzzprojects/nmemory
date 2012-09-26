@@ -3,13 +3,13 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NMemory.Execution.Optimization.Modifiers;
+using NMemory.Execution.Optimization.Rewriters;
 using NMemory.Execution.Optimization;
 using System.Linq.Expressions;
 using NMemory.Test.Environment.Data;
 using NMemory.Test.Environment.Utils;
 
-namespace NMemory.Test.ExpressionModifiers
+namespace NMemory.Test.ExpressionRewriters
 {
     [TestClass]
     public class PropertyAccessModifierFixture
@@ -17,7 +17,7 @@ namespace NMemory.Test.ExpressionModifiers
         [TestMethod]
         public void PropertyAccessModiferOnNullableMember()
         {
-            IExpressionModifier modifier = new PropertyAccessModifier();
+            IExpressionRewriter modifier = new PropertyAccessRewriter();
             Expression<Func<Member, int?>> expression = m => m.GroupId;
 
             Expression newBody = modifier.ModifyExpression(expression.Body);
@@ -31,7 +31,7 @@ namespace NMemory.Test.ExpressionModifiers
         [TestMethod]
         public void PropertyAccessModiferOnMappedNullableMember()
         {
-            IExpressionModifier modifier = new PropertyAccessModifier();
+            IExpressionRewriter modifier = new PropertyAccessRewriter();
             Expression<Func<Member, string>> expression = m => m.GroupId == null ? "null" : "not null";
 
             Expression newBody = modifier.ModifyExpression(expression.Body);
@@ -46,7 +46,7 @@ namespace NMemory.Test.ExpressionModifiers
         [ExpectedException(typeof(NullReferenceException))]
         public void PropertyAccessModiferOnNotNullableMember()
         {
-            IExpressionModifier modifier = new PropertyAccessModifier();
+            IExpressionRewriter modifier = new PropertyAccessRewriter();
             Expression<Func<Member, int>> expression = m => m.GroupId2;
 
             Expression newBody = modifier.ModifyExpression(expression.Body);
@@ -58,7 +58,7 @@ namespace NMemory.Test.ExpressionModifiers
         [TestMethod]
         public void PropertyAccessModiferOnCastedMember()
         {
-            IExpressionModifier modifier = new PropertyAccessModifier();
+            IExpressionRewriter modifier = new PropertyAccessRewriter();
             Expression<Func<Member, int?>> expression = m => (int?)m.GroupId2;
 
             Expression newBody = modifier.ModifyExpression(expression.Body);
@@ -72,7 +72,7 @@ namespace NMemory.Test.ExpressionModifiers
         [TestMethod]
         public void PropertyAccessModiferOnCastedNullableMember()
         {
-            IExpressionModifier modifier = new PropertyAccessModifier();
+            IExpressionRewriter modifier = new PropertyAccessRewriter();
             Expression<Func<Member, int?>> expression = m => (int?)m.GroupId;
 
             Expression newBody = modifier.ModifyExpression(expression.Body);

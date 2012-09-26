@@ -8,7 +8,6 @@ namespace NMemory.Common
 {
     internal class QueryMethods
     {
-
         public static MethodInfo SelectMany
         {
             get

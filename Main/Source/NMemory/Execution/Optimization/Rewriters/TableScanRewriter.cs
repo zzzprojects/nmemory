@@ -3,9 +3,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using NMemory.Common;
 
-namespace NMemory.Execution.Optimization.Modifiers
+namespace NMemory.Execution.Optimization.Rewriters
 {
-    public class TableModifier : ExpressionModifierBase
+    public class TableScanRewriter : ExpressionRewriterBase
     {
         protected override Expression VisitConstant(ConstantExpression node)
         {
