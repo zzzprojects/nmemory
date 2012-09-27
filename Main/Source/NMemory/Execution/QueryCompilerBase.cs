@@ -90,7 +90,7 @@ namespace NMemory.Execution
             // Execute rewriters
             foreach (IExpressionRewriter rewriter in rewriters)
             {
-                expression = rewriter.ModifyExpression(expression);
+                expression = rewriter.Rewrite(expression);
             }
 
             expression = this.PostprocessExpression(expression, context);

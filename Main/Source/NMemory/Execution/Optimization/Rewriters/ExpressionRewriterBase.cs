@@ -13,7 +13,7 @@ namespace NMemory.Execution.Optimization.Rewriters
             this.database = database;
         }
 
-        public Expression ModifyExpression(Expression expression)
+        public Expression Rewrite(Expression expression)
         {
             return this.Visit(expression);
         }

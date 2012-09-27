@@ -20,7 +20,7 @@ namespace NMemory.Test.ExpressionRewriters
             IExpressionRewriter modifier = new PropertyAccessRewriter();
             Expression<Func<Member, int?>> expression = m => m.GroupId;
 
-            Expression newBody = modifier.ModifyExpression(expression.Body);
+            Expression newBody = modifier.Rewrite(expression.Body);
             expression = ExpressionUtils.ChangeBody(expression, newBody);
 
             int? result = expression.Compile().Invoke(null);
@@ -34,7 +34,7 @@ namespace NMemory.Test.ExpressionRewriters
             IExpressionRewriter modifier = new PropertyAccessRewriter();
             Expression<Func<Member, string>> expression = m => m.GroupId == null ? "null" : "not null";
 
-            Expression newBody = modifier.ModifyExpression(expression.Body);
+            Expression newBody = modifier.Rewrite(expression.Body);
             expression = ExpressionUtils.ChangeBody(expression, newBody);
 
             string result = expression.Compile().Invoke(null);
@@ -49,7 +49,7 @@ namespace NMemory.Test.ExpressionRewriters
             IExpressionRewriter modifier = new PropertyAccessRewriter();
             Expression<Func<Member, int>> expression = m => m.GroupId2;
 
-            Expression newBody = modifier.ModifyExpression(expression.Body);
+            Expression newBody = modifier.Rewrite(expression.Body);
             expression = ExpressionUtils.ChangeBody(expression, newBody);
 
             int? result = expression.Compile().Invoke(null);
@@ -61,7 +61,7 @@ namespace NMemory.Test.ExpressionRewriters
             IExpressionRewriter modifier = new PropertyAccessRewriter();
             Expression<Func<Member, int?>> expression = m => (int?)m.GroupId2;
 
-            Expression newBody = modifier.ModifyExpression(expression.Body);
+            Expression newBody = modifier.Rewrite(expression.Body);
             expression = ExpressionUtils.ChangeBody(expression, newBody);
 
             int? result = expression.Compile().Invoke(null);
@@ -75,7 +75,7 @@ namespace NMemory.Test.ExpressionRewriters
             IExpressionRewriter modifier = new PropertyAccessRewriter();
             Expression<Func<Member, int?>> expression = m => (int?)m.GroupId;
 
-            Expression newBody = modifier.ModifyExpression(expression.Body);
+            Expression newBody = modifier.Rewrite(expression.Body);
             expression = ExpressionUtils.ChangeBody(expression, newBody);
 
             int? result = expression.Compile().Invoke(null);
