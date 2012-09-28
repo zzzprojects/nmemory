@@ -3,7 +3,6 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NMemory.StoredProcedures;
 using NMemory.Test.Environment.Data;
-using NMemory.Linq;
 
 namespace NMemory.Test
 {

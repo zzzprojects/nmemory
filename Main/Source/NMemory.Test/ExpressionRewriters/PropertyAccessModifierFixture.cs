@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NMemory.Execution.Optimization.Rewriters;
-using NMemory.Execution.Optimization;
 using System.Linq.Expressions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NMemory.Execution.Optimization;
+using NMemory.Execution.Optimization.Rewriters;
 using NMemory.Test.Environment.Data;
 using NMemory.Test.Environment.Utils;
 

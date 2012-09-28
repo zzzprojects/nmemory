@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using NMemory.Common.Visitors;
 using NMemory.Execution;
-using NMemory.Tables;
-using NMemory.Transactions;
 using NMemory.Modularity;
+using NMemory.Transactions;
 
 namespace NMemory.Linq
 {

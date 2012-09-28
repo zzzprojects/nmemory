@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq.Expressions;
-using NMemory.Test.Environment.Data;
-using NMemory.Tables;
-using NMemory.Utilities;
-using NMemory.Execution.Optimization.Rewriters;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NMemory.Execution.Optimization;
+using NMemory.Execution.Optimization.Rewriters;
 using NMemory.Linq;
+using NMemory.Test.Environment.Data;
+using NMemory.Utilities;
 
 namespace NMemory.Test.ExpressionRewriters
 {

@@ -1,6 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.Generic;
+using System.Linq.Expressions;
 using NMemory.Modularity;
-using System.Collections.Generic;
 
 namespace NMemory.Execution.Optimization.Rewriters
 {
