@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NMemory.StoredProcedures;
 using NMemory.Test.Environment.Data;
+using NMemory.Linq;
 
 namespace NMemory.Test
 {
@@ -60,5 +61,7 @@ namespace NMemory.Test
             Assert.AreEqual(2, result.Count);
             Assert.IsTrue(result.All(g => g.Id > 1));
         }
+
+        
     }
 }

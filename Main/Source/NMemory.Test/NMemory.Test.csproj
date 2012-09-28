@@ -66,6 +66,7 @@
     <Compile Include="Environment\Fake\FakeEnlistmentNotification.cs" />
     <Compile Include="Environment\Utils\ExpressionUtils.cs" />
     <Compile Include="ExpressionRewriters\PropertyAccessModifierFixture.cs" />
+    <Compile Include="ExpressionRewriters\QueryableRewriterFixture.cs" />
     <Compile Include="GeneratedFieldFixture.cs" />
     <Compile Include="IdentityFixture.cs" />
     <Compile Include="Indexes\KeyInfoExpressionBuilderFixture.cs" />

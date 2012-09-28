@@ -119,102 +119,24 @@ namespace NMemory.Linq
 
 		#region JoinIndexed
 
-		internal static IEnumerable<TResult> JoinIndexedCore<TOuter, TInner, TInnerKey, TKey, TResult>(
-		    IQueryable<TOuter> outer,
-		    ConstantExpression inner,
-		    Expression<Func<TKey, TInnerKey>> keyToIndexKey,
-		    Expression outerKeySelector,
-		    Expression resultSelector)
-
-		    where TInner : class
-		{
-
-			Func<TKey, TInnerKey> keyToIndexKexFunc = keyToIndexKey.Compile();
-			Func<TOuter, TKey> outerKeySelectorFunc = ( outerKeySelector as Expression<Func<TOuter, TKey>> ).Compile();
-			Func<TOuter, TInner, TResult> resultSelectorFunc = ( resultSelector as Expression<Func<TOuter, TInner, TResult>> ).Compile();
-			IIndex<TInner, TInnerKey> index = (IIndex<TInner, TInnerKey>)inner.Value;
-
-#if MEASURE
-			Stopwatch s = new Stopwatch();
-			Stopwatch keys = new Stopwatch();
-			Stopwatch results = new Stopwatch();
-			s.Start();
-#endif
-
-			foreach( TOuter outer_item in outer )
-			{
-#if MEASURE
-				keys.Start();
-#endif
-				TInnerKey key = keyToIndexKexFunc( outerKeySelectorFunc( outer_item ) );
-#if MEASURE
-				keys.Stop();
-#endif
-
-				foreach( TInner inner_item in index.Select( key ) )
-				{
-#if MEASURE
-					results.Start();
-#endif
-					TResult result = resultSelectorFunc( outer_item, inner_item );
-#if MEASURE
-					results.Stop();
-#endif
-
-					yield return result;
-				}
-			}
-
-#if MEASURE
-			s.Stop();
-
-			Console.WriteLine("JoinIndexedCore/keyek előtállítása: {0} ms", keys.ElapsedMilliseconds);
-			Console.WriteLine("JoinIndexedCore/result előtállítása: {0} ms", results.ElapsedMilliseconds);
-			Console.WriteLine("JoinIndexedCore: {0} ms", s.ElapsedMilliseconds);
-#endif
-		}
-
-		public static IQueryable<TResult> JoinIndexed<TOuter, TInner, TInnerKey, TKey, TResult>(
-		    this IQueryable<TOuter> outer,
-		    ConstantExpression inner,
-		    Expression<Func<TKey, TInnerKey>> keyToIndexKey,
-		    Expression outerKeySelector,
-		    Expression resultSelector)
-		
-            where TInner : class
-		{
-
-			IEnumerable<TResult> res = JoinIndexedCore<TOuter, TInner, TInnerKey, TKey, TResult>( outer, inner, keyToIndexKey, outerKeySelector, resultSelector );
-
-			return res.AsQueryable();
-		}
-
-		#endregion
-
-		#region JoinIndexed
-
-		internal static IEnumerable<TResult> JoinIndexedCore<TOuter, TInner, TInnerKey, TKey, TResult>(
-			IQueryable<TOuter> outer,
+		internal static IEnumerable<TResult> JoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+			IEnumerable<TOuter> outer,
 			IIndex<TInner, TInnerKey> inner,
-			Func<TKey, TInnerKey> keyToIndexKey,
-			Func<TOuter, TKey> outerKeySelector,
+			Func<TOuterKey, TInnerKey> keyToIndexKey,
+			Func<TOuter, TOuterKey> outerKeySelector,
 			Func<TOuter, TInner, TResult> resultSelector)
 
             where TInner : class
 		{
 
-			Func<TKey, TInnerKey> keyToIndexKexFunc = keyToIndexKey;
-			Func<TOuter, TKey> outerKeySelectorFunc = outerKeySelector;
-			Func<TOuter, TInner, TResult> resultSelectorFunc = resultSelector;
-			IIndex<TInner, TInnerKey> index = inner;
-
-			foreach( TOuter outer_item in outer )
+			foreach(TOuter outerItem in outer)
 			{
-				TInnerKey key = keyToIndexKexFunc( outerKeySelectorFunc( outer_item ) );
+                TOuterKey outerKey = outerKeySelector.Invoke(outerItem);
+                TInnerKey key = keyToIndexKey.Invoke(outerKey);
 
-				foreach( TInner inner_item in index.Select( key ) )
+				foreach(TInner inner_item in inner.Select(key))
 				{
-					TResult result = resultSelectorFunc( outer_item, inner_item );
+					TResult result = resultSelector.Invoke(outerItem, inner_item);
 
 					yield return result;
 				}
@@ -222,18 +144,23 @@ namespace NMemory.Linq
 		}
 
 
-		public static IQueryable<TResult> JoinIndexed<TOuter, TInner, TInnerKey, TKey, TResult>(
-			IQueryable<TOuter> outer,
+		public static IEnumerable<TResult> JoinIndexed<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+			IEnumerable<TOuter> outer,
 			IIndex<TInner, TInnerKey> inner,
-			Func<TKey, TInnerKey> keyToIndexKey,
-			Func<TOuter, TKey> outerKeySelector,
+			Func<TOuterKey, TInnerKey> keyToIndexKey,
+			Func<TOuter, TOuterKey> outerKeySelector,
 			Func<TOuter, TInner, TResult> resultSelector)
 
             where TInner : class
 		{
-			IEnumerable<TResult> res = JoinIndexedCore<TOuter, TInner, TInnerKey, TKey, TResult>( outer, inner, keyToIndexKey, outerKeySelector, resultSelector );
+            // TODO: Add validation
 
-			return res.AsQueryable();
+			return JoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+                outer, 
+                inner, 
+                keyToIndexKey, 
+                outerKeySelector, 
+                resultSelector);
 		}
 
 		#endregion
@@ -348,23 +275,21 @@ namespace NMemory.Linq
 			} while( iValid && jValid );
 		}
 
-		/// <summary>
-		/// Az összefésüléses összekapcsolás rendezett táblákon
-		/// </summary>
-		public static IQueryable<TResult> MergeJoin<TOuter, TInner, TKey, TResult>(
+		public static IEnumerable<TResult> MergeJoin<TOuter, TInner, TKey, TResult>(
 			this IEnumerable<TOuter> outer,
 			IEnumerable<TInner> inner,
 			Func<TOuter, TKey> outerKeySelector,
 			Func<TInner, TKey> innerKeySelector,
-			Func<TOuter, TInner, TResult> resultSelector )
+			Func<TOuter, TInner, TResult> resultSelector)
+
 			where TKey : IComparable
 		{
-			return QueryableEx.MergeJoinCore( outer, inner, outerKeySelector, innerKeySelector, resultSelector ).AsQueryable();
+            return QueryableEx.MergeJoinCore(outer, inner, outerKeySelector, innerKeySelector, resultSelector);
 		}
 		#endregion
 
         public static IQueryable<TResult> LeftOuterJoin<TOuter, TInner, TKey, TResult>(
-            IQueryable<TOuter> outer, 
+            this IQueryable<TOuter> outer, 
             IEnumerable<TInner> inner, 
             Expression<Func<TOuter, TKey>> outerKeySelector, 
             Expression<Func<TInner, TKey>> innerKeySelector, 
