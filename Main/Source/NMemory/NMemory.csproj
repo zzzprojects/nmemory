@@ -43,6 +43,7 @@
     <Compile Include="Common\ExpressionHelper.cs" />
     <Compile Include="Common\TableLocator.cs" />
     <Compile Include="Common\Visitors\EntityTypeSearchVisitor.cs" />
+    <Compile Include="Constraints\StringNotNullableConstraint.cs" />
     <Compile Include="Execution\ExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan`1.cs" />
