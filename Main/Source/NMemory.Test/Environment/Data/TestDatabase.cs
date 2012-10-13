@@ -12,7 +12,7 @@ namespace NMemory.Test.Environment.Data
         private Table<TimestampEntity, int> timestampEntities;
 
 
-        public TestDatabase(bool createIdentityForGroup = true, bool createNcharContraintForGroup = false, bool createNotNullConstraint = false)
+        public TestDatabase(bool createIdentityForGroup = true, bool createNcharContraintForGroup = false)
         {
             var members = this.Tables.Create<Member, string>(x => x.Id, null);
             var groups = this.Tables.Create<Group, int>(x => x.Id, createIdentityForGroup ? new IdentitySpecification<Group>(x => x.Id, 1, 1) : null);
@@ -20,11 +20,6 @@ namespace NMemory.Test.Environment.Data
             if (createNcharContraintForGroup)
             {
                 groups.AddConstraint(new NCharConstraint<Group>(x => x.Name, 4));
-            }
-
-            if (createNotNullConstraint)
-            {
-                groups.AddConstraint(new NotNullableConstraint<Group>(x => x.Name));
             }
 
             this.members = members;

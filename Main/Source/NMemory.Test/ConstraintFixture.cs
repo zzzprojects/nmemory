@@ -27,15 +27,5 @@ namespace NMemory.Test
 
             Assert.AreEqual("wat ", db.Groups.Single().Name);
         }
-
-        [TestMethod]
-        [ExpectedException(typeof(ConstraintException))]
-        public void NotNullableConstraintCompletion()
-        {
-            TestDatabase db = new TestDatabase(createNotNullConstraint: true);
-
-            Group group = new Group { Id = 1};
-            db.Groups.Insert(group);
-        }
     }
 }
