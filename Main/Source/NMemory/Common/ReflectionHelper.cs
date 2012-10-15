@@ -4,10 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace NMemory.Common
 {
-    internal class ReflectionHelper
+    public class ReflectionHelper
     {
         //public static MethodInfo GetMethodInfo<T>(Expression<Func<T, object>> expression)
         //{
@@ -81,11 +82,24 @@ namespace NMemory.Common
 
         public static bool IsAnonymousType(Type type)
         {
-            return
-                !typeof(IComparable).IsAssignableFrom(type) &&
+            return CheckIfAnonymousType(type)
+                ||
+                (!typeof(IComparable).IsAssignableFrom(type) &&
                 type.GetCustomAttributes(typeof(DebuggerDisplayAttribute), false)
                     .Cast<DebuggerDisplayAttribute>()
-                    .Any(m => m.Type == "<Anonymous Type>");
+                    .Any(m => m.Type == "<Anonymous Type>"));
+        }
+
+        private static bool CheckIfAnonymousType(Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException("type");
+
+            // HACK: The only way to detect anonymous types right now.
+            return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+                && type.IsGenericType && type.Name.Contains("AnonymousType")
+                && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+                && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
         }
 
         public static bool IsNullable(Type type)

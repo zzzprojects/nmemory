@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using NMemory.Indexes;
 using NMemory.Common;
+using System.Runtime.CompilerServices;
 
 namespace NMemory.Indexes
 {
@@ -15,9 +16,7 @@ namespace NMemory.Indexes
 
         public AnonymousTypeKeyComparer(SortOrder[] sortOrders)
         {
-            var marker = typeof(T).GetCustomAttributes(typeof(DebuggerDisplayAttribute), false).Cast<DebuggerDisplayAttribute>();
-
-            if (marker.All(m => m.Type != "<Anonymous Type>"))
+            if (!ReflectionHelper.IsAnonymousType(typeof(T)))
             {
                 throw new InvalidOperationException("The specified generic type is not an anonymous type");
             }
