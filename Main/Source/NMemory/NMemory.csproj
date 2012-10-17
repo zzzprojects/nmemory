@@ -128,7 +128,7 @@
     <Compile Include="Execution\IExecutionContext.cs" />
     <Compile Include="Execution\Optimization\IExpressionRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\ExpressionRewriterBase.cs" />
-    <Compile Include="Execution\Optimization\Rewriters\StoredProcedureParameterModifier.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\StoredProcedureParameterRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\TableScanRewriter.cs" />
     <Compile Include="Execution\TransformationContext.cs" />
     <Compile Include="Execution\QueryCompilerBase.cs" />
