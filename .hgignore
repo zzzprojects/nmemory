@@ -4,3 +4,4 @@ obj/**
 TestResults/**
 *.suo
 *.user
+StyleCop.Cache

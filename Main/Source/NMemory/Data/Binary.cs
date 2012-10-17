@@ -1,10 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="Binary.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// ----------------------------------------------------------------------------------
 
 namespace NMemory.Data
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     public class Binary : IEquatable<Binary>, IEquatable<byte[]>
     {
         private byte[] binary;
@@ -21,18 +45,6 @@ namespace NMemory.Data
             Array.Copy(binary, this.binary, this.binary.Length);
         }
 
-        public byte this[int index]
-        {
-            get
-            {
-                return this.binary[index];
-            }
-            set
-            {
-                this.binary[index] = value;
-            }
-        }
-
         public int Length
         {
             get { return this.binary.Length; }
@@ -41,6 +53,19 @@ namespace NMemory.Data
         public long LongLength
         {
             get { return this.binary.LongLength; }
+        }
+
+        public byte this[int index]
+        {
+            get
+            {
+                return this.binary[index];
+            }
+
+            set
+            {
+                this.binary[index] = value;
+            }
         }
 
         public static implicit operator Binary(byte[] binary)
@@ -81,7 +106,6 @@ namespace NMemory.Data
             return !(left == right);
         }
 
-
         public bool Equals(Binary other)
         {
             if (((object)other) == null)
@@ -112,49 +136,6 @@ namespace NMemory.Data
             return AreEqual(this.binary, other);
         }
 
-        private static unsafe bool AreEqual(byte[] b1, byte[] b2)
-        {
-            fixed (byte* p1 = b1, p2 = b2)
-            {
-                byte* x1 = p1, x2 = p2;
-                int l = b1.Length;
-                for (int i = 0; i < l / 8; i++, x1 += 8, x2 += 8)
-                {
-                    if (*((long*)x1) != *((long*)x2))
-                    {
-                        return false;
-                    }
-                }
-                if ((l & 4) != 0)
-                {
-                    if (*((int*)x1) != *((int*)x2))
-                    {
-                        return false;
-                    }
-                    x1 += 4;
-                    x2 += 4;
-                }
-                if ((l & 2) != 0)
-                {
-                    if (*((short*)x1) != *((short*)x2))
-                    {
-                        return false;
-                    }
-                    x1 += 2;
-                    x2 += 2;
-                }
-                if ((l & 1) != 0)
-                {
-                    if (*((byte*)x1) != *((byte*)x2))
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            } 
-        }
-
         public override bool Equals(object obj)
         {
             if (obj is Binary)
@@ -175,6 +156,53 @@ namespace NMemory.Data
             return this.binary.GetHashCode();
         }
 
+        private static unsafe bool AreEqual(byte[] b1, byte[] b2)
+        {
+            fixed (byte* p1 = b1, p2 = b2)
+            {
+                byte* x1 = p1, x2 = p2;
+                int l = b1.Length;
 
+                for (int i = 0; i < l / 8; i++, x1 += 8, x2 += 8)
+                {
+                    if (*((long*)x1) != *((long*)x2))
+                    {
+                        return false;
+                    }
+                }
+
+                if ((l & 4) != 0)
+                {
+                    if (*((int*)x1) != *((int*)x2))
+                    {
+                        return false;
+                    }
+
+                    x1 += 4;
+                    x2 += 4;
+                }
+
+                if ((l & 2) != 0)
+                {
+                    if (*((short*)x1) != *((short*)x2))
+                    {
+                        return false;
+                    }
+
+                    x1 += 2;
+                    x2 += 2;
+                }
+
+                if ((l & 1) != 0)
+                {
+                    if (*((byte*)x1) != *((byte*)x2))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
     }
 }

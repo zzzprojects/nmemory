@@ -1,19 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using NMemory.Common.Visitors;
-using NMemory.Indexes;
-using NMemory.Linq.Helpers;
-using NMemory.Tables;
-using NMemory.Transactions;
-using NMemory.Utilities;
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="QueryableEx.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// ----------------------------------------------------------------------------------
 
 namespace NMemory.Linq
 {
-	public static class QueryableEx
-	{
-		#region Update
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using NMemory.Common.Visitors;
+    using NMemory.Indexes;
+    using NMemory.Linq.Helpers;
+    using NMemory.Tables;
+    using NMemory.Transactions;
+    using NMemory.Utilities;
+
+    public static class QueryableEx
+    {
+        #region Update
 
         public static IEnumerable<T> Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater)
             where T : class
@@ -21,9 +45,9 @@ namespace NMemory.Linq
             return Update<T>(queryable, updater, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
-		public static IEnumerable<T> Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater, Transaction transaction)
-			where T : class
-		{
+        public static IEnumerable<T> Update<T>(this IQueryable<T> queryable, Expression<Func<T, T>> updater, Transaction transaction)
+            where T : class
+        {
             if (queryable == null)
             {
                 throw new ArgumentNullException("queryable");
@@ -44,13 +68,11 @@ namespace NMemory.Linq
             }
 
             return table.Update(query, updater, transaction);
-		}
+        }
 
- 
+        #endregion
 
-		#endregion
-
-		#region Delete
+        #region Delete
 
         public static int Delete<T>(this IQueryable<T> queryable)
             where T : class
@@ -58,9 +80,9 @@ namespace NMemory.Linq
             return Delete<T>(queryable, Transaction.TryGetAmbientEnlistedTransaction());
         }
         
-		public static int Delete<T>(this IQueryable<T> queryable, Transaction transaction)
-			where T : class
-		{
+        public static int Delete<T>(this IQueryable<T> queryable, Transaction transaction)
+            where T : class
+        {
             if (queryable == null)
             {
                 throw new ArgumentNullException("queryable");
@@ -81,9 +103,9 @@ namespace NMemory.Linq
             }
 
             return table.Delete(query, transaction);
-		}
+        }
 
-		#endregion
+        #endregion
 
         public static IEnumerable<T> Execute<T>(this IQueryable<T> queryable)
         {
@@ -117,97 +139,92 @@ namespace NMemory.Linq
             return new TableQueryWrapper<T>(query, parameters, transaction);
         }
 
-		#region JoinIndexed
+        #region JoinIndexed
 
-		internal static IEnumerable<TResult> JoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
-			IEnumerable<TOuter> outer,
-			IIndex<TInner, TInnerKey> inner,
-			Func<TOuterKey, TInnerKey> keyToIndexKey,
-			Func<TOuter, TOuterKey> outerKeySelector,
-			Func<TOuter, TInner, TResult> resultSelector)
+        internal static IEnumerable<TResult> JoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+            IEnumerable<TOuter> outer,
+            IIndex<TInner, TInnerKey> inner,
+            Func<TOuterKey, TInnerKey> keyToIndexKey,
+            Func<TOuter, TOuterKey> outerKeySelector,
+            Func<TOuter, TInner, TResult> resultSelector)
 
             where TInner : class
-		{
-
-			foreach(TOuter outerItem in outer)
-			{
+        {
+            foreach(TOuter outerItem in outer)
+            {
                 TOuterKey outerKey = outerKeySelector.Invoke(outerItem);
                 TInnerKey key = keyToIndexKey.Invoke(outerKey);
 
-				foreach(TInner inner_item in inner.Select(key))
-				{
-					TResult result = resultSelector.Invoke(outerItem, inner_item);
+                foreach(TInner inner_item in inner.Select(key))
+                {
+                    TResult result = resultSelector.Invoke(outerItem, inner_item);
 
-					yield return result;
-				}
-			}
-		}
+                    yield return result;
+                }
+            }
+        }
 
-
-		public static IEnumerable<TResult> JoinIndexed<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
-			IEnumerable<TOuter> outer,
-			IIndex<TInner, TInnerKey> inner,
-			Func<TOuterKey, TInnerKey> keyToIndexKey,
-			Func<TOuter, TOuterKey> outerKeySelector,
-			Func<TOuter, TInner, TResult> resultSelector)
+        public static IEnumerable<TResult> JoinIndexed<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+            IEnumerable<TOuter> outer,
+            IIndex<TInner, TInnerKey> inner,
+            Func<TOuterKey, TInnerKey> keyToIndexKey,
+            Func<TOuter, TOuterKey> outerKeySelector,
+            Func<TOuter, TInner, TResult> resultSelector)
 
             where TInner : class
-		{
+        {
             // TODO: Add validation
 
-			return JoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+            return JoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
                 outer, 
                 inner, 
                 keyToIndexKey, 
                 outerKeySelector, 
                 resultSelector);
-		}
+        }
 
-		#endregion
+        #endregion
 
-		#region MergeJoin
+        #region MergeJoin
 
-		/// <summary>
-		/// Összefésüléses összekapcsolás belső implementációja
-		/// </summary>
-		private static IEnumerable<TResult> MergeJoinCore<TOuter, TInner, TKey, TResult>(
-			this IEnumerable<TOuter> outer,
-			IEnumerable<TInner> inner,
-			Func<TOuter, TKey> outerKeySelector,
-			Func<TInner, TKey> innerKeySelector,
-			Func<TOuter, TInner, TResult> resultSelector )
-			where TKey : IComparable
-		{
-			IEnumerator<TOuter> i = outer.GetEnumerator();
-			IEnumerator<TInner> j = inner.GetEnumerator();
-			i.MoveNext();
-			j.MoveNext();
-			List<TOuter> iElements = new List<TOuter>();
-			List<TInner> jElements = new List<TInner>();
-			TKey ikey;
-			TKey jkey;
-			TKey iGroupKey = default( TKey );
-			TKey jGroupKey = default( TKey );
-			bool iValid = true;
-			bool jValid = true;
+        private static IEnumerable<TResult> MergeJoinCore<TOuter, TInner, TKey, TResult>(
+            this IEnumerable<TOuter> outer,
+            IEnumerable<TInner> inner,
+            Func<TOuter, TKey> outerKeySelector,
+            Func<TInner, TKey> innerKeySelector,
+            Func<TOuter, TInner, TResult> resultSelector )
+            where TKey : IComparable
+        {
+            IEnumerator<TOuter> i = outer.GetEnumerator();
+            IEnumerator<TInner> j = inner.GetEnumerator();
+            i.MoveNext();
+            j.MoveNext();
+            List<TOuter> iElements = new List<TOuter>();
+            List<TInner> jElements = new List<TInner>();
+            TKey ikey;
+            TKey jkey;
+            TKey iGroupKey = default( TKey );
+            TKey jGroupKey = default( TKey );
+            bool iValid = true;
+            bool jValid = true;
 
-			do
-			{
-				if( iElements.Count == 0 )
-				{
-					iElements.Add( i.Current );
-					iGroupKey = outerKeySelector( i.Current );
+            do
+            {
+                if( iElements.Count == 0 )
+                {
+                    iElements.Add( i.Current );
+                    iGroupKey = outerKeySelector( i.Current );
 
-					do
-					{
-						iValid = i.MoveNext();
+                    do
+                    {
+                        iValid = i.MoveNext();
 
                         if (iValid == false)
                         {
                             break;
                         }
 
-						ikey = outerKeySelector( i.Current );
+                        ikey = outerKeySelector( i.Current );
 
                         if (iGroupKey.Equals(ikey))
                         {
@@ -217,26 +234,25 @@ namespace NMemory.Linq
                         {
                             break;
                         }
-
-					} 
+                    } 
                     while( true );
-				}
+                }
 
-				if( jElements.Count == 0 )
-				{
-					jElements.Add( j.Current );
-					jGroupKey = innerKeySelector( j.Current );
+                if( jElements.Count == 0 )
+                {
+                    jElements.Add( j.Current );
+                    jGroupKey = innerKeySelector( j.Current );
 
-					do
-					{
-						jValid = j.MoveNext();
+                    do
+                    {
+                        jValid = j.MoveNext();
 
                         if (jValid == false)
                         {
                             break;
                         }
 
-						jkey = innerKeySelector( j.Current );
+                        jkey = innerKeySelector( j.Current );
 
                         if (jGroupKey.Equals(jkey))
                         {
@@ -246,9 +262,9 @@ namespace NMemory.Linq
                         {
                             break;
                         }
-					} 
+                    } 
                     while( true );
-				}
+                }
 
                 if (iGroupKey.Equals(jGroupKey))
                 {
@@ -261,7 +277,7 @@ namespace NMemory.Linq
                     }
                 }
 
-				int comp = iGroupKey.CompareTo(jGroupKey);
+                int comp = iGroupKey.CompareTo(jGroupKey);
 
                 if (comp <= 0)
                 {
@@ -272,21 +288,21 @@ namespace NMemory.Linq
                 {
                     jElements.Clear();
                 }
-			} while( iValid && jValid );
-		}
+            } while( iValid && jValid );
+        }
 
-		public static IEnumerable<TResult> MergeJoin<TOuter, TInner, TKey, TResult>(
-			this IEnumerable<TOuter> outer,
-			IEnumerable<TInner> inner,
-			Func<TOuter, TKey> outerKeySelector,
-			Func<TInner, TKey> innerKeySelector,
-			Func<TOuter, TInner, TResult> resultSelector)
-
-			where TKey : IComparable
-		{
+        public static IEnumerable<TResult> MergeJoin<TOuter, TInner, TKey, TResult>(
+            this IEnumerable<TOuter> outer,
+            IEnumerable<TInner> inner,
+            Func<TOuter, TKey> outerKeySelector,
+            Func<TInner, TKey> innerKeySelector,
+            Func<TOuter, TInner, TResult> resultSelector
+            )
+            where TKey : IComparable
+        {
             return QueryableEx.MergeJoinCore(outer, inner, outerKeySelector, innerKeySelector, resultSelector);
-		}
-		#endregion
+        }
+        #endregion
 
         public static IQueryable<TResult> LeftOuterJoin<TOuter, TInner, TKey, TResult>(
             this IQueryable<TOuter> outer, 
@@ -324,7 +340,6 @@ namespace NMemory.Linq
             return res;
         }
 
-
         public static int Count<T>(IQueryable<T> source)
         {
             if (source is ITable)
@@ -344,5 +359,5 @@ namespace NMemory.Linq
         {
             return new IndexedQueryable<T>(source.AsQueryable(), index);
         }
-	}
+    }
 }

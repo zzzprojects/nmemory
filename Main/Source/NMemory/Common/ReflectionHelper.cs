@@ -1,20 +1,38 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="ReflectionHelper.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// ----------------------------------------------------------------------------------
 
 namespace NMemory.Common
 {
+    using System;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using System.Collections.Generic;
+
     internal class ReflectionHelper
     {
-        //public static MethodInfo GetMethodInfo<T>(Expression<Func<T, object>> expression)
-        //{
-        //    var method =  expression.Body as MethodCallExpression;
-
-        //    return method.Method;
-        //}
-
         public static Type GetMemberUnderlyingType(MemberInfo member)
         {
             switch (member.MemberType)
@@ -30,7 +48,6 @@ namespace NMemory.Common
             }
         }
 
-
         public static MethodInfo GetMethodInfo<TClass>(Expression<Action<TClass>> expression)
         {
             var method = expression.Body as MethodCallExpression;
@@ -44,7 +61,6 @@ namespace NMemory.Common
 
             return method.Method;
         }
-
 
         public static PropertyInfo GetPropertyInfo<TClass, TResult>(Expression<Func<TClass, TResult>> expression)
         {
@@ -66,7 +82,6 @@ namespace NMemory.Common
 
             return method.Method.Name;
         }
-
 
         public static Type GetUnderlyingIfNullable(Type type)
         {
@@ -111,6 +126,31 @@ namespace NMemory.Common
                 t == typeof(Tuple<,,,,>) ||
                 t == typeof(Tuple<,,,,,>) ||
                 t == typeof(Tuple<,,,,,,>);
+        }
+
+        public static bool IsGenericEnumerable(Type type)
+        {
+            if (type.IsInterface && 
+                type.IsGenericType && 
+                type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                return true;
+            }
+
+            Type[] interfaces = type.GetInterfaces();
+
+            for (int i = 0; i < interfaces.Length; i++)
+            {
+                Type subInterface = interfaces[i];
+
+                if (subInterface.IsGenericType &&
+                    subInterface.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

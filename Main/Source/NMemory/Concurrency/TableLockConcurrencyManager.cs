@@ -1,14 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using NMemory.Execution.Locks;
-using NMemory.DataStructures.Internal.Graphs;
-using NMemory.Exceptions;
-using NMemory.Modularity;
-using NMemory.Tables;
-using NMemory.Transactions;
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="TableLockConcurrencyManager.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// ----------------------------------------------------------------------------------
 
 namespace NMemory.Execution
 {
+    using System;
+    using System.Collections.Generic;
+    using NMemory.DataStructures.Internal.Graphs;
+    using NMemory.Exceptions;
+    using NMemory.Execution.Locks;
+    using NMemory.Modularity;
+    using NMemory.Tables;
+    using NMemory.Transactions;
+
     public class TableLockConcurrencyManager : IConcurrencyManager
     {
         private IDatabase database;
@@ -45,7 +69,6 @@ namespace NMemory.Execution
             this.tableLocks.Add(table, this.lockFactory.CreateLock());
         }
 
-
         public void AcquireTableWriteLock(ITable table, Transaction transaction)
         {
             IList<ITable> tables = this.database.Tables.GetAllTables();
@@ -56,7 +79,6 @@ namespace NMemory.Execution
             if (!lockInfo.IsWriteLockHeld)
             {
                 // TODO: OnWaiting
-
                 if (lockInfo.IsReadLockHeld)
                 {
                     tableLock.Upgrade();
@@ -67,67 +89,62 @@ namespace NMemory.Execution
                 }
 
                 // TODO: OnReleased
-
                 lockInfo.IsWriteLockHeld = true;
             }
 
-            #region Old
+            ////switch (this.deadlockManagement)
+            ////{
+            ////    #region Deadlock detection
 
-            //switch (this.deadlockManagement)
-            //{
-            //    #region Deadlock detection
+            ////    case DeadlockManagementStrategies.DeadlockDetection:
 
-            //    case DeadlockManagementStrategies.DeadlockDetection:
+            ////        if (!tableLock.IsWriteLockHeld)
+            ////        {
+            ////            this.WaitsFor(tableLock);
 
-            //        if (!tableLock.IsWriteLockHeld)
-            //        {
-            //            this.WaitsFor(tableLock);
+            ////            tableLock.EnterWriteLock();
 
-            //            tableLock.EnterWriteLock();
+            ////            this.LockAquired(tableLock);
+            ////        }
+            ////        break;
+            ////    #endregion
 
-            //            this.LockAquired(tableLock);
-            //        }
-            //        break;
-            //    #endregion
+            ////    #region Deadlock prevention
 
-            //    #region Deadlock prevention
+            ////    case DeadlockManagementStrategies.DeadlockPrevention:
 
-            //    case DeadlockManagementStrategies.DeadlockPrevention:
+            ////        throw new NotSupportedException();
 
-            //        throw new NotSupportedException();
+            ////        if (!tableLock.IsWriteLockHeld)
+            ////        {
+            ////            for (int i = 0; i < tables.Count; i++)
+            ////            {
+            ////                if (tables[i] == table)
+            ////                {
+            ////                    for (int l = i + 1; l < tables.Count; l++)
+            ////                    {
+            ////                        ILock otherLock = this.tableLocks[tables[l]];
 
-            //        if (!tableLock.IsWriteLockHeld)
-            //        {
-            //            for (int i = 0; i < tables.Count; i++)
-            //            {
-            //                if (tables[i] == table)
-            //                {
-            //                    for (int l = i + 1; l < tables.Count; l++)
-            //                    {
-            //                        ILock otherLock = this.tableLocks[tables[l]];
+            ////                        if (!otherLock.IsWriteLockHeld)
+            ////                        {
+            ////                            this.WaitsFor(otherLock);
+            ////                            otherLock.EnterWriteLock();
+            ////                            this.LockAquired(otherLock);
+            ////                        }
+            ////                    }
 
-            //                        if (!otherLock.IsWriteLockHeld)
-            //                        {
-            //                            this.WaitsFor(otherLock);
-            //                            otherLock.EnterWriteLock();
-            //                            this.LockAquired(otherLock);
-            //                        }
-            //                    }
-
-            //                    this.WaitsFor(tableLock);
-            //                    tableLock.EnterWriteLock();
-            //                    this.LockAquired(tableLock);
-            //                    break;
-            //                }
-            //            }
-            //        }
+            ////                    this.WaitsFor(tableLock);
+            ////                    tableLock.EnterWriteLock();
+            ////                    this.LockAquired(tableLock);
+            ////                    break;
+            ////                }
+            ////            }
+            ////        }
                     
-            //        break;
+            ////        break;
                         
-            //    #endregion
-            //}
-
-            #endregion
+            ////    #endregion
+            ////}
         }
 
         public void ReleaseTableWriteLock(ITable table, Transaction transaction)
@@ -153,11 +170,8 @@ namespace NMemory.Execution
                     // TODO: OnReleased
                 }
 
-                
-
                 lockInfo.IsWriteLockHeld = false;
             }
-
         }
 
         public void AcquireRelatedTableLock(ITable table, Transaction transaction)
@@ -221,7 +235,6 @@ namespace NMemory.Execution
             }
         }
 
-
         public void ReleaseAllLocks(Transaction transaction)
         {
             foreach (var item in this.lockInventory.GetAllForRelease(transaction))
@@ -238,13 +251,11 @@ namespace NMemory.Execution
                 // TODO: Graph
                 ////lockGraph.RemoveConnection(item.Lock, transaction);
             }
-
-
         }
 
         private void WaitsFor(ILock l, Transaction transaction)
         {
-            lockGraph.AddConnection(transaction, l);
+            this.lockGraph.AddConnection(transaction, l);
 
             if (this.lockGraph.HasCycle())
             {
@@ -258,11 +269,5 @@ namespace NMemory.Execution
             this.lockGraph.RemoveConnection(transaction, l);
             this.lockGraph.AddConnection(l, transaction);
         }
-
-
-
-
-
-
     }
 }

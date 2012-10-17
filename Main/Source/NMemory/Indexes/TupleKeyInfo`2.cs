@@ -1,14 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Linq.Expressions;
-using System.Reflection;
-using NMemory.Common;
-using System.Collections.ObjectModel;
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="TupleKeyInfo`2.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// ----------------------------------------------------------------------------------
 
 namespace NMemory.Indexes
 {
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using NMemory.Common;
+
     public class TupleKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>, IKeyInfoExpressionBuilderProvider
         where TEntity : class
     {
@@ -20,13 +42,11 @@ namespace NMemory.Indexes
                 keySelector.Compile(),
                 TupleKeyInfo<TEntity, TKey>.CreateKeyEmptinessDetector())
         {
-
         }
 
         public TupleKeyInfo(Expression<Func<TEntity, TKey>> keySelector) :
             this(keySelector, GetDefaultSortOrders(keySelector))
         {
-
         }
 
         private static SortOrder[] GetDefaultSortOrders(Expression<Func<TEntity, TKey>> keySelector)
@@ -35,7 +55,6 @@ namespace NMemory.Indexes
 
             return Enumerable.Repeat(SortOrder.Ascending, fieldCount).ToArray();
         }
-
 
         private static MemberInfo[] GetEntityKeyMembers(Expression<Func<TEntity, TKey>> keySelector)
         {
@@ -73,7 +92,7 @@ namespace NMemory.Indexes
             MemberInfo[] result = new MemberInfo[arguments.Count];
 
             for (int i = 0; i < arguments.Count; i++)
-			{
+            {
                 MemberExpression member = arguments[i] as MemberExpression;
 
                 if (member == null)
@@ -87,7 +106,7 @@ namespace NMemory.Indexes
                 }
 
                 result[i] = member.Member;
-			}
+            }
 
             return result;
         }
@@ -144,7 +163,6 @@ namespace NMemory.Indexes
 
             return resultExpression.Compile();
         }
-
 
         IKeyInfoExpressionBuilder IKeyInfoExpressionBuilderProvider.KeyInfoExpressionBuilder
         {

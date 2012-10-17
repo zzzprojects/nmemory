@@ -1,50 +1,69 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using NMemory.DataStructures;
-using NMemory.Linq;
-using NMemory.Tables;
-using NMemory.Common;
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="IndexBase.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// ----------------------------------------------------------------------------------
 
 namespace NMemory.Indexes
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
+    using NMemory.DataStructures;
+    using NMemory.Linq;
+    using NMemory.Tables;
 
-	public abstract class IndexBase<TEntity, TKey> : IIndex<TEntity, TKey>
-		where TEntity : class
-	{
-		#region Fields
+    public abstract class IndexBase<TEntity, TKey> : IIndex<TEntity, TKey>
+        where TEntity : class
+    {
+        #region Fields
 
-		private ITable<TEntity> table;
-		private IKeyInfo<TEntity, TKey> keyInfo;
+        private ITable<TEntity> table;
+        private IKeyInfo<TEntity, TKey> keyInfo;
 
-		#endregion
+        #endregion
 
-		#region Ctor
+        #region Ctor
 
-		internal IndexBase(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo) 
-		{
-			this.table = table;
+        internal IndexBase(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo) 
+        {
+            this.table = table;
             this.keyInfo = keyInfo;
-		}
+        }
 
+        #endregion
 
-		#endregion
+        #region IIndex<TEntity,TPrimaryKey,TKey,TDefaultTrafo> Members
 
-		#region IIndex<TEntity,TPrimaryKey,TKey,TDefaultTrafo> Members
-
-		public TKey Key(TEntity entity)
-		{
-			return this.keyInfo.SelectKey(entity);
-		}
+        public TKey Key(TEntity entity)
+        {
+            return this.keyInfo.SelectKey(entity);
+        }
 
         public abstract IEnumerable<TEntity> Select(TKey value);
 
-		public IEnumerable<TEntity> Select(TKey from, TKey to, bool fromOpen, bool toOpen)
-		{
+        public IEnumerable<TEntity> Select(TKey from, TKey to, bool fromOpen, bool toOpen)
+        {
             return this.DataStructure.Select(from, to, fromOpen, toOpen);
-		}
+        }
 
         public IEnumerable<TEntity> SelectGreater(TKey from, bool open)
         {
@@ -58,11 +77,11 @@ namespace NMemory.Indexes
 
         public abstract IEnumerable<TEntity> SelectAll();
 
-		public abstract void Insert(TEntity item);
+        public abstract void Insert(TEntity item);
 
-		public abstract void Delete(TEntity item);
+        public abstract void Delete(TEntity item);
 
-		#endregion
+        #endregion
 
         #region Query expression
 
@@ -100,9 +119,9 @@ namespace NMemory.Indexes
         #region IIndex Members
 
         public IKeyInfo<TEntity, TKey> KeyInfo
-		{
-			get { return this.keyInfo; }
-		}
+        {
+            get { return this.keyInfo; }
+        }
 
         IKeyInfo IIndex.KeyInfo
         {
@@ -129,7 +148,7 @@ namespace NMemory.Indexes
             get { return this.DataStructure.Count; }
         }
 
-		#endregion
+        #endregion
 
         internal abstract IDataStructure<TKey, TEntity> DataStructure
         {
@@ -137,8 +156,8 @@ namespace NMemory.Indexes
         }
 
         public override string ToString()
-		{
-			return string.Format("{0} | {1} {2} | TABLE: {3}", 
+        {
+            return string.Format("{0} | {1} {2} | TABLE: {3}", 
                 this.GetType().Name, 
                 (this.KeyInfo.EntityKeyMembers.Length > 1) ? "COLUMNS" : "COLUMN",
                 string.Join(", ", this.KeyInfo.EntityKeyMembers.Select(mi => 
@@ -148,8 +167,7 @@ namespace NMemory.Indexes
                             ((PropertyInfo)mi).PropertyType.Name : 
                             mi.MemberType.ToString()))
                     .ToArray()), table);
-		}
-
+        }
 
         public bool Contains(TKey key)
         {
