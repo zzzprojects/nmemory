@@ -29,11 +29,11 @@ namespace NMemory.Execution.Optimization.Rewriters
     using NMemory.Common;
     using NMemory.StoredProcedures;
 
-    internal class StoredProcedureParameterModifier : ExpressionRewriterBase
+    internal class StoredProcedureParameterRewriter : ExpressionRewriterBase
     {
         private TransformationContext context;
 
-        public StoredProcedureParameterModifier(TransformationContext context)
+        public StoredProcedureParameterRewriter(TransformationContext context)
         {
             this.context = context;
         }

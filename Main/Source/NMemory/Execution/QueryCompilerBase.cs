@@ -95,7 +95,7 @@ namespace NMemory.Execution
                 new IExpressionRewriter[] 
                 { 
                     new DatabaseParameterRewriter(context), 
-                    new StoredProcedureParameterModifier(context), 
+                    new StoredProcedureParameterRewriter(context), 
                 }
                 .Concat(rewriters)
                 .Concat(new IExpressionRewriter[] 
