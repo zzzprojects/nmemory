@@ -15,14 +15,18 @@ namespace NMemory.Constraints
 
         protected override string Apply(string value)
         {
-            if (value.Length <= maxLength)
+            if (value != null)
             {
-                return value + new string(' ', maxLength - value.Length);
+                if (value.Length <= maxLength)
+                {
+                    return value + new string(' ', maxLength - value.Length);
+                }
+                else
+                {
+                    throw new ConstraintException(string.Format("Column '{0}' cannot be longer than {1} characters.", this.PropertyName, this.maxLength));
+                }
             }
-            else
-            {
-                throw new ConstraintException(string.Format("Column '{0}' cannot be longer than {1} characters.", this.PropertyName, this.maxLength));
-            }
+            return value;
         }
     }
 }
