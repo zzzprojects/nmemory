@@ -24,11 +24,11 @@
 
 namespace NMemory.Common
 {
-    using System;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
     using System.Collections.Generic;
 
     internal class ReflectionHelper
@@ -107,6 +107,30 @@ namespace NMemory.Common
             return
                 !type.IsValueType ||
                 (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
+        }
+
+        public static bool IsGenericEnumerable(Type type)
+        {
+            if (type.IsGenericType && 
+                type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+	        {
+		        return true;
+	        }
+
+            Type[] interfaces = type.GetInterfaces();
+
+            for (int i = 0; i < interfaces.Length; i++)
+			{
+			    Type currentInterface = interfaces[i];
+
+                if (currentInterface.IsGenericType &&
+                    currentInterface.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+	            {
+		            return true;
+	            }
+			}
+
+            return false;
         }
 
         public static bool IsTuple(Type type)

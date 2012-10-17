@@ -42,9 +42,12 @@ namespace NMemory.Execution.Optimization.Rewriters
         
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            MethodInfo method = node.Method;
+
             // First remove all the AsQueryable method calls
             // Check if its is a AsQueryable call
-            if (node.Method.GetGenericMethodDefinition() == QueryMethods.AsQueryable)
+            if (method.IsGenericMethod &&
+                method.GetGenericMethodDefinition() == QueryMethods.AsQueryable)
             {
                 // Skip AsQueryable
                 return this.Visit(node.Arguments[0]);
@@ -64,11 +67,11 @@ namespace NMemory.Execution.Optimization.Rewriters
             MethodInfo methodInfo = null;
 
             // Check if it is a Queryable extension method
-            if (node.Method.IsStatic && node.Method.DeclaringType == typeof(Queryable))
+            if (method.IsStatic && method.DeclaringType == typeof(Queryable))
             {
                 // Seacrch for the corresponding Enumerable extension method
-                Type[] genericArguments = node.Method.IsGenericMethod ? node.Method.GetGenericArguments() : null;
-                methodInfo = FindEnumerableMethod(node.Method.Name, arguments, genericArguments);
+                Type[] genericArguments = method.IsGenericMethod ? method.GetGenericArguments() : null;
+                methodInfo = FindEnumerableMethod(method.Name, arguments, genericArguments);
             }
 
             // If no method was found, use the previous
@@ -281,8 +284,11 @@ namespace NMemory.Execution.Optimization.Rewriters
                 typeof(IQueryable<>) == type.GetGenericTypeDefinition() &&
                 ReflectionHelper.IsGenericEnumerable(expression.Type))
             {
+                Type genericArg = type.GetGenericArguments()[0];
+                MethodInfo asQueryableMethod = QueryMethods.AsQueryable.MakeGenericMethod(genericArg);
+
                 // Add AsQueryable
-                return Expression.Call(null, QueryMethods.AsQueryable.MakeGenericMethod(type.GetGenericArguments()[0]), expression);
+                return Expression.Call(null, asQueryableMethod, expression);
             }
 
             return expression;

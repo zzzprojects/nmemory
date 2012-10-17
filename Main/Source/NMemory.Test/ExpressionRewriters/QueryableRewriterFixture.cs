@@ -68,6 +68,21 @@ namespace NMemory.Test.ExpressionRewriters
         }
 
         [TestMethod]
+        public void QueryableRewriter_ContainsNonGenericMethod()
+        {
+            TestDatabase db = new TestDatabase();
+            Expression expression = CreateExpresion(
+                () => db.Groups.Select(g => string.Concat("Name: ", g.Name)));
+
+            Expression expectedExpression = expression;
+
+            IExpressionRewriter rewriter = new QueryableRewriter();
+            expression = rewriter.Rewrite(expression);
+
+            Assert.AreEqual(expectedExpression.ToString(), expression.ToString());
+        }
+
+        [TestMethod]
         public void QueryableRewriter_MoveAsQueryable()
         {
             TestDatabase db = new TestDatabase();
