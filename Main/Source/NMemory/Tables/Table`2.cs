@@ -1,20 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading;
-using NMemory.Common;
-using NMemory.Constraints;
-using NMemory.Data;
-using NMemory.Exceptions;
-using NMemory.Indexes;
-using NMemory.Linq;
-using NMemory.Modularity;
-using NMemory.Transactions;
+﻿// -----------------------------------------------------------------------------------
+// <copyright file="Table`2.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// -----------------------------------------------------------------------------------
 
 namespace NMemory.Tables
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using System.Threading;
+    using NMemory.Common;
+    using NMemory.Constraints;
+    using NMemory.Data;
+    using NMemory.Exceptions;
+    using NMemory.Indexes;
+    using NMemory.Linq;
+    using NMemory.Modularity;
+    using NMemory.Transactions;
+
+    /// <summary>
+    /// Represents a database table.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entities contained by the table</typeparam>
+    /// <typeparam name="TPrimaryKey">The type of the primary key of the entities.</typeparam>
     public abstract class Table<TEntity, TPrimaryKey> :
 
         TableQuery<TEntity>,
@@ -28,7 +57,7 @@ namespace NMemory.Tables
         where TEntity : class
     {
 
-        #region Members
+        #region Fields
 
         private IdentityField<TEntity> identityField;
         private IUniqueIndex<TEntity, TPrimaryKey> primaryKeyIndex;
@@ -42,27 +71,27 @@ namespace NMemory.Tables
 
         #region Constructor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Table&lt;TEntity, TPrimaryKey&gt;"/> class.
+        /// </summary>
+        /// <param name="database">The database.</param>
+        /// <param name="primaryKey">The primary key.</param>
+        /// <param name="identitySpecification">The identity specification.</param>
         public Table(
             IDatabase database,
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
             IdentitySpecification<TEntity> identitySpecification)
 
-            : this(database, identitySpecification)
-        {
-            this.primaryKeyIndex = CreateUniqueIndex(new DictionaryIndexFactory(), primaryKey);
-        }
-
-        private Table(
-            IDatabase database,
-            IdentitySpecification<TEntity> identitySpecification) 
-            
             : base(database, false)
         {
-            this.id = Interlocked.Increment(ref counter);
             this.VerifyType();
+
+            this.id = Interlocked.Increment(ref counter);
 
             this.indexes = new List<IIndex<TEntity>>();
             this.constraints = new List<IConstraint<TEntity>>();
+
+            this.primaryKeyIndex = CreateUniqueIndex(new DictionaryIndexFactory(), primaryKey);
 
             this.RegisterTimestampConstraints();
 
@@ -70,6 +99,14 @@ namespace NMemory.Tables
             {
                 this.identityField = new IdentityField<TEntity>(identitySpecification);
             }
+        }
+
+        /// <summary>
+        /// Prevents a default instance of the <see cref="Table{TPrimaryKey}" /> class from being created.
+        /// </summary>
+        private Table() : base(null)
+        {
+
         }
 
         #endregion
@@ -83,24 +120,39 @@ namespace NMemory.Tables
 
         #endregion
 
-
         #region Lock management
 
+        /// <summary>
+        /// Acquires the table write lock.
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
         protected void AcquireWriteLock(Transaction transaction)
         {
             this.Database.DatabaseEngine.ConcurrencyManager.AcquireTableWriteLock(this, transaction);
         }
 
+        /// <summary>
+        /// Releases the table write lock.
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
         protected void ReleaseWriteLock(Transaction transaction)
         {
             this.Database.DatabaseEngine.ConcurrencyManager.ReleaseTableWriteLock(this, transaction);
         }
 
+        /// <summary>
+        /// Acquires the table read lock.
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
         protected void AcquireReadLock(Transaction transaction)
         {
             this.Database.DatabaseEngine.ConcurrencyManager.AcquireTableReadLock(this, transaction);
         }
 
+        /// <summary>
+        /// Releases the table read lock.
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
         protected void ReleaseReadLock(Transaction transaction)
         {
             this.Database.DatabaseEngine.ConcurrencyManager.ReleaseTableReadLock(this, transaction);
@@ -110,12 +162,20 @@ namespace NMemory.Tables
 
         #region Manipulation
 
-
+        /// <summary>
+        /// Inserts the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
         public void Insert(TEntity entity)
         {
             this.Insert(entity, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
+        /// <summary>
+        /// Inserts the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
+        /// <param name="transaction">The transaction.</param>
         public void Insert(TEntity entity, Transaction transaction)
         {
             if (this.identityField != null)
@@ -142,18 +202,32 @@ namespace NMemory.Tables
             }
             catch (Exception ex)
             {
-                throw new NMemoryException(ErrorCodes.GenericError, ex);
+                throw new NMemoryException(ErrorCode.GenericError, ex);
             }
 
         }
 
+        /// <summary>
+        /// Core implementation of an entity insert.
+        /// </summary>
+        /// <param name="entity">The entity that contains the primary key of the entity to be deleted.</param>
+        /// <param name="transaction">The transaction within which the update operation executes.</param>
         protected abstract void InsertCore(TEntity entity, Transaction transaction);
 
+        /// <summary>
+        /// Updates the properties of the specified entity contained by the table.
+        /// </summary>
+        /// <param name="entity">An entity that contains the primary key of the entity to be updated and the new property values.</param>
         public void Update(TEntity entity)
         {
             this.Update(entity, Transaction.TryGetAmbientEnlistedTransaction());
         }
-
+        
+        /// <summary>
+        /// Updates the properties of the specified contained by the table.
+        /// </summary>
+        /// <param name="entity">An entity that contains the primary key of the entity to be updated and the new property values.</param>
+        /// <param name="entity">The transaction within which the update operation executes.</param>
         public void Update(TEntity entity, Transaction transaction)
         {
             TPrimaryKey key = this.primaryKeyIndex.KeyInfo.SelectKey(entity);
@@ -161,11 +235,22 @@ namespace NMemory.Tables
             this.Update(key, entity, transaction);
         }
 
+        /// <summary>
+        /// Updates the properties of the specified entity contained by the table.
+        /// </summary>
+        /// <param name="key">The primary key of the entity to be updated.</param>
+        /// <param name="entity">An entity that contains the new property values.</param>
         public void Update(TPrimaryKey key, TEntity entity)
         {
             this.Update(key, entity, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
+        /// <summary>
+        /// Updates the properties of the specified entity contained by the table.
+        /// </summary>
+        /// <param name="key">The primary key of the entity to be updated.</param>
+        /// <param name="entity">An entity that contains the new property values.</param>
+        /// <param name="entity">The transaction within which the update operation is executed.</param>
         public void Update(TPrimaryKey key, TEntity entity, Transaction transaction)
         {
             try
@@ -187,10 +272,17 @@ namespace NMemory.Tables
             }
             catch (Exception ex)
             {
-                throw new NMemoryException(ErrorCodes.GenericError, ex);
+                throw new NMemoryException(ErrorCode.GenericError, ex);
             }
         }
 
+        /// <summary>
+        /// Updates the entities.
+        /// </summary>
+        /// <param name="query">A query expression that represents the entities to be updated.</param>
+        /// <param name="updater">An expression that represents the update logic.</param>
+        /// <param name="transaction">The transaction within which the update operation is executed.</param>
+        /// <returns>The updated entities</returns>
         IEnumerable<TEntity> IBulkTable<TEntity>.Update(TableQuery<TEntity> query, Expression<Func<TEntity, TEntity>> updater, Transaction transaction)
         {
             updater = ExpressionHelper.ValidateAndCompleteUpdaterExpression(updater);
@@ -216,20 +308,41 @@ namespace NMemory.Tables
             }
             catch (Exception ex)
             {
-                throw new NMemoryException(ErrorCodes.GenericError, ex);
+                throw new NMemoryException(ErrorCode.GenericError, ex);
             }
         }
 
+        /// <summary>
+        /// Core implementation of an entity update.
+        /// </summary>
+        /// <param name="key">The primary key of the entity to be updated.</param>
+        /// <param name="entity">An entity that contains the new propery values.</param>
+        /// <param name="transaction">The transaction within which the update operation is executed.</param>
         protected abstract void UpdateCore(TPrimaryKey key, TEntity entity, Transaction transaction);
 
+        /// <summary>
+        /// Core implementation of a bulk entity update.
+        /// </summary>
+        /// <param name="expression">A query expression that represents the entities to be updated.</param>
+        /// <param name="updater">An expression that represents the update mechanism.</param>
+        /// <param name="transaction">The transaction within which the update operation is executed.</param>
+        /// <returns>The updated entities.</returns>
         protected abstract IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater, Transaction transaction);
 
-        
+        /// <summary>
+        /// Deletes an entity from the table.
+        /// </summary>
+        /// <param name="entity">An entity that contains the primary key of the entity to be deleted.</param>
         public void Delete(TEntity entity)
         {
             this.Delete(entity, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
+        /// <summary>
+        /// Deletes an entity from the table.
+        /// </summary>
+        /// <param name="key">The primary key of the entity to be deleted.</param>
+        /// <param name="entity">The transaction within which the update operation is executed.</param>
         public void Delete(TEntity entity, Transaction transaction)
         {
             TPrimaryKey key = this.primaryKeyIndex.KeyInfo.SelectKey(entity);
@@ -237,11 +350,20 @@ namespace NMemory.Tables
             this.Delete(key, transaction);
         }
 
+        /// <summary>
+        /// Deletes an entity from the table.
+        /// </summary>
+        /// <param name="key">The primary key of the entity to be deleted.</param>
         public void Delete(TPrimaryKey key)
         {
             this.Delete(key, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
+        /// <summary>
+        /// Deletes an entity from the table.
+        /// </summary>
+        /// <param name="key">The primary key of the entity to be deleted.</param>
+        /// <param name="entity">The transaction within which the update operation is executed.</param>
         public void Delete(TPrimaryKey key, Transaction transaction)
         {
             try
@@ -263,10 +385,16 @@ namespace NMemory.Tables
             }
             catch (Exception ex)
             {
-                throw new NMemoryException(ErrorCodes.GenericError, ex);
+                throw new NMemoryException(ErrorCode.GenericError, ex);
             }
         }
 
+        /// <summary>
+        /// Deletes entities.
+        /// </summary>
+        /// <param name="query">The query that represents the entities to be deleted.</param>
+        /// <param name="transaction">The transaction within which the delete operation is executed.</param>
+        /// <returns>The count of the deleted entities.</returns>
         int IBulkTable<TEntity>.Delete(TableQuery<TEntity> query, Transaction transaction)
         {
             Expression expression = ((IQueryable<TEntity>)query).Expression;
@@ -291,20 +419,31 @@ namespace NMemory.Tables
             }
             catch (Exception ex)
             {
-                throw new NMemoryException(ErrorCodes.GenericError, ex);
+                throw new NMemoryException(ErrorCode.GenericError, ex);
             }
         }
 
-        protected abstract int DeleteCore(Expression expression, Transaction transaction);
-
+        /// <summary>
+        /// Core implementation of an entity delete.
+        /// </summary>
+        /// <param name="key">The primary key of the entity to be deleted.</param>
+        /// <param name="transaction">The transaction within which the delete operation is executed.</param>
         protected abstract void DeleteCore(TPrimaryKey key, Transaction transaction);
+
+        /// <summary>
+        /// Core implementation of a bulk entity delete.
+        /// </summary>
+        /// <param name="expression">A query expression that represents the entities to be deleted.</param>
+        /// <param name="transaction">The transaction within which the delete operation is executed.</param>
+        /// <returns>The count of deleted entities.</returns>
+        protected abstract int DeleteCore(Expression expression, Transaction transaction);
 
         #endregion
 
         #region Query
 
         /// <summary>
-        /// Gets the number of entities contained in the table.
+        /// Gets the number of entities contained by the table.
         /// </summary>
         public long Count
         {
@@ -335,6 +474,13 @@ namespace NMemory.Tables
 
         #region Index factory methods
 
+        /// <summary>
+        /// Creates a new index.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the index key.</typeparam>
+        /// <param name="indexFactory">The index factory.</param>
+        /// <param name="key">The expression representing the definition of the index key.</param>
+        /// <returns>The index.</returns>
         public IIndex<TEntity, TKey> CreateIndex<TKey>(
             IIndexFactory indexFactory,
             Expression<Func<TEntity, TKey>> key)
@@ -347,6 +493,13 @@ namespace NMemory.Tables
             return index;
         }
 
+        /// <summary>
+        /// Creates a new index.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the index key.</typeparam>
+        /// <param name="indexFactory">The index factory.</param>
+        /// <param name="keyInfo">The definition of the index key</param>
+        /// <returns>The index.</returns>
         public IIndex<TEntity, TKey> CreateIndex<TKey>(
             IIndexFactory indexFactory,
             IKeyInfo<TEntity, TKey> keyInfo)
@@ -359,6 +512,13 @@ namespace NMemory.Tables
             return index;
         }
 
+        /// <summary>
+        /// Creates a new unique index.
+        /// </summary>
+        /// <typeparam name="TUniqueKey">The type of the unique index key.</typeparam>
+        /// <param name="indexFactory">The index factory.</param>
+        /// <param name="key">The expression representing the definition of the index key.</param>
+        /// <returns>The unique index.</returns>
         public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
             IIndexFactory indexFactory,
             Expression<Func<TEntity, TUniqueKey>> key)
@@ -371,6 +531,13 @@ namespace NMemory.Tables
             return index;
         }
 
+        /// <summary>
+        /// Creates a new unique index.
+        /// </summary>
+        /// <typeparam name="TUniqueKey">The type of the unqiue index key.</typeparam>
+        /// <param name="indexFactory">The index factory.</param>
+        /// <param name="keyInfo">The definition of the index key</param>
+        /// <returns>The unique index.</returns>
         public IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TUniqueKey>(
             IIndexFactory indexFactory,
             IKeyInfo<TEntity, TUniqueKey> keyInfo)
@@ -403,11 +570,23 @@ namespace NMemory.Tables
             get { return this.primaryKeyIndex; }
         }
 
+        /// <summary>
+        /// Gets the index of the primary key.
+        /// </summary>
+        /// <value>
+        /// The index of the primary key.
+        /// </value>
         IUniqueIndex<TEntity> ITable<TEntity>.PrimaryKeyIndex
         {
             get { return this.primaryKeyIndex; }
         }
 
+        /// <summary>
+        /// Gets the index of the primary key.
+        /// </summary>
+        /// <value>
+        /// The index of the primary key.
+        /// </value>
         IIndex ITable.PrimaryKeyIndex
         {
             get { return this.primaryKeyIndex; }
@@ -417,16 +596,28 @@ namespace NMemory.Tables
 
         #region IReflectionTable Members
 
+        /// <summary>
+        /// Updates the properties of an entity contained by the table.
+        /// </summary>
+        /// <param name="entity">An entity that contains the primary key of the entity to be updated and the new property values.</param>
         void IReflectionTable.Update(object entity)
         {
             this.Update((TEntity)entity);
         }
 
+        /// <summary>
+        /// Inserts a new entity into the table.
+        /// </summary>
+        /// <param name="entity">An entity that contains the property values of the new entity.</param>
         void IReflectionTable.Insert(object entity)
         {
             this.Insert((TEntity)entity);
         }
 
+        /// <summary>
+        /// Deletes an entity from the table.
+        /// </summary>
+        /// <param name="entity">An entity that contains the primary key of the entity to be deleted.</param>
         void IReflectionTable.Delete(object entity)
         {
             this.Delete((TEntity)entity);
@@ -434,6 +625,10 @@ namespace NMemory.Tables
 
         #endregion
 
+        /// <summary>
+        /// Adds a constraint.
+        /// </summary>
+        /// <param name="constraint">The constraint.</param>
         public void AddConstraint(IConstraint<TEntity> constraint)
         {
             this.constraints.Add(constraint);
@@ -455,14 +650,20 @@ namespace NMemory.Tables
         }
 
         /// <summary>
-        /// Returns a string that represents the table.
+        /// Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// A <see cref="System.String"/> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return string.Format("Table<{0}>", this.EntityType.Name);
         }
 
+        /// <summary>
+        /// Applies the contraints on the specified entity.
+        /// </summary>
+        /// <param name="entity">The entity.</param>
         protected void ApplyContraints(TEntity entity)
         {
             foreach (IConstraint<TEntity> constraint in this.constraints)
@@ -471,6 +672,10 @@ namespace NMemory.Tables
             }
         }
 
+        /// <summary>
+        /// Creates an entity that is meant to be stored in the table.
+        /// </summary>
+        /// <returns>The entity.</returns>
         protected virtual TEntity CreateStoredEntity()
         {
             return Activator.CreateInstance<TEntity>();
@@ -550,6 +755,5 @@ namespace NMemory.Tables
             }
         }
 
-        
     }
 }

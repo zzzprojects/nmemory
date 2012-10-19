@@ -1,39 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="IIntervalSearchable.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// ----------------------------------------------------------------------------------
 
 namespace NMemory.DataStructures
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
     public interface IIntervalSearchable<TKey, TEntity>
     {
-         /// <summary>
-        /// Intervallumos keresés
-        /// </summary>
-        /// <param name="from">Tól</param>
-        /// <param name="to">Ig</param>
-        /// <param name="fromOpen">True, akkor nagyobb vagy egyenlő mint from, ha false akkor nagyobb</param>
-        /// <param name="toOpen">True, akkor kisebb vagy egyenlő mint to, ha false akkor kisebb</param>
-        /// <returns>A intervallumnek megfelelő lista</returns>
         IEnumerable<TEntity> Select(TKey from, TKey to, bool fromOpen, bool toOpen);
 
-        /// <summary>
-        /// Visszadja a from értéknél kissebb elemeket
-        /// </summary>
-        /// <param name="from">Ennél nagyob elemeket ad vissza</param>
-        /// <param name="open">True, akkor nagyobb vagy egyenlő mint from, ha false akkor nagyobb</param>
-        /// <returns>From-nál nagyobb elemek listája</returns>
         IEnumerable<TEntity> SelectGreater(TKey from, bool open);
 
-
-        /// <summary>
-        /// Visszadja a to értéknél kisebb elemeket
-        /// </summary>
-        /// <param name="to">Ennél kisebb elemeket ad vissza</param>
-        /// <param name="open">True, akkor kisebb vagy egyenlő mint to, ha false akkor kisebb</param>
-        /// <returns>To-nál kisebb elemeket listája</returns>
         IEnumerable<TEntity> SelectLess(TKey to, bool open);
-
-
     }
 }

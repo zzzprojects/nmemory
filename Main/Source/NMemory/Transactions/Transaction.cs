@@ -1,13 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using NMemory.Execution.Locks;
-using NMemory.Modularity;
+﻿// -----------------------------------------------------------------------------------
+// <copyright file="Transaction.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// -----------------------------------------------------------------------------------
 
 namespace NMemory.Transactions
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading;
+    using NMemory.Execution.Locks;
+    using NMemory.Modularity;
+
     public class Transaction : System.Transactions.IEnlistmentNotification
     {
         #region Static members
@@ -21,7 +45,6 @@ namespace NMemory.Transactions
         );
 
         private static int transactionCounter;
-
 
         #endregion
 
@@ -52,7 +75,6 @@ namespace NMemory.Transactions
 
                 System.Transactions.CommittableTransaction localTransaction = CreateDefaultTransaction();
                 transaction = Create(localTransaction);
-
 
                 result = new TransactionContext(localTransaction);
             }
@@ -87,7 +109,6 @@ namespace NMemory.Transactions
             return transaction;
         }
 
-
         #endregion
 
         private int transactionId;
@@ -115,7 +136,6 @@ namespace NMemory.Transactions
 
             this.internalTransaction.EnlistVolatile(this, System.Transactions.EnlistmentOptions.EnlistDuringPrepareRequired);
         }
-
 
 
         internal int Id
@@ -180,7 +200,6 @@ namespace NMemory.Transactions
             this.atomicSectionLock.Exit();
         }
 
-
         private void Commit()
         {
             foreach (ITransactionHandler handler in this.registeredHandlers)
@@ -225,7 +244,6 @@ namespace NMemory.Transactions
 
             this.ExitAtomicSection();
 
-
             enlistment.Done();
         }
 
@@ -251,7 +269,6 @@ namespace NMemory.Transactions
             }
         }
 
-        
 
         #endregion
         

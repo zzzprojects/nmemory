@@ -1,17 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Collections;
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="RedBlackTree.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// ----------------------------------------------------------------------------------
 
 namespace NMemory.DataStructures.Internal.Trees
 {
-    /// <summary>
-    /// Red-Black tree data structure
-    /// Based on: http://www.jot.fm/issues/issue_2005_03/column6/
-    /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Linq;
+
+    //// Red-black tree structure based on:
+    //// http://www.jot.fm/issues/issue_2005_03/column6/
     internal class RedBlackTree<TKey, TValue> : IDictionary<TKey, TValue>
     {
         private IComparer<TKey> comparer;
@@ -36,15 +55,27 @@ namespace NMemory.DataStructures.Internal.Trees
             this.comparer = comparer;
         }
 
+        #region Properties
 
-        internal RedBlackTreeNode<TKey, TValue> RootElement
+        public int Count
         {
-            get { return this.root; }
+            get { return this.count; }
         }
 
-        #region IDictionary methods
+        public bool IsReadOnly
+        {
+            get { return false; }
+        }
 
-        #region Keys and Values
+        public bool IsSynchronized
+        {
+            get { return false; }
+        }
+
+        public object SyncRoot
+        {
+            get { return this.syncRoot; }
+        }
 
         public ICollection<TKey> Keys
         {
@@ -68,6 +99,35 @@ namespace NMemory.DataStructures.Internal.Trees
             }
         }
 
+        internal RedBlackTreeNode<TKey, TValue> RootElement
+        {
+            get { return this.root; }
+        }
+
+        #endregion
+
+        #region Indexer
+
+        public TValue this[TKey key]
+        {
+            get
+            {
+                var node = this.FindNode(key, this.root);
+
+                if (node == null)
+                {
+                    throw new IndexOutOfRangeException();
+                }
+
+                return node.Value;
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         #endregion
 
         #region Contains
@@ -85,25 +145,6 @@ namespace NMemory.DataStructures.Internal.Trees
         #endregion
 
         #region Getter and Setter
-
-        public TValue this[TKey key]
-        {
-            get
-            {
-                var node = this.FindNode(key, this.root);
-
-                if (node == null)
-                {
-                    throw new IndexOutOfRangeException();
-                }
-
-                return node.Value;
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
 
         public bool TryGetValue(TKey key, out TValue value)
         {
@@ -132,7 +173,7 @@ namespace NMemory.DataStructures.Internal.Trees
 
         public void Add(TKey key, TValue value)
         {
-            if (!TryAdd(key, value))
+            if (!this.TryAdd(key, value))
             {
                 throw new InvalidOperationException("Duplication key");
             }
@@ -147,19 +188,19 @@ namespace NMemory.DataStructures.Internal.Trees
                 return false;
             }
 
-            count++;
+            this.count++;
 
-            if (count > 2)
+            if (this.count > 2)
             {
                 RedBlackTreeNode<TKey, TValue> parent, grandParent, greatGrandParent;
 
-                GetNodesAbove(
+                this.GetNodesAbove(
                     insertedNode,
                     out parent,
                     out grandParent,
                     out greatGrandParent);
 
-                FixTreeAfterInsertion(
+                this.FixTreeAfterInsertion(
                     insertedNode,
                     parent,
                     grandParent,
@@ -171,7 +212,7 @@ namespace NMemory.DataStructures.Internal.Trees
 
         public bool Remove(TKey key)
         {
-            ////if (count > 1)
+            ////if (this.count > 1)
             ////{
             ////    var deleted = DeleteNode(key);
 
@@ -180,7 +221,7 @@ namespace NMemory.DataStructures.Internal.Trees
             ////        return false;
             ////    }
 
-            ////    count--;
+            ////    this.count--;
 
             ////    RedBlackTreeNode<TKey, TValue> curNode = null; 
             ////    // Right node being deleted 
@@ -209,7 +250,7 @@ namespace NMemory.DataStructures.Internal.Trees
             ////    {
             ////        curNode.Red = false;
             ////    }
-            ////    else if (!nodeToDeleteRed && !nodeBeingDeleted.Red)
+            ////    else if (!this.nodeToDeleteRed && !nodeBeingDeleted.Red)
             ////    {
             ////        FixTreeAfterDeletion(
             ////            curNode,
@@ -218,15 +259,15 @@ namespace NMemory.DataStructures.Internal.Trees
             ////            grandParent);
             ////    }
 
-            ////    root.Red = false;
+            ////    this.root.Red = false;
             ////    return true;
             ////}
-            ////else if (count == 1)
+            ////else if (this.count == 1)
             ////{
             ////    if (this.comparer.Compare(this.root.Key, key) == 0)
             ////    {
             ////        this.root = null;
-            ////        count = 0;
+            ////        this.count = 0;
 
             ////        return true;
             ////    }
@@ -234,32 +275,32 @@ namespace NMemory.DataStructures.Internal.Trees
 
             ////return false;
 
-            if (count > 1)
+            if (this.count > 1)
             {
-                if (!DeleteNode(root, key, null, out root))
+                if (!this.DeleteNode(this.root, key, null, out this.root))
                 {
                     return false;
                 }
 
-                count--;
+                this.count--;
 
                 RedBlackTreeNode<TKey, TValue> curNode = null; // Right node being deleted 
-                if (nodeBeingDeleted.Right != null)
+                if (this.nodeBeingDeleted.Right != null)
                 {
-                    curNode = nodeBeingDeleted.Right;
+                    curNode = this.nodeBeingDeleted.Right;
                 }
 
                 RedBlackTreeNode<TKey, TValue> parent, sibling, grandParent;
                 if (curNode == null)
                 {
-                    parent = nodeBeingDeleted.Parent;
+                    parent = this.nodeBeingDeleted.Parent;
                 }
                 else
                 {
                     parent = curNode.Parent;
                 }
 
-                GetParentGrandParentSibling(
+                this.GetParentGrandParentSibling(
                     curNode,
                     parent,
                     out sibling,
@@ -269,21 +310,21 @@ namespace NMemory.DataStructures.Internal.Trees
                 {
                     curNode.Red = false;
                 }
-                else if (!nodeToDeleteRed && !nodeBeingDeleted.Red)
+                else if (!this.nodeToDeleteRed && !this.nodeBeingDeleted.Red)
                 {
-                    FixTreeAfterDeletion(
+                    this.FixTreeAfterDeletion(
                         curNode,
                         parent,
                         sibling,
                         grandParent);
                 }
 
-                root.Red = false;
+                this.root.Red = false;
                 return true;
             }
-            else if (root != null)
+            else if (this.root != null)
             {
-                if (this.comparer.Compare(key, root.Key) == 0)
+                if (this.comparer.Compare(key, this.root.Key) == 0)
                 {
                     this.root = null;
                     this.count = 0;
@@ -302,28 +343,20 @@ namespace NMemory.DataStructures.Internal.Trees
 
         #endregion
 
-        #region Misc
-
         public void Clear()
         {
             this.root = null;
             this.count = 0;
         }
 
-
         public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
             throw new NotImplementedException();
         }
 
-        public int Count
+        public void CopyTo(Array array, int index)
         {
-            get { return this.count; }
-        }
-
-        public bool IsReadOnly
-        {
-            get { return false; }
+            throw new NotImplementedException();
         }
 
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
@@ -345,26 +378,6 @@ namespace NMemory.DataStructures.Internal.Trees
                        n.Value))
                .GetEnumerator();
         }
-
-        public void CopyTo(Array array, int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsSynchronized
-        {
-            get { return false; }
-        }
-
-        public object SyncRoot
-        {
-            get { return syncRoot; }
-        }
-
-        #endregion
-
-        #endregion
-
 
         #region Search
 
@@ -406,14 +419,16 @@ namespace NMemory.DataStructures.Internal.Trees
             if (fromCompare < 0 && node.Left != null)
             {
                 // Node is greater than 'from'
-                foreach (RedBlackTreeNode<TKey, TValue> leftNode in InOrderTraversal(node, from, to, fromOpen, toOpen))
+                foreach (RedBlackTreeNode<TKey, TValue> leftNode in this.InOrderTraversal(node, from, to, fromOpen, toOpen))
                 { 
                     yield return leftNode;
                 }
             }
 
-            if (((fromCompare == 0 && fromOpen) || fromCompare < 0) && // Equals to or greater than 'from'
-                ((toCompare == 0 && toOpen) || toCompare < 0)) // Equals to or smaller than 'to'
+            // Equals to or greater than 'from'
+            // Equals to or smaller than 'to'
+            if (((fromCompare == 0 && fromOpen) || fromCompare < 0) && 
+                ((toCompare == 0 && toOpen) || toCompare < 0))
             {
                 yield return node;
             }
@@ -421,7 +436,7 @@ namespace NMemory.DataStructures.Internal.Trees
             if (toCompare < 0 && node.Right != null)
             {
                 // Node is smaller than 'to'
-                foreach (RedBlackTreeNode<TKey, TValue> rightNode in InOrderTraversal(node.Right, from, to, fromOpen, toOpen))
+                foreach (RedBlackTreeNode<TKey, TValue> rightNode in this.InOrderTraversal(node.Right, from, to, fromOpen, toOpen))
                 {
                     yield return rightNode;
                 }
@@ -435,14 +450,14 @@ namespace NMemory.DataStructures.Internal.Trees
             if (fromCompare < 0 && node.Left != null)
             {
                 // Node is greater than 'from'
-                foreach (RedBlackTreeNode<TKey, TValue> leftNode in InOrderTraversalFrom(node, from, fromOpen))
+                foreach (RedBlackTreeNode<TKey, TValue> leftNode in this.InOrderTraversalFrom(node, from, fromOpen))
                 {
                     yield return leftNode;
                 }
             }
 
             // Equals to or greater than 'from'
-            if (((fromCompare == 0 && fromOpen) || fromCompare < 0)) 
+            if ((fromCompare == 0 && fromOpen) || fromCompare < 0) 
             {
                 yield return node;
             }
@@ -450,7 +465,7 @@ namespace NMemory.DataStructures.Internal.Trees
             if (node.Right != null)
             {
                 // Node is always smaller than 'to'
-                foreach (RedBlackTreeNode<TKey, TValue> rightNode in InOrderTraversalFrom(node.Right, from, fromOpen))
+                foreach (RedBlackTreeNode<TKey, TValue> rightNode in this.InOrderTraversalFrom(node.Right, from, fromOpen))
                 {
                     yield return rightNode;
                 }
@@ -464,13 +479,14 @@ namespace NMemory.DataStructures.Internal.Trees
             if (node.Left != null)
             {
                 // Node is always greater than 'from'
-                foreach (RedBlackTreeNode<TKey, TValue> leftNode in InOrderTraversalTo(node, to, toOpen))
+                foreach (RedBlackTreeNode<TKey, TValue> leftNode in this.InOrderTraversalTo(node, to, toOpen))
                 {
                     yield return leftNode;
                 }
             }
 
-            if (((toCompare == 0 && toOpen) || toCompare < 0)) // Equals to or smaller than 'to'
+            // Equals to or smaller than 'to'
+            if ((toCompare == 0 && toOpen) || toCompare < 0)
             {
                 yield return node;
             }
@@ -478,13 +494,12 @@ namespace NMemory.DataStructures.Internal.Trees
             if (toCompare < 0 && node.Right != null)
             {
                 // Node is smaller than 'to'
-                foreach (RedBlackTreeNode<TKey, TValue> rightNode in InOrderTraversalTo(node.Right, to, toOpen))
+                foreach (RedBlackTreeNode<TKey, TValue> rightNode in this.InOrderTraversalTo(node.Right, to, toOpen))
                 {
                     yield return rightNode;
                 }
             }
         }
-
 
         private RedBlackTreeNode<TKey, TValue> FindNode(TKey key, RedBlackTreeNode<TKey, TValue> node)
         {
@@ -497,7 +512,7 @@ namespace NMemory.DataStructures.Internal.Trees
 
             while (currentNode != null)
             {
-                var compare = comparer.Compare(key, currentNode.Key);
+                var compare = this.comparer.Compare(key, currentNode.Key);
 
                 if (compare < 0)
                 {
@@ -552,7 +567,6 @@ namespace NMemory.DataStructures.Internal.Trees
                         done = true;
                     }
                 }
-
             }
         }
 
@@ -721,7 +735,7 @@ namespace NMemory.DataStructures.Internal.Trees
 
             if (this.comparer.Compare(item, node.Key) < 0)
             {
-                if (!DeleteNode(node.Left, item, node, out temp))
+                if (!this.DeleteNode(node.Left, item, node, out temp))
                 {
                     result = null;
                     return false;
@@ -731,7 +745,7 @@ namespace NMemory.DataStructures.Internal.Trees
             }
             else if (this.comparer.Compare(item, node.Key) > 0)
             {
-                if (!DeleteNode(node.Right, item, node, out temp))
+                if (!this.DeleteNode(node.Right, item, node, out temp))
                 {
                     result = null;
                     return false;
@@ -742,8 +756,8 @@ namespace NMemory.DataStructures.Internal.Trees
             else if (this.comparer.Compare(item, node.Key) == 0)
             {
                 // Item found 
-                nodeToDeleteRed = node.Red;
-                nodeBeingDeleted = node;
+                this.nodeToDeleteRed = node.Red;
+                this.nodeBeingDeleted = node;
                 if (node.Left == null)
                 {
                     // No children or only a right child   
@@ -763,8 +777,8 @@ namespace NMemory.DataStructures.Internal.Trees
                 { // Two children 
                     // Deletes using the leftmost Node<T,TValue> of the  
                     // right subtree 
-                    var replace = LeftMost(node.Right);
-                    node.Right = DeleteLeftMost(node.Right, node);
+                    var replace = this.LeftMost(node.Right);
+                    node.Right = this.DeleteLeftMost(node.Right, node);
 
                     node.Key = replace.Key;
                     node.Value = replace.Value;
@@ -802,7 +816,6 @@ namespace NMemory.DataStructures.Internal.Trees
             node = left;
         }
 
-
         private void LeftRotate(ref RedBlackTreeNode<TKey, TValue> node)
         {
             RedBlackTreeNode<TKey, TValue> nodeParent = node.Parent;
@@ -835,14 +848,17 @@ namespace NMemory.DataStructures.Internal.Trees
             parent = null;
             grandParent = null;
             greatGrandParent = null;
+
             if (curNode != null)
             {
                 parent = curNode.Parent;
             }
+
             if (parent != null)
             {
                 grandParent = parent.Parent;
             }
+
             if (grandParent != null)
             {
                 greatGrandParent = grandParent.Parent;
@@ -862,28 +878,32 @@ namespace NMemory.DataStructures.Internal.Trees
             {
                 if (parent.Right == curNode)
                 {
-                    siblingToRight = false;
+                    this.siblingToRight = false;
                     sibling = parent.Left;
                 }
+
                 if (parent.Left == curNode)
                 {
-                    siblingToRight = true;
+                    this.siblingToRight = true;
                     sibling = parent.Right;
                 }
             }
+
             if (parent != null)
             {
                 grandParent = parent.Parent;
             }
+
             if (grandParent != null)
             {
                 if (grandParent.Right == parent)
                 {
-                    parentToRight = true;
+                    this.parentToRight = true;
                 }
+
                 if (grandParent.Left == parent)
                 {
-                    parentToRight = false;
+                    this.parentToRight = false;
                 }
             }
         }
@@ -922,16 +942,15 @@ namespace NMemory.DataStructures.Internal.Trees
                         stillHigher = higher.Parent;
                     }
 
-                    FixTreeAfterInsertion(
+                    this.FixTreeAfterInsertion(
                         grandParent,
                         greatGrandParent,
                         higher,
                         stillHigher);
                 }
                 else if (
-                    uncle == null ||
-                    parent.Red &&
-                    !uncle.Red)
+                    uncle == null || 
+                    (parent.Red && !uncle.Red))
                 {
                     if (grandParent.Right == parent &&
                         parent.Right == child)
@@ -944,18 +963,18 @@ namespace NMemory.DataStructures.Internal.Trees
                         {
                             if (greatGrandParent.Right == grandParent)
                             {
-                                LeftRotate(ref grandParent);
+                                this.LeftRotate(ref grandParent);
                                 greatGrandParent.Right = grandParent;
                             }
                             else
                             {
-                                LeftRotate(ref grandParent);
+                                this.LeftRotate(ref grandParent);
                                 greatGrandParent.Left = grandParent;
                             }
                         }
                         else
                         {
-                            LeftRotate(ref root);
+                            this.LeftRotate(ref this.root);
                         }
                     }
                     else if (
@@ -970,18 +989,18 @@ namespace NMemory.DataStructures.Internal.Trees
                         {
                             if (greatGrandParent.Right == grandParent)
                             {
-                                RightRotate(ref grandParent);
+                                this.RightRotate(ref grandParent);
                                 greatGrandParent.Right = grandParent;
                             }
                             else
                             {
-                                RightRotate(ref grandParent);
+                                this.RightRotate(ref grandParent);
                                 greatGrandParent.Left = grandParent;
                             }
                         }
                         else
                         {
-                            RightRotate(ref root);
+                            this.RightRotate(ref this.root);
                         }
                     }
                     else if (
@@ -992,25 +1011,25 @@ namespace NMemory.DataStructures.Internal.Trees
                         child.Red = false;
                         grandParent.Red = true;
 
-                        RightRotate(ref parent);
+                        this.RightRotate(ref parent);
                         grandParent.Right = parent;
 
                         if (greatGrandParent != null)
                         {
                             if (greatGrandParent.Right == grandParent)
                             {
-                                LeftRotate(ref grandParent);
+                                this.LeftRotate(ref grandParent);
                                 greatGrandParent.Right = grandParent;
                             }
                             else
                             {
-                                LeftRotate(ref grandParent);
+                                this.LeftRotate(ref grandParent);
                                 greatGrandParent.Left = grandParent;
                             }
                         }
                         else
                         {
-                            LeftRotate(ref root);
+                            this.LeftRotate(ref this.root);
                         }
                     }
                     else if (
@@ -1018,34 +1037,34 @@ namespace NMemory.DataStructures.Internal.Trees
                         parent.Right == child)
                     {
                         // left-right case 
-
                         child.Red = false;
                         grandParent.Red = true;
-                        LeftRotate(ref parent);
+                        this.LeftRotate(ref parent);
                         grandParent.Left = parent;
 
                         if (greatGrandParent != null)
                         {
                             if (greatGrandParent.Right == grandParent)
                             {
-                                RightRotate(ref grandParent);
+                                this.RightRotate(ref grandParent);
                                 greatGrandParent.Right = grandParent;
                             }
                             else
                             {
-                                RightRotate(ref grandParent);
+                                this.RightRotate(ref grandParent);
                                 greatGrandParent.Left = grandParent;
                             }
                         }
                         else
                         {
-                            RightRotate(ref root);
+                            this.RightRotate(ref this.root);
                         }
                     }
                 }
-                if (root.Red)
+
+                if (this.root.Red)
                 {
-                    root.Red = false;
+                    this.root.Red = false;
                 }
             }
         }
@@ -1064,20 +1083,23 @@ namespace NMemory.DataStructures.Internal.Trees
         {
             if (node.Left == null)
             {
-                nodeBeingDeleted = node;
+                this.nodeBeingDeleted = node;
+                
                 if (node.Right != null)
                 {
                     node.Right.Parent = parent;
                 }
-                return node.Right;
 
+                return node.Right;
             }
             else
             {
-                node.Left = DeleteLeftMost(node.Left, node);
+                node.Left = this.DeleteLeftMost(node.Left, node);
+
                 return node;
             }
         }
+
         private void FixTreeAfterDeletion(
             RedBlackTreeNode<TKey, TValue> curNode,
             RedBlackTreeNode<TKey, TValue> parent,
@@ -1086,19 +1108,28 @@ namespace NMemory.DataStructures.Internal.Trees
         {
             RedBlackTreeNode<TKey, TValue> siblingLeftChild = null;
             RedBlackTreeNode<TKey, TValue> siblingRightChild = null;
+
             if (sibling != null && sibling.Left != null)
             {
                 siblingLeftChild = sibling.Left;
             }
+
             if (sibling != null && sibling.Right != null)
             {
                 siblingRightChild = sibling.Right;
             }
-            bool siblingRed = (sibling != null && sibling.Red);
-            bool siblingLeftRed = (siblingLeftChild != null
-                   && siblingLeftChild.Red);
-            bool siblingRightRed = (siblingRightChild != null &&
-           siblingRightChild.Red);
+
+            bool siblingRed = 
+                sibling != null && 
+                sibling.Red;
+
+            bool siblingLeftRed = 
+                siblingLeftChild != null && 
+                siblingLeftChild.Red;
+
+            bool siblingRightRed = 
+                siblingRightChild != null &&
+                siblingRightChild.Red;
 
             if (parent != null &&
                 !parent.Red &&
@@ -1106,7 +1137,7 @@ namespace NMemory.DataStructures.Internal.Trees
                 !siblingLeftRed &&
                 !siblingRightRed)
             {
-                Case1(curNode, parent, sibling, grandParent);
+                this.Case1(curNode, parent, sibling, grandParent);
             }
             else if (
                 parent != null &&
@@ -1115,7 +1146,7 @@ namespace NMemory.DataStructures.Internal.Trees
                 !siblingLeftRed &&
                 !siblingRightRed)
             {
-                Case2A(curNode, parent, sibling, grandParent);
+                this.Case2A(curNode, parent, sibling, grandParent);
             }
             else if (
                 parent != null &&
@@ -1124,37 +1155,37 @@ namespace NMemory.DataStructures.Internal.Trees
                 !siblingLeftRed &&
                 !siblingRightRed)
             {
-                Case2B(curNode, parent, sibling, grandParent);
+                this.Case2B(curNode, parent, sibling, grandParent);
             }
             else if (
-                siblingToRight &&
+                this.siblingToRight &&
                 !siblingRed &&
                 siblingLeftRed &&
                 !siblingRightRed)
             {
-                Case3(curNode, parent, sibling, grandParent);
+                this.Case3(curNode, parent, sibling, grandParent);
             }
             else if (
-                !siblingToRight &&
+                !this.siblingToRight &&
                 !siblingRed &&
                 !siblingLeftRed &&
                 siblingRightRed)
             {
-                Case3P(curNode, parent, sibling, grandParent);
+                this.Case3P(curNode, parent, sibling, grandParent);
             }
             else if (
-                siblingToRight &&
+                this.siblingToRight &&
                 !siblingRed &&
                 siblingRightRed)
             {
-                Case4(curNode, parent, sibling, grandParent);
+                this.Case4(curNode, parent, sibling, grandParent);
             }
             else if (
-                !siblingToRight &&
+                !this.siblingToRight &&
                 !siblingRed &&
                 siblingLeftRed)
             {
-                Case4P(curNode, parent, sibling, grandParent);
+                this.Case4P(curNode, parent, sibling, grandParent);
             }
         }
 
@@ -1164,72 +1195,72 @@ namespace NMemory.DataStructures.Internal.Trees
             RedBlackTreeNode<TKey, TValue> sibling,
             RedBlackTreeNode<TKey, TValue> grandParent)
         {
-            if (siblingToRight)
+            if (this.siblingToRight)
             {
                 parent.Red = !parent.Red;
                 sibling.Red = !sibling.Red;
 
                 if (grandParent != null)
                 {
-                    if (parentToRight)
+                    if (this.parentToRight)
                     {
-                        LeftRotate(ref parent);
+                        this.LeftRotate(ref parent);
                         grandParent.Right = parent;
                     }
-                    else if (!parentToRight)
+                    else if (!this.parentToRight)
                     {
-                        LeftRotate(ref parent);
+                        this.LeftRotate(ref parent);
                         grandParent.Left = parent;
                     }
                 }
                 else
                 {
-                    LeftRotate(ref parent);
-                    root = parent;
+                    this.LeftRotate(ref parent);
+                    this.root = parent;
                 }
 
                 grandParent = sibling;
                 parent = parent.Left;
-                parentToRight = false;
+                this.parentToRight = false;
             }
-            else if (!siblingToRight)
+            else if (!this.siblingToRight)
             {
                 parent.Red = !parent.Red;
                 sibling.Red = !sibling.Red;
 
                 if (grandParent != null)
                 {
-                    if (parentToRight)
+                    if (this.parentToRight)
                     {
-                        RightRotate(ref parent);
+                        this.RightRotate(ref parent);
                         grandParent.Right = parent;
                     }
-                    else if (!parentToRight)
+                    else if (!this.parentToRight)
                     {
-                        RightRotate(ref parent);
+                        this.RightRotate(ref parent);
                         grandParent.Left = parent;
                     }
                 }
                 else
                 {
-                    RightRotate(ref parent);
-                    root = parent;
+                    this.RightRotate(ref parent);
+                    this.root = parent;
                 }
 
                 grandParent = sibling;
                 parent = parent.Right;
-                parentToRight = true;
+                this.parentToRight = true;
             }
 
             if (parent.Right == curNode)
             {
                 sibling = parent.Left;
-                siblingToRight = false;
+                this.siblingToRight = false;
             }
             else if (parent.Left == curNode)
             {
                 sibling = parent.Right;
-                siblingToRight = true;
+                this.siblingToRight = true;
             }
 
             RedBlackTreeNode<TKey, TValue> siblingLeftChild = null;
@@ -1239,12 +1270,16 @@ namespace NMemory.DataStructures.Internal.Trees
             {
                 siblingLeftChild = sibling.Left;
             }
+            
             if (sibling != null && sibling.Right != null)
             {
                 siblingRightChild = sibling.Right;
             }
 
-            bool siblingRed = (sibling != null && sibling.Red);
+            bool siblingRed = 
+                sibling != null && 
+                sibling.Red;
+
             bool siblingLeftRed =
                 siblingLeftChild != null &&
                 siblingLeftChild.Red;
@@ -1258,37 +1293,37 @@ namespace NMemory.DataStructures.Internal.Trees
                 !siblingLeftRed &&
                 !siblingRightRed)
             {
-                Case2B(curNode, parent, sibling, grandParent);
+                this.Case2B(curNode, parent, sibling, grandParent);
             }
             else if (
-                siblingToRight &&
+                this.siblingToRight &&
                 !siblingRed &&
                 siblingLeftRed &&
                 !siblingRightRed)
             {
-                Case3(curNode, parent, sibling, grandParent);
+                this.Case3(curNode, parent, sibling, grandParent);
             }
             else if (
-                !siblingToRight &&
+                !this.siblingToRight &&
                 !siblingRed &&
                 !siblingLeftRed &&
                 siblingRightRed)
             {
-                Case3P(curNode, parent, sibling, grandParent);
+                this.Case3P(curNode, parent, sibling, grandParent);
             }
             else if (
-                siblingToRight &&
+                this.siblingToRight &&
                 !siblingRed &&
                 siblingRightRed)
             {
-                Case4(curNode, parent, sibling, grandParent);
+                this.Case4(curNode, parent, sibling, grandParent);
             }
             else if (
-                !siblingToRight &&
+                !this.siblingToRight &&
                 !siblingRed &&
                 siblingLeftRed)
             {
-                Case4P(curNode, parent, sibling, grandParent);
+                this.Case4P(curNode, parent, sibling, grandParent);
             }
         }
 
@@ -1304,10 +1339,10 @@ namespace NMemory.DataStructures.Internal.Trees
             }
 
             curNode = parent;
-            if (curNode != root)
+            if (curNode != this.root)
             {
                 parent = curNode.Parent;
-                GetParentGrandParentSibling(
+                this.GetParentGrandParentSibling(
                     curNode,
                     parent,
                     out sibling,
@@ -1344,7 +1379,7 @@ namespace NMemory.DataStructures.Internal.Trees
                     !siblingLeftRed &&
                     !siblingRightRed)
                 {
-                    Case2A(curNode, parent, sibling, grandParent);
+                    this.Case2A(curNode, parent, sibling, grandParent);
                 }
                 else if (
                     parent != null &&
@@ -1353,37 +1388,37 @@ namespace NMemory.DataStructures.Internal.Trees
                     !siblingLeftRed &&
                     !siblingRightRed)
                 {
-                    Case2B(curNode, parent, sibling, grandParent);
+                    this.Case2B(curNode, parent, sibling, grandParent);
                 }
                 else if (
-                    siblingToRight &&
+                    this.siblingToRight &&
                     !siblingRed &&
                     siblingLeftRed &&
                     !siblingRightRed)
                 {
-                    Case3(curNode, parent, sibling, grandParent);
+                    this.Case3(curNode, parent, sibling, grandParent);
                 }
                 else if (
-                    !siblingToRight &&
+                    !this.siblingToRight &&
                     !siblingRed &&
                     !siblingLeftRed &&
                     siblingRightRed)
                 {
-                    Case3P(curNode, parent, sibling, grandParent);
+                    this.Case3P(curNode, parent, sibling, grandParent);
                 }
                 else if (
-                    siblingToRight &&
+                    this.siblingToRight &&
                     !siblingRed &&
                     siblingRightRed)
                 {
-                    Case4(curNode, parent, sibling, grandParent);
+                    this.Case4(curNode, parent, sibling, grandParent);
                 }
                 else if (
-                    !siblingToRight &&
+                    !this.siblingToRight &&
                     !siblingRed &&
                     siblingLeftRed)
                 {
-                    Case4P(curNode, parent, sibling, grandParent);
+                    this.Case4P(curNode, parent, sibling, grandParent);
                 }
             }
         }
@@ -1397,8 +1432,8 @@ namespace NMemory.DataStructures.Internal.Trees
             if (sibling != null)
             {
                 sibling.Red = !sibling.Red;
-
             }
+
             curNode = parent;
             curNode.Red = !curNode.Red;
         }
@@ -1414,11 +1449,11 @@ namespace NMemory.DataStructures.Internal.Trees
                 sibling.Red = true;
                 sibling.Left.Red = false;
 
-                RightRotate(ref sibling);
+                this.RightRotate(ref sibling);
                 parent.Right = sibling;
             }
 
-            Case4(curNode, parent, sibling, grandParent);
+            this.Case4(curNode, parent, sibling, grandParent);
         }
 
         private void Case3P(
@@ -1431,10 +1466,11 @@ namespace NMemory.DataStructures.Internal.Trees
             {
                 sibling.Red = true;
                 sibling.Right.Red = false;
-                LeftRotate(ref sibling);
+                this.LeftRotate(ref sibling);
                 parent.Left = sibling;
             }
-            Case4P(curNode, parent, sibling, grandParent);
+
+            this.Case4P(curNode, parent, sibling, grandParent);
         }
 
         private void Case4(
@@ -1449,21 +1485,21 @@ namespace NMemory.DataStructures.Internal.Trees
 
             if (grandParent != null)
             {
-                if (parentToRight)
+                if (this.parentToRight)
                 {
-                    LeftRotate(ref parent);
+                    this.LeftRotate(ref parent);
                     grandParent.Right = parent;
                 }
                 else
                 {
-                    LeftRotate(ref parent);
+                    this.LeftRotate(ref parent);
                     grandParent.Left = parent;
                 }
             }
             else
             {
-                LeftRotate(ref parent);
-                root = parent;
+                this.LeftRotate(ref parent);
+                this.root = parent;
             }
         }
 
@@ -1479,25 +1515,24 @@ namespace NMemory.DataStructures.Internal.Trees
 
             if (grandParent != null)
             {
-                if (parentToRight)
+                if (this.parentToRight)
                 {
-                    RightRotate(ref parent);
+                    this.RightRotate(ref parent);
                     grandParent.Right = parent;
                 }
                 else
                 {
-                    RightRotate(ref parent);
+                    this.RightRotate(ref parent);
                     grandParent.Left = parent;
                 }
             }
             else
             {
-                RightRotate(ref parent);
-                root = parent;
+                this.RightRotate(ref parent);
+                this.root = parent;
             }
         }
 
         #endregion
-
     }
 }

@@ -1,13 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Linq.Expressions;
-using System.Reflection;
-using NMemory.Common;
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="AnonymousTypeKeyInfoExpressionBuilder.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// ----------------------------------------------------------------------------------
 
 namespace NMemory.Indexes
 {
+    using System;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using NMemory.Common;
+    using NMemory.Exceptions;
+
     internal class AnonymousTypeKeyInfoExpressionBuilder : IKeyInfoExpressionBuilder
     {
         private Type anonymousType;
@@ -17,7 +39,7 @@ namespace NMemory.Indexes
         {
             if (!ReflectionHelper.IsAnonymousType(anonymousType))
             {
-                throw new ArgumentException("", "anonymousType");
+                throw new ArgumentException(ExceptionMessages.Missing, "anonymousType");
             }
 
             this.anonymousType = anonymousType;
@@ -34,14 +56,14 @@ namespace NMemory.Indexes
 
             if (arguments.Length != this.orderedProperties.Length)
             {
-                throw new ArgumentException("", "arguments");
+                throw new ArgumentException(ExceptionMessages.Missing, "arguments");
             }
 
             for (int i = 0; i < this.orderedProperties.Length; i++)
             {
-                if (orderedProperties[i].PropertyType != arguments[i].Type)
+                if (this.orderedProperties[i].PropertyType != arguments[i].Type)
                 {
-                    throw new ArgumentException("", "arguments");
+                    throw new ArgumentException(ExceptionMessages.Missing, "arguments");
                 }
             }
 
@@ -57,14 +79,14 @@ namespace NMemory.Indexes
 
             if (this.anonymousType != source.Type)
             {
-                throw new ArgumentException("", "arguments");
+                throw new ArgumentException(ExceptionMessages.Missing, "arguments");
             }
 
             this.EnsureOrderedPropeties();
 
             if (this.orderedProperties.Length <= index)
             {
-                throw new ArgumentException("", "arguments");
+                throw new ArgumentException(ExceptionMessages.Missing, "arguments");
             }
 
             PropertyInfo property = this.orderedProperties[index];
@@ -74,7 +96,7 @@ namespace NMemory.Indexes
 
         private void EnsureOrderedPropeties()
         {
-            if (orderedProperties != null)
+            if (this.orderedProperties != null)
             {
                 return;
             }

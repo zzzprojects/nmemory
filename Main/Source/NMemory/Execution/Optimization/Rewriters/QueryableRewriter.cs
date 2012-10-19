@@ -1,15 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using NMemory.Common;
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="QueryableRewriter.cs" company="NMemory Team">
+//     Copyright (C) 2012 by NMemory Team
+//
+//     Permission is hereby granted, free of charge, to any person obtaining a copy
+//     of this software and associated documentation files (the "Software"), to deal
+//     in the Software without restriction, including without limitation the rights
+//     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//     copies of the Software, and to permit persons to whom the Software is
+//     furnished to do so, subject to the following conditions:
+//
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+// ----------------------------------------------------------------------------------
 
 namespace NMemory.Execution.Optimization.Rewriters
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using NMemory.Common;
+
     /// <summary>
-    /// Represents an expression rewriter that replaces Queryable method calls with 
-    /// the corresponding Enumerable method calls
+    /// Represents an expression rewriter that replaces <see cref="System.Queryable"/> 
+    /// extension method calls with corresponding <see cref="System.Enumerable"/>  
+    /// extension method calls
     /// </summary>
     public class QueryableRewriter : ExpressionRewriterBase
     {
@@ -35,7 +60,7 @@ namespace NMemory.Execution.Optimization.Rewriters
             // It is possible that an AsQueryable method call was removed
             if (node.Object == instance && node.Arguments == arguments)
             {
-                //No changes was made, return the original expression
+                // No changes was made, return the original expression
                 return node;
             }
 
@@ -55,7 +80,7 @@ namespace NMemory.Execution.Optimization.Rewriters
                 methodInfo = node.Method;
             }
 
-            arguments = FixupArguments(methodInfo, arguments);
+            arguments = this.FixupArguments(methodInfo, arguments);
 
             return Expression.Call(instance, methodInfo, arguments);
         }
@@ -77,43 +102,66 @@ namespace NMemory.Execution.Optimization.Rewriters
             return methodInfo;
         }
 
-        
-        private IList<Expression> FixupArguments(MethodInfo methodInfo, IList<Expression> arguments)
+        private static Type StripExpression(Type type)
         {
-            ParameterInfo[] parameters = methodInfo.GetParameters();
+            bool isArray = type.IsArray;
+            Type elementType = isArray ? type.GetElementType() : type;
+            Type expressionType = FindGenericType(typeof(Expression<>), elementType);
 
-            if (parameters.Length > 0)
+            if (expressionType != null)
             {
-                List<Expression> sequence = null;
-
-                for (int i = 0; i < parameters.Length; i++)
-                {
-                    Expression expression = arguments[i];
-                    ParameterInfo info = parameters[i];
-                    expression = this.FixupQuotedExpression(info.ParameterType, expression);
-
-                    if (sequence == null && expression != arguments[i])
-                    {
-                        sequence = new List<Expression>(arguments.Count);
-                        for (int j = 0; j < i; j++)
-                        {
-                            sequence.Add(arguments[j]);
-                        }
-                    }
-
-                    if (sequence != null)
-                    {
-                        sequence.Add(expression);
-                    }
-                }
-
-                if (sequence != null)
-                {
-                    arguments = sequence;
-                }
+                elementType = expressionType.GetGenericArguments()[0];
             }
 
-            return arguments;
+            if (!isArray)
+            {
+                return type;
+            }
+
+            int arrayRank = type.GetArrayRank();
+
+            if (arrayRank != 1)
+            {
+                return elementType.MakeArrayType(arrayRank);
+            }
+
+            return elementType.MakeArrayType();
+        }
+
+        /// <summary>
+        /// Finds the concrete type of the specified generic type definition.
+        /// For example, if definition is IEnumerable&gt;&lt;, than the type IList&gt;string&lt;>
+        /// returns IEnumerable&gt;string&lt;
+        /// </summary>
+        /// <param name="definition">The generic type definition.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>The generic type of the definition.</returns>
+        private static Type FindGenericType(Type definition, Type type)
+        {
+            while (type != null && type != typeof(object))
+            {
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == definition)
+                {
+                    return type;
+                }
+
+                if (definition.IsInterface)
+                {
+                    foreach (Type interfaceType in type.GetInterfaces())
+                    {
+                        Type subInterface = FindGenericType(definition, interfaceType);
+
+                        if (subInterface != null)
+                        {
+                            return subInterface;
+                        }
+                    }
+                }
+
+                type = type.BaseType;
+            }
+
+            return null;
         }
 
         private static bool ArgsMatch(MethodInfo methodInfo, IList<Expression> arguments, Type[] typeArgs)
@@ -174,7 +222,7 @@ namespace NMemory.Execution.Optimization.Rewriters
                         operand = ((UnaryExpression)operand).Operand;
                     }
 
-                    if (!parameterType.IsAssignableFrom(operand.Type) && 
+                    if (!parameterType.IsAssignableFrom(operand.Type) &&
                         !parameterType.IsAssignableFrom(StripExpression(operand.Type)))
                     {
                         return false;
@@ -246,57 +294,42 @@ namespace NMemory.Execution.Optimization.Rewriters
             return expression;
         }
 
-        private static Type StripExpression(Type type)
+        private IList<Expression> FixupArguments(MethodInfo methodInfo, IList<Expression> arguments)
         {
-            bool isArray = type.IsArray;
-            Type type2 = isArray ? type.GetElementType() : type;
-            Type type3 = FindGenericType(typeof(Expression<>), type2);
+            ParameterInfo[] parameters = methodInfo.GetParameters();
 
-            if (type3 != null)
+            if (parameters.Length > 0)
             {
-                type2 = type3.GetGenericArguments()[0];
-            }
+                List<Expression> sequence = null;
 
-            if (!isArray)
-            {
-                return type;
-            }
-
-            int arrayRank = type.GetArrayRank();
-
-            if (arrayRank != 1)
-            {
-                return type2.MakeArrayType(arrayRank);
-            }
-
-            return type2.MakeArrayType();
-        }
-
-        private static Type FindGenericType(Type definition, Type type)
-        {
-            while (type != null && type != typeof(object))
-            {
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == definition)
+                for (int i = 0; i < parameters.Length; i++)
                 {
-                    return type;
-                }
+                    Expression expression = arguments[i];
+                    ParameterInfo info = parameters[i];
+                    expression = this.FixupQuotedExpression(info.ParameterType, expression);
 
-                if (definition.IsInterface)
-                {
-                    foreach (Type interfaceType in type.GetInterfaces())
+                    if (sequence == null && expression != arguments[i])
                     {
-                        Type type3 = FindGenericType(definition, interfaceType);
-
-                        if (type3 != null)
+                        sequence = new List<Expression>(arguments.Count);
+                        for (int j = 0; j < i; j++)
                         {
-                            return type3;
+                            sequence.Add(arguments[j]);
                         }
+                    }
+
+                    if (sequence != null)
+                    {
+                        sequence.Add(expression);
                     }
                 }
 
-                type = type.BaseType;
+                if (sequence != null)
+                {
+                    arguments = sequence;
+                }
             }
-            return null;
+
+            return arguments;
         }
     }
 }
