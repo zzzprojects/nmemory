@@ -25,12 +25,12 @@
 namespace NMemory.Common
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+    using System.Runtime.CompilerServices;
 
     public class ReflectionHelper
     {
@@ -107,7 +107,9 @@ using System.Runtime.CompilerServices;
         private static bool CheckIfAnonymousType(Type type)
         {
             if (type == null)
+            {
                 throw new ArgumentNullException("type");
+            }
 
             // HACK: The only way to detect anonymous types right now.
             return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)

@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="StoredProcedureParameterModifier.cs" company="NMemory Team">
+// <copyright file="StoredProcedureParameterRewriter.cs" company="NMemory Team">
 //     Copyright (C) 2012 by NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -40,13 +40,13 @@ namespace NMemory.Execution.Optimization.Rewriters
 
         protected override Expression VisitUnary(UnaryExpression node)
         {
-            // ----------------------------------------------
-            // original:
-            //  new Parameter<>("name")
-            // ----------------------------------------------
-            // transformed:
-            //  executionContext.GetParameter<>("name")
-            // ----------------------------------------------
+            //// ----------------------------------------------
+            //// original:
+            ////  new Parameter<>("name")
+            //// ----------------------------------------------
+            //// transformed:
+            ////  executionContext.GetParameter<>("name")
+            //// ----------------------------------------------
 
             IParameter parameter = ExpressionHelper.FindParameter(node);
 
@@ -61,13 +61,13 @@ namespace NMemory.Execution.Optimization.Rewriters
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            // ----------------------------------------------
-            // original:
-            //  dbParam (constant)
-            // ----------------------------------------------
-            // transformed:
-            //  executionContext.GetParameter<>("name")
-            // ----------------------------------------------
+            //// ----------------------------------------------
+            //// original:
+            ////  dbParam (constant)
+            //// ----------------------------------------------
+            //// transformed:
+            ////  executionContext.GetParameter<>("name")
+            //// ----------------------------------------------
 
             IParameter parameter = node.Value as IParameter;
 

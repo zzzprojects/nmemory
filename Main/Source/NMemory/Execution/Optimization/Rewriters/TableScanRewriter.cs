@@ -33,13 +33,13 @@ namespace NMemory.Execution.Optimization.Rewriters
     {
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            // original:
-            //
-            //  DatabaseTable
-            //
-            // transformed:
-            //  
-            //  DatabaseTable.SelectAll<>
+            //// ----------------------------------------------
+            //// original:
+            ////  DatabaseTable
+            //// ----------------------------------------------
+            //// transformed:
+            ////  DatabaseTable.SelectAll<>
+            //// ----------------------------------------------
 
             Type entityType = DatabaseReflectionHelper.GetTableEntityType(node.Type);
 
@@ -53,13 +53,13 @@ namespace NMemory.Execution.Optimization.Rewriters
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            // original:
-            //
-            //  dbParam.FindTable<>
-            //
-            // transformed:
-            //  
-            //  dbParam.FindTable<>.SelectAll<>
+            //// ----------------------------------------------
+            //// original:
+            ////  dbParam.FindTable<>
+            //// ----------------------------------------------
+            //// transformed:
+            ////  dbParam.FindTable<>.SelectAll<>
+            //// ----------------------------------------------
 
             Type entityType = DatabaseReflectionHelper.GetTableEntityType(node.Type);
 
