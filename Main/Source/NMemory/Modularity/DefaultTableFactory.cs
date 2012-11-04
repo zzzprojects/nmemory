@@ -52,7 +52,11 @@ namespace NMemory.Modularity
         private void RegisterTable(ITable table)
         {
             ITableCatalog catalog = this.database.DatabaseEngine.ConcurrencyManager as ITableCatalog;
-            catalog.RegisterTable(table);
+
+            if (catalog != null)
+            {
+                catalog.RegisterTable(table);
+            }
         }
     }
 }
