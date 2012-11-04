@@ -24,6 +24,8 @@
 
 namespace NMemory.Modularity
 {
+    using System.Collections.Generic;
+
     public interface IDatabaseEngine
     {
         ITableFactory TableFactory

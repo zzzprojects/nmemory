@@ -51,8 +51,8 @@ namespace NMemory.Modularity
 
         private void RegisterTable(ITable table)
         {
-            TableLockConcurrencyManager manager = this.database.DatabaseEngine.ConcurrencyManager as TableLockConcurrencyManager;
-            manager.RegisterTable(table);
+            ITableCatalog catalog = this.database.DatabaseEngine.ConcurrencyManager as ITableCatalog;
+            catalog.RegisterTable(table);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="ILoggingPort.cs" company="NMemory Team">
+// <copyright file="ITableCatalog.cs" company="NMemory Team">
 //     Copyright (C) 2012 by NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,10 +24,10 @@
 
 namespace NMemory.Modularity
 {
-    using NMemory.Diagnostics.Messages;
+    using NMemory.Tables;
 
-    public interface ILoggingPort
+    public interface ITableCatalog
     {
-        void Send(Message msg);
+        void RegisterTable(ITable table);
     }
 }

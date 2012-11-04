@@ -162,6 +162,7 @@
     <Compile Include="Modularity\IDatabaseEngine.cs" />
     <Compile Include="Modularity\IDatabaseComponent.cs" />
     <Compile Include="Modularity\IDatabaseComponentFactory.cs" />
+    <Compile Include="Modularity\ITableCatalog.cs" />
     <Compile Include="Modularity\ITableFactory.cs" />
     <Compile Include="Modularity\IExtensible.cs" />
     <Compile Include="Modularity\IQueryCompiler.cs" />

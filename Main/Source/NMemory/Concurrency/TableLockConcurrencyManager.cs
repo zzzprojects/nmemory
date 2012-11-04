@@ -33,7 +33,7 @@ namespace NMemory.Execution
     using NMemory.Tables;
     using NMemory.Transactions;
 
-    public class TableLockConcurrencyManager : IConcurrencyManager
+    public class TableLockConcurrencyManager : IConcurrencyManager, ITableCatalog
     {
         private IDatabase database;
 
