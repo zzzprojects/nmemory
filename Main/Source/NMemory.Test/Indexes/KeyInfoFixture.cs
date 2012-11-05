@@ -49,7 +49,6 @@ namespace NMemory.Test.Indexes
             Assert.IsFalse(keyInfo.IsEmptyKey(1));
         }
 
-
         [TestMethod]
         public void PrimitiveKeyInfoComparer()
         {
@@ -86,8 +85,34 @@ namespace NMemory.Test.Indexes
         {
             var keyInfo = AnonymousTypeKeyInfo.Create((Member m) => new { m.GroupId, m.GroupId2 });
 
-            Assert.IsTrue(keyInfo.IsEmptyKey(new { GroupId = (int?)null, GroupId2 = 1 }));
-            Assert.IsFalse(keyInfo.IsEmptyKey(new { GroupId = (int?)1, GroupId2 = 2 }));
+            Assert.IsTrue(
+                keyInfo.IsEmptyKey(
+                    new 
+                    { 
+                        GroupId = (int?)null, 
+                        GroupId2 = 1 
+                    }));
+
+            Assert.IsFalse(
+                keyInfo.IsEmptyKey(
+                    new 
+                    { 
+                        GroupId = (int?)1, 
+                        GroupId2 = 2 
+                    }));
+        }
+
+        [TestMethod]
+        public void AnonymousTypeKeyInfoIsEmptyThatCannot()
+        {
+            var keyInfo = AnonymousTypeKeyInfo.Create((Member m) => new { m.GroupId2 });
+
+            Assert.IsFalse(
+                keyInfo.IsEmptyKey(
+                    new 
+                    { 
+                        GroupId2 = 1 
+                    }));
         }
 
         [TestMethod]
@@ -178,8 +203,16 @@ namespace NMemory.Test.Indexes
         {
             var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId, m.GroupId2));
 
-            Assert.AreEqual(false, keyInfo.IsEmptyKey(Tuple.Create((int?)1, 1)));
-            Assert.AreEqual(true, keyInfo.IsEmptyKey(Tuple.Create((int?)null, 1)));
+            Assert.IsFalse(keyInfo.IsEmptyKey(Tuple.Create((int?)1, 1)));
+            Assert.IsTrue(keyInfo.IsEmptyKey(Tuple.Create((int?)null, 1)));
+        }
+
+        [TestMethod]
+        public void TupleKeyInfoIsEmptyThatCannot()
+        {
+            var keyInfo = TupleKeyInfo.Create((Member m) => Tuple.Create(m.GroupId2));
+
+            Assert.IsFalse(keyInfo.IsEmptyKey(Tuple.Create(1)));
         }
 
         [TestMethod]

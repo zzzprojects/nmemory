@@ -155,7 +155,7 @@ namespace NMemory.Indexes
             // If all the members of the tuple is not nullable, the body expression is null at this point
             if (body == null)
             {
-                body = Expression.Constant(true);
+                body = Expression.Constant(false);
             }
 
             Expression<Func<TKey, bool>> resultExpression =
