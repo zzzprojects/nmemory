@@ -1,6 +1,6 @@
 ﻿// ----------------------------------------------------------------------------------
 // <copyright file="TransactionLockInventory.cs" company="NMemory Team">
-//     Copyright (C) 2012 by NMemory Team
+//     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
@@ -22,12 +22,12 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Execution
+namespace NMemory.Concurrency
 {
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
-    using NMemory.Execution.Locks;
+    using NMemory.Concurrency.Locks;
     using NMemory.Transactions;
 
     internal class TransactionLockInventory

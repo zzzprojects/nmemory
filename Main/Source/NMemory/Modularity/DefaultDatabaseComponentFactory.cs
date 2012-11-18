@@ -1,6 +1,6 @@
 ﻿// ----------------------------------------------------------------------------------
 // <copyright file="DefaultDatabaseComponentFactory.cs" company="NMemory Team">
-//     Copyright (C) 2012 by NMemory Team
+//     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 
 namespace NMemory.Modularity
 {
+    using NMemory.Concurrency;
     using NMemory.Diagnostics;
     using NMemory.Execution;
     using NMemory.Transactions;

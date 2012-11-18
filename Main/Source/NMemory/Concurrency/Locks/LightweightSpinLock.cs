@@ -1,6 +1,6 @@
 ﻿// ----------------------------------------------------------------------------------
 // <copyright file="LightweightSpinLock.cs" company="NMemory Team">
-//     Copyright (C) 2012 by NMemory Team
+//     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Execution.Locks
+namespace NMemory.Concurrency.Locks
 {
     using System;
     using System.Collections.Generic;

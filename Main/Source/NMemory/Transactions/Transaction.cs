@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------------------
 // <copyright file="Transaction.cs" company="NMemory Team">
-//     Copyright (C) 2012 by NMemory Team
+//     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +26,8 @@ namespace NMemory.Transactions
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using System.Threading;
-    using NMemory.Execution.Locks;
+    using NMemory.Concurrency.Locks;
     using NMemory.Modularity;
 
     public class Transaction : System.Transactions.IEnlistmentNotification

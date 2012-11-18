@@ -1,6 +1,6 @@
 ﻿// ----------------------------------------------------------------------------------
 // <copyright file="ChaosConcurrencyManager.cs" company="NMemory Team">
-//     Copyright (C) 2012 by NMemory Team
+//     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Execution
+namespace NMemory.Concurrency
 {
     using NMemory.Modularity;
     using NMemory.Tables;
