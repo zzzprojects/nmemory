@@ -41,13 +41,19 @@
     <Compile Include="Common\DatabaseMembers.cs" />
     <Compile Include="Common\DatabaseReflectionHelper.cs" />
     <Compile Include="Common\ExpressionHelper.cs" />
+    <Compile Include="Common\MemberChain.cs" />
     <Compile Include="Common\TableLocator.cs" />
     <Compile Include="Common\Visitors\EntityTypeSearchVisitor.cs" />
+    <Compile Include="Common\Visitors\ExpressionSearchVisitor.cs" />
     <Compile Include="Constraints\NotNullableConstraint.cs" />
     <Compile Include="Exceptions\ExceptionMessages.cs" />
     <Compile Include="Execution\ExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan`1.cs" />
+    <Compile Include="Execution\Optimization\EqualityMappingDetector.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\InnerJoinLogicalRewriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Execution\Optimization\Rewriters\PropertyAccessRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\QueryableRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\DatabaseParameterRewriter.cs" />

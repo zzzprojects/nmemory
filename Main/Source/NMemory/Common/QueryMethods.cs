@@ -37,10 +37,9 @@ namespace NMemory.Common
             get
             {
                 return GetMethodInfo(() =>
-
                     Queryable.SelectMany<object, object, object>(
                         null,
-                        (x, y) => null,
+                        x => null,
                         (x, y) => null));
             }
         }
@@ -50,7 +49,6 @@ namespace NMemory.Common
             get
             {
                 return GetMethodInfo(() =>
-
                     Queryable.First<object>(null));
             }
         }
@@ -60,10 +58,20 @@ namespace NMemory.Common
             get
             {
                 return GetMethodInfo(() =>
-
                     Queryable.Select<object, object>(
                         null,
                         x => null));
+            }
+        }
+
+        public static MethodInfo Where
+        {
+            get
+            {
+                return GetMethodInfo(() =>
+                    Queryable.Where<object>(
+                        null,
+                        x => false));
             }
         }
 
@@ -72,7 +80,6 @@ namespace NMemory.Common
             get
             {
                 return GetMethodInfo(() =>
-
                     Queryable.SelectMany<object, object>(
                         null,
                         x => null));
@@ -84,7 +91,6 @@ namespace NMemory.Common
             get
             {
                 return GetMethodInfo(() =>
-
                     Queryable.Join<object, object, object, object>(
                         null,
                         null,
@@ -99,7 +105,6 @@ namespace NMemory.Common
             get
             {
                 return GetMethodInfo(() =>
-
                     QueryableEx.LeftOuterJoin<object, object, object, object>(
                         null,
                         null,
@@ -114,7 +119,6 @@ namespace NMemory.Common
             get
             {
                 return GetMethodInfo(() =>
-
                     Queryable.AsQueryable<object>(null));
             }
         }

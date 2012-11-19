@@ -91,7 +91,9 @@ namespace NMemory.Common
         public static IParameter FindParameter(UnaryExpression node)
         {
             // The parameter is placed into the expression with the use of implicit conversion
-            if (node.NodeType != ExpressionType.Convert || node.Method == null || node.Method.Name != "op_Implicit")
+            if (node.NodeType != ExpressionType.Convert || 
+                node.Method == null || 
+                node.Method.Name != "op_Implicit")
             {
                 return null;
             }
@@ -108,6 +110,95 @@ namespace NMemory.Common
             IParameter parameter = Expression.Lambda<Func<IParameter>>(init).Compile()();
 
             return parameter;
+        }
+
+        public static Expression SkipQuoteNode(Expression expression)
+        {
+            if (expression.NodeType == ExpressionType.Quote)
+            {
+                UnaryExpression unary = expression as UnaryExpression;
+                expression = unary.Operand;
+            }
+
+            return expression;
+        }
+
+        public static Expression SkipConversionNodes(Expression expression)
+        {
+            while (expression.NodeType == ExpressionType.Convert ||
+                   expression.NodeType == ExpressionType.ConvertChecked)
+            {
+                UnaryExpression unary = expression as UnaryExpression;
+                expression = unary.Operand;
+            }
+
+            return expression;
+        }
+
+        private static void ConvertExpression(ref Expression to, ref Expression expr)
+        {
+            expr = Expression.Convert(expr, to.Type);
+        }
+
+        public static void TryUnifyValueTypes(ref Expression left, ref Expression right)
+        {
+            if (left.Type == right.Type)
+            {
+                return;
+            }
+
+            if (left.Type.IsValueType && right.Type.IsValueType)
+            {
+                bool leftNullable = ReflectionHelper.IsNullable(left.Type);
+                bool rightNullable = ReflectionHelper.IsNullable(right.Type);
+
+                if (leftNullable || rightNullable)
+                {
+                    if (leftNullable && Nullable.GetUnderlyingType(left.Type) == right.Type)
+                    {
+                        ConvertExpression(ref left, ref right);
+                        return;
+                    }
+
+                    if (rightNullable && Nullable.GetUnderlyingType(right.Type) == left.Type)
+                    {
+                        ConvertExpression(ref right, ref left);
+                        return;
+                    }
+                }
+            }
+
+            if (ReflectionHelper.IsCastableTo(left.Type, right.Type))
+            {
+                ConvertExpression(ref right, ref left);
+                return;
+            }
+            else if (ReflectionHelper.IsCastableTo(right.Type, left.Type))
+            {
+                ConvertExpression(ref left, ref right);
+                return;
+            }
+        }
+
+        public static LambdaExpression CreateMemberSelectorLambdaExpression(
+            ParameterExpression parameter,
+            Expression[] members)
+        {
+            if (members.Length == 1)
+            {
+                return Expression.Lambda(members[0], parameter);
+            }
+            else
+            {
+                Type[] tupleTypes = members.Select(m => m.Type).ToArray();
+                Type tuple = ReflectionHelper.GetTupleType(tupleTypes);
+
+                return Expression.Lambda(
+                    Expression.New(
+                        tuple.GetConstructors()[0],
+                        members),
+                    parameter);
+            }
         }
     }
 }

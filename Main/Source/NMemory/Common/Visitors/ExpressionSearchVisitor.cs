@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="QueryCompiler.cs" company="NMemory Team">
+// <copyright file="ExpressionSearchVisitor.cs" company="NMemory Team">
 //     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,31 +22,41 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Execution
+namespace NMemory.Common.Visitors
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using System.Linq.Expressions;
-    using NMemory.Execution.Optimization;
-    using NMemory.Execution.Optimization.Rewriters;
 
-    public class QueryCompiler : QueryCompilerBase
+    public class ExpressionSearchVisitor : ExpressionVisitor
     {
-        public bool EnableCompilationCaching { get; set; }
+        private Expression expression;
+        private bool found;
 
-        public bool EnableOptimization { get; set; }
-
-        protected override IEnumerable<IExpressionRewriter> GetRewriters(Expression expression, TransformationContext context)
+        public ExpressionSearchVisitor(Expression expression)
         {
-            return base.GetRewriters(expression, context)
-                .Concat(this.GetCustomRewriters(expression, context));
+            this.expression = expression;
+            this.found = false;
         }
 
-        private IEnumerable<IExpressionRewriter> GetCustomRewriters(Expression expression, TransformationContext context)
+        public override Expression Visit(Expression node)
         {
-            yield return new InnerJoinLogicalRewriter();
-            yield return new PropertyAccessRewriter();
-            yield break;
+            if (node == this.expression)
+            {
+                this.found = true;
+            }
+
+            return base.Visit(node);
+        }
+
+        public static bool Search(Expression source, Expression node)
+        {
+            ExpressionSearchVisitor visitor = new ExpressionSearchVisitor(node);
+            visitor.Visit(source);
+
+            return visitor.found;
         }
     }
 }

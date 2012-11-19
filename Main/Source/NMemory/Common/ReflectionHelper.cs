@@ -144,13 +144,67 @@ namespace NMemory.Common
                 t == typeof(Tuple<,,,,,,>);
         }
 
+        public static Type GetTupleType(int count)
+        {
+            switch (count)
+            {
+                case 1:
+                    return typeof(Tuple<>);
+                case 2:
+                    return typeof(Tuple<,>);
+                case 3:
+                    return typeof(Tuple<,,>);
+                case 4:
+                    return typeof(Tuple<,,,>);
+                case 5:
+                    return typeof(Tuple<,,,,>);
+                case 6:
+                    return typeof(Tuple<,,,,,>);
+                case 7:
+                    return typeof(Tuple<,,,,,,>);
+                default:
+                    throw new ArgumentException("", "count");
+            }
+        }
+
+        public static Type GetTupleType(params Type[] elementTypes)
+        {
+            Type tuple = GetTupleType(elementTypes.Length);
+
+            return tuple.MakeGenericType(elementTypes);
+        }
+
         public static bool IsGenericEnumerable(Type type)
         {
-            if (type.IsInterface && 
-                type.IsGenericType && 
-                type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            return GetEnumerableInterface(type) != null;
+        }
+
+        public static bool IsCastableTo(Type from, Type to)
+        {
+            if (to.IsAssignableFrom(from))
             {
                 return true;
+            }
+
+            var methods = from
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .Where(m =>
+                    m.ReturnType == to &&
+                    (m.Name == "op_Implicit" || m.Name == "op_Explicit"));
+
+            return methods.Count() > 0;
+        }
+
+        public static Type GetEnumerableInterface(Type type)
+        {
+            if (type.IsInterface)
+            {
+                if (type.IsInterface && 
+                    type.IsGenericType &&
+                    type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                {
+                    return type;
+                }
             }
 
             Type[] interfaces = type.GetInterfaces();
@@ -162,11 +216,23 @@ namespace NMemory.Common
                 if (subInterface.IsGenericType &&
                     subInterface.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 {
-                    return true;
+                    return subInterface;
                 }
             }
 
-            return false;
+            return null;
+        }
+
+        public static Type GetElementType(Type type)
+        {
+            Type enumerableInterface = GetEnumerableInterface(type);
+
+            if (enumerableInterface == null)
+            {
+                return null;
+            }
+
+            return enumerableInterface.GetGenericArguments()[0];
         }
     }
 }

@@ -28,22 +28,12 @@ namespace NMemory.Execution.Optimization.Rewriters
     using System.Linq.Expressions;
     using NMemory.Modularity;
 
-    public abstract class ExpressionRewriterBase : ExpressionVisitor, IExpressionRewriter, IDatabaseComponent
+    public abstract class ExpressionRewriterBase : 
+        ExpressionVisitor, 
+        IExpressionRewriter, 
+        IDatabaseComponent
     {
         private IDatabase database;
-
-        protected ILoggingPort LoggingPort
-        {
-            get 
-            {
-                if (this.database != null)
-                {
-                    return this.database.DatabaseEngine.LoggingPort; 
-                }
-
-                return null;
-            }
-        }
 
         public void Initialize(IDatabase database)
         {
@@ -53,6 +43,19 @@ namespace NMemory.Execution.Optimization.Rewriters
         public Expression Rewrite(Expression expression)
         {
             return this.Visit(expression);
+        }
+
+        protected ILoggingPort LoggingPort
+        {
+            get
+            {
+                if (this.database != null)
+                {
+                    return this.database.DatabaseEngine.LoggingPort;
+                }
+
+                return null;
+            }
         }
 
         protected virtual IList<Expression> VisitExpressions(IList<Expression> original)

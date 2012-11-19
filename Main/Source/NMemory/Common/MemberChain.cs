@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="QueryCompiler.cs" company="NMemory Team">
+// <copyright file="MemberChain.cs" company="NMemory Team">
 //     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,31 +22,48 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Execution
+namespace NMemory.Common
 {
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using NMemory.Execution.Optimization;
-    using NMemory.Execution.Optimization.Rewriters;
+    using System.Reflection;
 
-    public class QueryCompiler : QueryCompilerBase
+    public class MemberChain
     {
-        public bool EnableCompilationCaching { get; set; }
+        private MemberInfo[] members;
 
-        public bool EnableOptimization { get; set; }
-
-        protected override IEnumerable<IExpressionRewriter> GetRewriters(Expression expression, TransformationContext context)
+        public MemberChain(IEnumerable<MemberInfo> members)
         {
-            return base.GetRewriters(expression, context)
-                .Concat(this.GetCustomRewriters(expression, context));
+            this.members = members.ToArray();
         }
 
-        private IEnumerable<IExpressionRewriter> GetCustomRewriters(Expression expression, TransformationContext context)
+        public Expression CreateExpression(Expression source)
         {
-            yield return new InnerJoinLogicalRewriter();
-            yield return new PropertyAccessRewriter();
-            yield break;
+            Expression expression = source;
+
+            for (int i = this.members.Length - 1; i >= 0 ; i--)
+            {
+                expression = Expression.MakeMemberAccess(expression, this.members[i]);
+            }
+
+            return expression;
+        }
+
+        public int Count
+        {
+            get
+            {
+                return this.members.Length;
+            }
+        }
+
+        public MemberInfo this[int index]
+        {
+            get
+            {
+                return this.members[index];
+            }
         }
     }
 }
