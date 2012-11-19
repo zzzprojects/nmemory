@@ -42,6 +42,7 @@
     <Compile Include="Common\DatabaseReflectionHelper.cs" />
     <Compile Include="Common\ExpressionHelper.cs" />
     <Compile Include="Common\MemberChain.cs" />
+    <Compile Include="Common\QueryExpressionHelper.cs" />
     <Compile Include="Common\TableLocator.cs" />
     <Compile Include="Common\Visitors\EntityTypeSearchVisitor.cs" />
     <Compile Include="Common\Visitors\ExpressionSearchVisitor.cs" />

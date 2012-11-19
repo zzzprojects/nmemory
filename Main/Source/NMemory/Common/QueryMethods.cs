@@ -75,6 +75,16 @@ namespace NMemory.Common
             }
         }
 
+        public static MethodInfo DefaultIfEmpty
+        {
+            get
+            {
+                return GetMethodInfo(() =>
+                    Queryable.DefaultIfEmpty<object>(
+                        null));
+            }
+        }
+
         public static MethodInfo SelectManyNoResultSelector
         {
             get
@@ -92,20 +102,6 @@ namespace NMemory.Common
             {
                 return GetMethodInfo(() =>
                     Queryable.Join<object, object, object, object>(
-                        null,
-                        null,
-                        x => null,
-                        x => null,
-                        (x, y) => null));
-            }
-        }
-
-        public static MethodInfo LeftOuterJoin
-        {
-            get
-            {
-                return GetMethodInfo(() =>
-                    QueryableEx.LeftOuterJoin<object, object, object, object>(
                         null,
                         null,
                         x => null,

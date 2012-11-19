@@ -39,33 +39,24 @@ namespace NMemory.Execution.Optimization.Rewriters
     {
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            // Check if SelectMany
-            if (node.Method.DeclaringType != typeof(Queryable) ||
-                !node.Method.IsGenericMethod ||
-                node.Method.GetGenericMethodDefinition() != QueryMethods.SelectMany)
-            {
-                // Not SelectMany call
-                return base.VisitMethodCall(node);
-            }
+            LambdaExpression collectionSelector = null;
 
-            LambdaExpression collectionSelector = 
-                ExpressionHelper.SkipQuoteNode(node.Arguments[1]) as LambdaExpression;
-
-            if (collectionSelector == null)
+            if (!QueryExpressionHelper.GetSelectManyCollectionSelector(
+                node, 
+                out collectionSelector))
             {
                 return base.VisitMethodCall(node);
             }
 
             // Check if the selector of SelectMany is Where
-            MethodCallExpression node2 = 
+            MethodCallExpression where = 
                 ExpressionHelper.SkipConversionNodes(collectionSelector.Body) 
                     as MethodCallExpression;
 
-            if (node2.Method.DeclaringType != typeof(Queryable) ||
-                !node2.Method.IsGenericMethod ||
-                node2.Method.GetGenericMethodDefinition() != QueryMethods.Where)
+            LambdaExpression predicate = null;
+
+            if (!QueryExpressionHelper.GetWherePredicate(where, out predicate))
             {
-                // Where method was not found
                 return base.VisitMethodCall(node);
             }
 
@@ -73,17 +64,13 @@ namespace NMemory.Execution.Optimization.Rewriters
             // The inner selector of the Join statement does not have parameter, so if the
             // source refers it, it cannot be used
             bool parameterReferred = ExpressionSearchVisitor.Search(
-                node2.Arguments[0],
+                where.Arguments[0],
                 collectionSelector.Parameters[0]);
 
             if (parameterReferred)
             {
                 return base.VisitMethodCall(node);
             }
-
-            // Get the predicate expression
-            LambdaExpression predicate = 
-                ExpressionHelper.SkipQuoteNode(node2.Arguments[1]) as LambdaExpression;
 
             // Analyse the predicate
             EqualityMappingDetector detector =
@@ -99,7 +86,7 @@ namespace NMemory.Execution.Optimization.Rewriters
 
             // Everything is appropriate for a conversion, visit the inner and outer branches
             Expression outerSource = this.Visit(node.Arguments[0]);
-            Expression innerSource = this.Visit(node2.Arguments[0]);
+            Expression innerSource = this.Visit(where.Arguments[0]);
 
             // Build the keys
             Type outerSourceType = collectionSelector.Parameters[0].Type;
@@ -150,7 +137,7 @@ namespace NMemory.Execution.Optimization.Rewriters
             // Inner collection (visited source of the Where expression)
             // Outer key selector
             // Inner key selector
-            // Result selector (same as the )
+            // Result selector (same as the SeletMany result selector)
             return Expression.Call(
                 joinMethod,
                 outerSource,
