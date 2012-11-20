@@ -184,8 +184,6 @@ namespace NMemory.Execution.Optimization.Rewriters
                     innerType, 
                     groupJoinResultType);
 
-            
-
             // Result selector for the post SelectMany expression.
             LambdaExpression postSelectManyResultSelector =
                 CreatePostSelectManyResultSelector(
@@ -282,7 +280,5 @@ namespace NMemory.Execution.Optimization.Rewriters
 
             return Expression.Lambda(expression, groupJoinResult, inner);
         }
-
-        
     }
 }

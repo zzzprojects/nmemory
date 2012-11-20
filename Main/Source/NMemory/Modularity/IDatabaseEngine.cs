@@ -24,7 +24,7 @@
 
 namespace NMemory.Modularity
 {
-    using System.Collections.Generic;
+    using System.Collections;
 
     public interface IDatabaseEngine
     {
@@ -54,6 +54,11 @@ namespace NMemory.Modularity
         }
 
         ILoggingPort LoggingPort
+        {
+            get;
+        }
+
+        IEnumerable Components
         {
             get;
         }

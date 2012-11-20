@@ -27,6 +27,7 @@ namespace NMemory.Modularity
     using NMemory.Concurrency;
     using NMemory.Diagnostics;
     using NMemory.Execution;
+    using NMemory.Tables;
     using NMemory.Transactions;
 
     public class DefaultDatabaseComponentFactory : IDatabaseComponentFactory
@@ -43,7 +44,11 @@ namespace NMemory.Modularity
 
         public virtual IQueryCompiler CreateQueryCompiler()
         {
-            return new QueryCompiler() { EnableCompilationCaching = false, EnableOptimization = false };
+            return new QueryCompiler() 
+            { 
+                EnableCompilationCaching = false, 
+                EnableOptimization = false 
+            };
         }
 
         public virtual IQueryExecutor CreateQueryExecutor()

@@ -180,6 +180,12 @@ namespace NMemory.Tables
 
         private void RegisterTable(ITable table)
         {
+            foreach (ITableCatalog catalog in 
+                this.database.DatabaseEngine.Components.OfType<ITableCatalog>())
+            {
+                catalog.RegisterTable(table);
+            }
+
             this.tables.Add(table);
             this.entityTypes.Add(table.EntityType);
 

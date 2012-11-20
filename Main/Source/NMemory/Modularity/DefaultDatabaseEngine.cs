@@ -24,6 +24,9 @@
 
 namespace NMemory.Modularity
 {
+    using System.Collections;
+    using System.Linq;
+
     public sealed class DefaultDatabaseEngine : IDatabaseEngine
     {
         private IQueryCompiler compiler;
@@ -42,11 +45,11 @@ namespace NMemory.Modularity
             this.transactionHandler = databaseEngineFactory.CreateTransactionHandler();
             this.loggingPort = databaseEngineFactory.CreateLoggingPort();
 
-            this.compiler.Initialize(database);
-            this.executor.Initialize(database);
-            this.concurrencyManager.Initialize(database);
-            this.tableFactory.Initialize(database);
-            this.transactionHandler.Initialize(database);
+            foreach (IDatabaseComponent component in 
+                this.Components.OfType<IDatabaseComponent>())
+            {
+                component.Initialize(database);
+            }
         }
 
         public ITableFactory TableFactory
@@ -77,6 +80,25 @@ namespace NMemory.Modularity
         public ILoggingPort LoggingPort
         {
             get { return this.loggingPort; }
+        }
+
+
+        public IEnumerable Components
+        {
+            get 
+            {
+                yield return this.tableFactory;
+
+                yield return this.concurrencyManager;
+
+                yield return this.compiler;
+
+                yield return this.executor;
+
+                yield return this.transactionHandler;
+
+                yield return this.loggingPort;
+            }
         }
     }
 }

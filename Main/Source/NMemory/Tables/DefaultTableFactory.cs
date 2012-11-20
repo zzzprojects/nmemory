@@ -22,11 +22,10 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Modularity
+namespace NMemory.Tables
 {
-    using NMemory.Execution;
     using NMemory.Indexes;
-    using NMemory.Tables;
+    using NMemory.Modularity;
 
     internal class DefaultTableFactory : ITableFactory
     {
@@ -40,23 +39,15 @@ namespace NMemory.Modularity
         public Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
             IdentitySpecification<TEntity> identitySpecification)
-
             where TEntity : class
         {
-            Table<TEntity, TPrimaryKey> table = new DefaultTable<TEntity, TPrimaryKey>(this.database, primaryKey, identitySpecification);
-            this.RegisterTable(table);
+            Table<TEntity, TPrimaryKey> table = 
+                new DefaultTable<TEntity, TPrimaryKey>(
+                    this.database, 
+                    primaryKey, 
+                    identitySpecification);
             
             return table;
-        }
-
-        private void RegisterTable(ITable table)
-        {
-            ITableCatalog catalog = this.database.DatabaseEngine.ConcurrencyManager as ITableCatalog;
-
-            if (catalog != null)
-            {
-                catalog.RegisterTable(table);
-            }
         }
     }
 }
