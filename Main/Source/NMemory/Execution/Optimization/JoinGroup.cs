@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="QueryCompiler.cs" company="NMemory Team">
+// <copyright file="JoinGroup.cs" company="NMemory Team">
 //     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,32 +22,22 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Execution
+namespace NMemory.Execution.Optimization
 {
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using NMemory.Execution.Optimization;
-    using NMemory.Execution.Optimization.Rewriters;
 
-    public class QueryCompiler : QueryCompilerBase
+    /// <summary>
+    /// Provides factory method for <see cref="GroupJoin{TOuter, TInner}"/> in order to
+    /// achieve type impeance.
+    /// </summary>
+    internal static class JoinGroup
     {
-        public bool EnableCompilationCaching { get; set; }
-
-        public bool EnableOptimization { get; set; }
-
-        protected override IEnumerable<IExpressionRewriter> GetRewriters(Expression expression, TransformationContext context)
+        public static JoinGroup<TOuter, TInner> Create<TOuter, TInner>(
+            TOuter outer,
+            IEnumerable<TInner> inner)
         {
-            return base.GetRewriters(expression, context)
-                .Concat(this.GetCustomRewriters(expression, context));
+            return new JoinGroup<TOuter, TInner>(outer, inner);
         }
 
-        private IEnumerable<IExpressionRewriter> GetCustomRewriters(Expression expression, TransformationContext context)
-        {
-            yield return new InnerJoinLogicalRewriter();
-            yield return new OuterJoinLogicalRewriter();
-            yield return new PropertyAccessRewriter();
-            yield break;
-        }
     }
 }

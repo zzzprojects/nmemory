@@ -41,8 +41,8 @@ namespace NMemory.Test.ExpressionRewriters
         public void QueryableRewriter_RemoveAsQueryable()
         {
             TestDatabase db = new TestDatabase();
-            Expression expression = CreateExpresion(() => db.Groups.SelectAll().AsQueryable().Where(t => t.Id > 2).Select(t => t.Name));
-            Expression expectedExpression = CreateExpresion(() => db.Groups.SelectAll().Where(t => t.Id > 2).Select(t => t.Name));
+            Expression expression = CreateExpression(() => db.Groups.SelectAll().AsQueryable().Where(t => t.Id > 2).Select(t => t.Name));
+            Expression expectedExpression = CreateExpression(() => db.Groups.SelectAll().Where(t => t.Id > 2).Select(t => t.Name));
 
             IExpressionRewriter rewriter = new QueryableRewriter();
             expression = rewriter.Rewrite(expression);
@@ -60,7 +60,7 @@ namespace NMemory.Test.ExpressionRewriters
         public void QueryableRewriter_ContainsNonGenericMethod()
         {
             TestDatabase db = new TestDatabase();
-            Expression expression = CreateExpresion(
+            Expression expression = CreateExpression(
                 () => db.Groups.Select(g => string.Concat("Name: ", g.Name)));
 
             Expression expectedExpression = expression;
@@ -77,7 +77,7 @@ namespace NMemory.Test.ExpressionRewriters
             // TODO: Implement
         }
 
-        private static Expression CreateExpresion<TResult>(Expression<Func<TResult>> expression)
+        private static Expression CreateExpression<TResult>(Expression<Func<TResult>> expression)
         {
             return expression.Body;
         }

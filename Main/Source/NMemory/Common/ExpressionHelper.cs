@@ -181,12 +181,12 @@ namespace NMemory.Common
         }
 
         public static LambdaExpression CreateMemberSelectorLambdaExpression(
-            ParameterExpression parameter,
-            Expression[] members)
+            Expression[] members,
+            params ParameterExpression[] parameters)
         {
             if (members.Length == 1)
             {
-                return Expression.Lambda(members[0], parameter);
+                return Expression.Lambda(members[0], parameters);
             }
             else
             {
@@ -197,7 +197,7 @@ namespace NMemory.Common
                     Expression.New(
                         tuple.GetConstructors()[0],
                         members),
-                    parameter);
+                    parameters);
             }
         }
     }

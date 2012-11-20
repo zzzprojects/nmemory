@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="QueryCompiler.cs" company="NMemory Team">
+// <copyright file="JoinGroup`2.cs" company="NMemory Team">
 //     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,32 +22,35 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Execution
+namespace NMemory.Execution.Optimization
 {
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using NMemory.Execution.Optimization;
-    using NMemory.Execution.Optimization.Rewriters;
 
-    public class QueryCompiler : QueryCompilerBase
+    internal class JoinGroup<TOuter, TInner>
     {
-        public bool EnableCompilationCaching { get; set; }
+        private TOuter outer;
+        private IEnumerable<TInner> inner;
 
-        public bool EnableOptimization { get; set; }
-
-        protected override IEnumerable<IExpressionRewriter> GetRewriters(Expression expression, TransformationContext context)
+        public JoinGroup(TOuter outer, IEnumerable<TInner> inner)
         {
-            return base.GetRewriters(expression, context)
-                .Concat(this.GetCustomRewriters(expression, context));
+            this.outer = outer;
+            this.inner = inner;
         }
 
-        private IEnumerable<IExpressionRewriter> GetCustomRewriters(Expression expression, TransformationContext context)
+        public TOuter Outer
         {
-            yield return new InnerJoinLogicalRewriter();
-            yield return new OuterJoinLogicalRewriter();
-            yield return new PropertyAccessRewriter();
-            yield break;
+            get
+            {
+                return this.outer;
+            }
+        }
+
+        public IEnumerable<TInner> Inner
+        {
+            get
+            {
+                return this.inner;
+            }
         }
     }
 }

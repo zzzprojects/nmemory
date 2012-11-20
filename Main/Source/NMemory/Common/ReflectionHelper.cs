@@ -70,6 +70,13 @@ namespace NMemory.Common
             return member.Member as PropertyInfo;
         }
 
+        public static string GetMemberName<TClass, TResult>(Expression<Func<TClass, TResult>> expression)
+        {
+            var member = expression.Body as MemberExpression;
+
+            return member.Member.Name;
+        }
+
         public static PropertyInfo GetPropertyInfo(Expression<Func<object>> expression)
         {
             var member = expression.Body as MemberExpression;

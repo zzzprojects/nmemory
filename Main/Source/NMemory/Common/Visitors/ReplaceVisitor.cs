@@ -32,22 +32,34 @@ namespace NMemory.Common.Visitors
         private Func<Expression, bool> condition;
         private Func<Expression, Expression> converter;
 
-        public ReplaceVisitor(Func<Expression, bool> condition, Func<Expression, Expression> newExpression)
+        public ReplaceVisitor(
+            Func<Expression, bool> condition, 
+            Func<Expression, Expression> modifier)
         {
             this.condition = condition;
-            this.converter = newExpression;
+            this.converter = modifier;
         }
 
-        public override Expression Visit(Expression exp)
+        public override Expression Visit(Expression expression)
         {
-            if (this.condition.Invoke(exp))
+            if (this.condition.Invoke(expression))
             {
-                return this.converter.Invoke(exp);
+                return this.converter.Invoke(expression);
             }
             else
             {
-                return base.Visit(exp);
+                return base.Visit(expression);
             }
+        }
+
+        public static Expression Replace(
+            Expression expression,
+            Func<Expression, bool> condition,
+            Func<Expression, Expression> modifier)
+        {
+            ReplaceVisitor visitor = new ReplaceVisitor(condition, modifier);
+
+            return visitor.Visit(expression);
         }
     }
 }

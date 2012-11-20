@@ -38,83 +38,184 @@ namespace NMemory.Test.ExpressionRewriters
         [TestMethod]
         public void InnerJoinLogicalRewriter_SingleFieldKey()
         {
-            // NOTE: inner and outer names are hard coded, so it is required to use them as
-            // prediction
+            // NOTE: some parameter names are hard coded into the optimizer 
 
             TestDatabase db = new TestDatabase();
-            Expression expression = CreateExpresion(() =>
-                from outer in db.Members
-                from inner in db.Groups.Where(g => g.Id == outer.GroupId)
-                select new { outer, inner });
+            Expression expression = CreateExpression(() =>
+                db.Members.SelectMany(m =>
+                    db.Groups.Where(g => g.Id == m.GroupId),
+                    (m, g) => new { Member = m, Group = g }));
 
-            Expression expectedExpression = CreateExpresion(() => 
-                from outer in db.Members
-                join inner in db.Groups on outer.GroupId equals inner.Id
-                select new { outer, inner });
+            Expression expectedExpression = CreateExpression(() => 
+                db.Members.Join(
+                    db.Groups,
+                    outer => outer.GroupId,
+                    inner => inner.Id,
+                    (m, g) => new { Member = m, Group = g }));
 
             IExpressionRewriter rewriter = new InnerJoinLogicalRewriter();
             expression = rewriter.Rewrite(expression);
 
+            Assert.AreEqual(expectedExpression.Type, expression.Type);
             Assert.AreEqual(expectedExpression.ToString(), expression.ToString());
         }
 
         [TestMethod]
         public void InnerJoinLogicalRewriter_MultiFieldKey()
         {
-            // NOTE: inner and outer names are hard coded, so it is required to use them as
-            // prediction
+            // NOTE: some parameter names are hard coded into the optimizer 
 
             TestDatabase db = new TestDatabase();
 
-            Expression expression = CreateExpresion(() =>
-                from outer in db.Members
-                from inner in db.Groups.Where(g => 
-                    outer.GroupId == g.Id &&
-                    g.Id2 == outer.GroupId2)
-                select new { outer, inner });
+            Expression expression = CreateExpression(() =>
+               db.Members.SelectMany(m =>
+                    db.Groups.Where(g => g.Id == m.GroupId && m.GroupId2 == g.Id2),
+                    (outer, inner) => new { Member = outer, Group = inner }));
 
-            Expression expectedExpression = CreateExpresion(() =>
-                from outer in db.Members
-                join inner in db.Groups on 
-                    new Tuple<int?, int>(outer.GroupId, outer.GroupId2) equals
-                    new Tuple<int?, int>(inner.Id, inner.Id2)
-                select new { outer, inner });
-
+            Expression expectedExpression = CreateExpression(() =>
+                db.Members.Join(
+                    db.Groups,
+                    outer => new Tuple<int?, int>(outer.GroupId, outer.GroupId2),
+                    inner => new Tuple<int?, int>(inner.Id, inner.Id2),
+                    (outer, inner) => new { Member = outer, Group = inner }));
+               
             IExpressionRewriter rewriter = new InnerJoinLogicalRewriter();
             expression = rewriter.Rewrite(expression);
 
+            Assert.AreEqual(expectedExpression.Type, expression.Type);
             Assert.AreEqual(expectedExpression.ToString(), expression.ToString());
         }
 
         [TestMethod]
-        public void InnerJoinLogicalRewriter_MultiJoin()
+        public void InnerJoinLogicalRewriter_DoubleJoin()
         {
-            TestDatabase db = new TestDatabase();
-            Expression expression = CreateExpresion(() =>
-                from outer in db.Members
-                from inner1 in db.Groups.Where(g => g.Id == outer.GroupId)
-                from inner2 in db.Groups.Where(g => g.Id == outer.GroupId)
-                select new { outer, inner1, inner2 });
+            // NOTE: some parameter names are hard coded into the optimizer 
 
-            Expression expectedExpression = CreateExpresion(() =>
-                from outer in db.Members
-                join inner1 in db.Groups on outer.GroupId equals inner1.Id
-                join inner2 in db.Groups on outer.GroupId equals inner2.Id
-                select new { outer, inner1, inner2 });
+            TestDatabase db = new TestDatabase();
+
+            Expression expression = CreateExpression(() =>
+                db.Members.SelectMany(m =>
+                    db.Groups.Where(g => 
+                        g.Id == m.GroupId),
+                    (outer, inner) => 
+                        new { Member = outer, Group = inner })
+                .SelectMany(m =>
+                    db.Groups.Where(g =>
+                        g.Id == m.Member.GroupId),
+                    (outer, inner) =>
+                        new { Member = outer, Group1 = outer.Group, Group2 = inner }));
+
+            Expression expectedExpression = CreateExpression(() =>
+                db.Members.Join(
+                    db.Groups,
+                    outer => 
+                        outer.GroupId,
+                    inner => 
+                        inner.Id,
+                    (outer, inner) =>
+                        new { Member = outer, Group = inner })
+                .Join(
+                    db.Groups,
+                    outer => outer.Member.GroupId,
+                    inner => inner.Id,
+                    (outer, inner) =>
+                        new { Member = outer, Group1 = outer.Group, Group2 = inner }));
 
             IExpressionRewriter rewriter = new InnerJoinLogicalRewriter();
             expression = rewriter.Rewrite(expression);
 
-            Assert.AreEqual(
-                FormatExpressionString(expectedExpression.ToString()),
-                FormatExpressionString(expression.ToString()));
+            Assert.AreEqual(expectedExpression.Type, expression.Type);
+            Assert.AreEqual(expectedExpression.ToString(), expression.ToString());
+        }
+
+        [TestMethod]
+        public void InnerJoinLogicalRewriter_TripleJoin()
+        {
+            // NOTE: some parameter names are hard coded into the optimizer 
+
+            TestDatabase db = new TestDatabase();
+
+            Expression expression = CreateExpression(() =>
+                 db.Members.SelectMany(m =>
+                     db.Groups.Where(g =>
+                         g.Id == m.GroupId),
+                     (outer, inner) =>
+                         new 
+                         {
+                             Member = outer, 
+                             Group = inner 
+                         })
+                 .SelectMany(m =>
+                     db.Groups.Where(g =>
+                         g.Id == m.Member.GroupId),
+                     (outer, inner) =>
+                         new 
+                         {
+                             Member = outer.Member,
+                             Group1 = outer.Group,
+                             Group2 = inner 
+                         })
+                .SelectMany(m =>
+                    db.Groups.Where(g =>
+                        g.Id == m.Member.GroupId),
+                    (outer, inner) =>
+                        new 
+                        {
+                            Member = outer.Member,
+                            Group1 = outer.Group1,
+                            Group2 = outer.Group2,
+                            Group3 = inner
+                        }));
+
+            Expression expectedExpression = CreateExpression(() =>
+                db.Members.Join(
+                    db.Groups,
+                    outer =>
+                        outer.GroupId,
+                    inner =>
+                        inner.Id,
+                    (outer, inner) =>
+                        new 
+                        {
+                            Member = outer,
+                            Group = inner 
+                        })
+                .Join(
+                    db.Groups,
+                    outer => outer.Member.GroupId,
+                    inner => inner.Id,
+                    (outer, inner) =>
+                        new 
+                        {
+                            Member = outer.Member,
+                            Group1 = outer.Group,
+                            Group2 = inner 
+                        })
+                 .Join(
+                    db.Groups,
+                    outer => outer.Member.GroupId,
+                    inner => inner.Id,
+                    (outer, inner) =>
+                        new
+                        {
+                            Member = outer.Member,
+                            Group1 = outer.Group1,
+                            Group2 = outer.Group2,
+                            Group3 = inner
+                        }));
+
+            IExpressionRewriter rewriter = new InnerJoinLogicalRewriter();
+            expression = rewriter.Rewrite(expression);
+
+            Assert.AreEqual(expectedExpression.Type, expression.Type);
+            Assert.AreEqual(expectedExpression.ToString(), expression.ToString());
         }
 
         [TestMethod]
         public void InnerJoinLogicalRewriter_OmitRewrite()
         {
             TestDatabase db = new TestDatabase();
-            Expression expression = CreateExpresion(() =>
+            Expression expression = CreateExpression(() =>
                 db.Members.SelectMany(
                     m => db.Groups
                         .Where(g => g.Name.Length > m.GroupId)
@@ -131,17 +232,7 @@ namespace NMemory.Test.ExpressionRewriters
                 expression.ToString());
         }
 
-        private static string FormatExpressionString(string value)
-        {
-            // Fix parameter names to ensure the expression strings equality
-            return value
-                .Replace("inner1", "inner")
-                .Replace("inner2", "inner")
-                .Replace("<>h__TransparentIdentifiera", "outer")
-                .Replace("<>h__TransparentIdentifier8", "outer");
-        }
-
-        private static Expression CreateExpresion<TResult>(Expression<Func<TResult>> expression)
+        private static Expression CreateExpression<TResult>(Expression<Func<TResult>> expression)
         {
             return expression.Body;
         }

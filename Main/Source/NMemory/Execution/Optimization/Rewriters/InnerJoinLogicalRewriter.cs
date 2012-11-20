@@ -41,6 +41,7 @@ namespace NMemory.Execution.Optimization.Rewriters
         {
             LambdaExpression collectionSelector = null;
 
+            // Check if the method is SelectMany and get the collection selector
             if (!QueryExpressionHelper.GetSelectManyCollectionSelector(
                 node, 
                 out collectionSelector))
@@ -48,13 +49,14 @@ namespace NMemory.Execution.Optimization.Rewriters
                 return base.VisitMethodCall(node);
             }
 
-            // Check if the selector of SelectMany is Where
+            // Unwrap the selector (hopefully Where expression)
             MethodCallExpression where = 
                 ExpressionHelper.SkipConversionNodes(collectionSelector.Body) 
                     as MethodCallExpression;
 
             LambdaExpression predicate = null;
 
+            // Check if the selector of SelectMany is Where and get the predicate
             if (!QueryExpressionHelper.GetWherePredicate(where, out predicate))
             {
                 return base.VisitMethodCall(node);
@@ -62,7 +64,7 @@ namespace NMemory.Execution.Optimization.Rewriters
 
             // Check if the source of the Where expression contains any parameter reference
             // The inner selector of the Join statement does not have parameter, so if the
-            // source refers it, it cannot be used
+            // source refers the parameter somewhere, it cannot be used as source
             bool parameterReferred = ExpressionSearchVisitor.Search(
                 where.Arguments[0],
                 collectionSelector.Parameters[0]);
@@ -72,7 +74,7 @@ namespace NMemory.Execution.Optimization.Rewriters
                 return base.VisitMethodCall(node);
             }
 
-            // Analyse the predicate
+            // Analyse the predicate, find key mapping
             EqualityMappingDetector detector =
                 new EqualityMappingDetector(
                     collectionSelector.Parameters[0],
@@ -84,43 +86,25 @@ namespace NMemory.Execution.Optimization.Rewriters
                 return base.VisitMethodCall(node);
             }
 
-            // Everything is appropriate for a conversion, visit the inner and outer branches
+            // Everything is appropriate for a conversion, visit the inner and outer sources
             Expression outerSource = this.Visit(node.Arguments[0]);
             Expression innerSource = this.Visit(where.Arguments[0]);
 
+            // Inner and outer entity types   
+            Type outerType = collectionSelector.Parameters[0].Type;
+            Type innerType = predicate.Parameters[0].Type;
+
             // Build the keys
-            Type outerSourceType = collectionSelector.Parameters[0].Type;
-            Type innerSourceType = predicate.Parameters[0].Type;
+            LambdaExpression outerKey;
+            LambdaExpression innerKey;
 
-            // Key selector parameters
-            ParameterExpression outerKeyParam = 
-                Expression.Parameter(outerSourceType, "outer");
-            ParameterExpression innerKeyParam = 
-                Expression.Parameter(innerSourceType, "inner");
-            
-            // Key members
-            Expression[] outerKeyMemberAccess;
-            Expression[] innerKeyMemberAccess;
-
-            // Create key member accessor expressions
-            CreateKeyMemberAccess(
-                outerKeyParam,
-                innerKeyParam,
+            LinqJoinKeyHelper.CreateKeySelectors(
+                outerType,
+                innerType,
                 detector.LeftMembers,
                 detector.RightMembers,
-                out outerKeyMemberAccess,
-                out innerKeyMemberAccess);
-
-            // Build key selector lambdas
-            LambdaExpression outerKey = 
-                ExpressionHelper.CreateMemberSelectorLambdaExpression(
-                    outerKeyParam, 
-                    outerKeyMemberAccess);
-
-            LambdaExpression innerKey =
-                ExpressionHelper.CreateMemberSelectorLambdaExpression(
-                    innerKeyParam, 
-                    innerKeyMemberAccess);
+                out outerKey,
+                out innerKey);
             
             // Create the Join method definition:
             // It has the same generic type arguments as the SelectMany
@@ -145,32 +129,6 @@ namespace NMemory.Execution.Optimization.Rewriters
                 Expression.Quote(outerKey),
                 Expression.Quote(innerKey),
                 node.Arguments[2]);
-        }
-
-        private static void CreateKeyMemberAccess(
-            Expression outerSource,
-            Expression innerSource,
-            MemberChain[] outerMembers,
-            MemberChain[] innerMembers,
-            out Expression[] outerResult,
-            out Expression[] innerResult)
-        {
-            List<Expression> outer = new List<Expression>();
-            List<Expression> inner = new List<Expression>();
-
-            for (int i = 0; i < outerMembers.Length; i++)
-            {
-                Expression outerAccess = outerMembers[i].CreateExpression(outerSource);
-                Expression innerAccess = innerMembers[i].CreateExpression(innerSource);
-
-                ExpressionHelper.TryUnifyValueTypes(ref outerAccess, ref innerAccess);
-
-                outer.Add(outerAccess);
-                inner.Add(innerAccess);
-            }
-
-            outerResult = outer.ToArray();
-            innerResult = inner.ToArray();
         }
     }
 }

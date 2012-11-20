@@ -41,6 +41,7 @@
     <Compile Include="Common\DatabaseMembers.cs" />
     <Compile Include="Common\DatabaseReflectionHelper.cs" />
     <Compile Include="Common\ExpressionHelper.cs" />
+    <Compile Include="Common\LinqJoinKeyHelper.cs" />
     <Compile Include="Common\MemberChain.cs" />
     <Compile Include="Common\QueryExpressionHelper.cs" />
     <Compile Include="Common\TableLocator.cs" />
@@ -52,6 +53,9 @@
     <Compile Include="Execution\IExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan`1.cs" />
     <Compile Include="Execution\Optimization\EqualityMappingDetector.cs" />
+    <Compile Include="Execution\Optimization\JoinGroup.cs" />
+    <Compile Include="Execution\Optimization\JoinGroup`2.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\OuterJoinLogicalRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\InnerJoinLogicalRewriter.cs">
       <SubType>Code</SubType>
     </Compile>
