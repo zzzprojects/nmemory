@@ -47,7 +47,7 @@ namespace NMemory.Modularity
             return new QueryCompiler() 
             { 
                 EnableCompilationCaching = false, 
-                EnableOptimization = false 
+                EnableOptimization = true 
             };
         }
 

@@ -44,9 +44,15 @@ namespace NMemory.Execution
 
         private IEnumerable<IExpressionRewriter> GetCustomRewriters(Expression expression, TransformationContext context)
         {
-            yield return new InnerJoinLogicalRewriter();
-            yield return new OuterJoinLogicalRewriter();
+            if (this.EnableOptimization)
+            {
+                yield return new InnerJoinLogicalRewriter();
+
+                yield return new OuterJoinLogicalRewriter();
+            }
+
             yield return new PropertyAccessRewriter();
+
             yield break;
         }
     }
