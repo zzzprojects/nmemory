@@ -5,3 +5,4 @@ TestResults/**
 *.suo
 *.user
 StyleCop.Cache
+Main/Build/Packages/**

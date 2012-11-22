@@ -1,0 +1,31 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" DefaultTargets="default">
+  <PropertyGroup>
+    <BaseDir>$(MSBuildProjectDirectory)\..</BaseDir>
+    <Configuration Condition="'$(Configuration)'==''" >Release</Configuration>
+    <PackageDir>$(MSBuildProjectDirectory)\Packages</PackageDir>
+	<SolutionDir>$(BaseDir)\Source</SolutionDir>
+    <SolutionFile>$(SolutionDir)\NMemory.sln</SolutionFile>
+  </PropertyGroup>
+ 
+  <Target Name="default" DependsOnTargets="Compile; Package" />
+ 
+  <Target Name="Compile">
+    <MSBuild Projects="$(SolutionFile)" Properties="Configuration=$(Configuration)"  />
+  </Target>
+ 
+  <Target Name="Package">
+	<RemoveDir Directories="$(PackageDir)" />
+  
+    <ItemGroup>
+      <MainBinaries Include="$(SolutionDir)\NMemory\bin\$(Configuration)\**\*.*" />
+    </ItemGroup>
+ 
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\NMemory.nuspec" DestinationFolder="$(PackageDir)\NMemory" />
+ 
+    <Copy SourceFiles="@(MainBinaries)" DestinationFolder="$(PackageDir)\NMemory\lib\net40\%(RecursiveDir)" />
+	<Copy SourceFiles="@(MainBinaries)" DestinationFolder="$(PackageDir)\NMemory\lib\net45\%(RecursiveDir)" />
+ 
+    <Exec WorkingDirectory="$(PackageDir)\NMemory" 
+          Command="$(SolutionDir)\.nuget\nuget.exe pack $(PackageDir)\NMemory\NMemory.nuspec" />
+  </Target>
+</Project>
