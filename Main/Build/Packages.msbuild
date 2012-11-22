@@ -10,6 +10,7 @@
   <Target Name="default" DependsOnTargets="Compile; Package" />
  
   <Target Name="Compile">
+	<RemoveDir Directories="$(SolutionDir)\NMemory\bin\$(Configuration)\" />
     <MSBuild Projects="$(SolutionFile)" Properties="Configuration=$(Configuration)"  />
   </Target>
  
