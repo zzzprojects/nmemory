@@ -27,9 +27,9 @@ namespace NMemory.Test
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NMemory.Exceptions;
     using NMemory.StoredProcedures;
     using NMemory.Test.Environment.Data;
-    using NMemory.Exceptions;
 
     [TestClass]
     public class StoredProcedureFixture
@@ -194,7 +194,5 @@ namespace NMemory.Test
                     new Dictionary<string, object> { { "param1", "" } })
                 .ToList();
         }
-
-        
     }
 }
