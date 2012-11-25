@@ -34,48 +34,64 @@ namespace NMemory.StoredProcedures
     using NMemory.Modularity;
     using NMemory.Transactions;
 
-    public class SharedStoredProcedure<TDatabase, TResult> : ISharedStoredProcedure, ISharedStoredProcedure<TResult>
+    public class SharedStoredProcedure<TDatabase, TResult> : 
+        StoredProcedureBase,
+        ISharedStoredProcedure, 
+        ISharedStoredProcedure<TResult>
         where TDatabase : IDatabase
     {
         private Expression expression;
-        private IList<ParameterDescription> parameters;
 
         public SharedStoredProcedure(Expression<Func<TDatabase, IQueryable<TResult>>> expression)
         {
             this.expression = expression.Body;
 
             // Create parameter description
-            this.parameters = StoredProcedureParameterSearchVisitor
-                .FindParameters(this.expression)
-                .Select(p => new ParameterDescription(p.Name, p.Type))
-                .ToList()
-                .AsReadOnly();
+            this.SetParameters(
+                StoredProcedureParameterSearchVisitor
+                    .FindParameters(this.expression)
+                    .Select(p => new ParameterDescription(p.Name, p.Type)));
         }
 
-        public IList<ParameterDescription> Parameters
+        public IEnumerable<TResult> Execute(
+            IDatabase database, 
+            IDictionary<string, object> parameters)
         {
-            get { return this.parameters; }
+            return this.Execute(
+                database, 
+                parameters, 
+                Transaction.TryGetAmbientEnlistedTransaction());
         }
 
-        public IEnumerable<TResult> Execute(IDatabase database, IDictionary<string, object> parameters)
+        public IEnumerable<TResult> Execute(
+            IDatabase database, 
+            IDictionary<string, object> parameters, 
+            Transaction transaction)
         {
-            return this.Execute(database, parameters, Transaction.TryGetAmbientEnlistedTransaction());
-        }
+            // Verify parameters
+            this.VerifyParameters(parameters);
 
-        public IEnumerable<TResult> Execute(IDatabase database, IDictionary<string, object> parameters, Transaction transaction)
-        {
-            // A shared stored procedure creates the query everytime the Execute method was called
+            // A shared stored procedure creates the query everytime the Execute method was 
+            // called
             TableQuery<TResult> query = new TableQuery<TResult>(database, this.expression);
 
             return query.Execute(parameters, transaction);
         }
 
-        IEnumerable ISharedStoredProcedure.Execute(IDatabase database, IDictionary<string, object> parameters)
+        IEnumerable ISharedStoredProcedure.Execute(
+            IDatabase database, 
+            IDictionary<string, object> parameters)
         {
-            return this.Execute(database, parameters, Transaction.TryGetAmbientEnlistedTransaction());
+            return this.Execute(
+                database, 
+                parameters, 
+                Transaction.TryGetAmbientEnlistedTransaction());
         }
 
-        IEnumerable ISharedStoredProcedure.Execute(IDatabase database, IDictionary<string, object> parameters, Transaction transaction)
+        IEnumerable ISharedStoredProcedure.Execute(
+            IDatabase database, 
+            IDictionary<string, object> parameters, 
+            Transaction transaction)
         {
             return this.Execute(database, parameters);
         }

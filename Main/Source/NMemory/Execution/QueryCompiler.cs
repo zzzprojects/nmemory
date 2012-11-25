@@ -36,13 +36,22 @@ namespace NMemory.Execution
 
         public bool EnableOptimization { get; set; }
 
-        protected override IEnumerable<IExpressionRewriter> GetRewriters(Expression expression, TransformationContext context)
+        protected override IEnumerable<IExpressionRewriter> GetRewriters(
+            Expression expression, 
+            TransformationContext context)
         {
-            return base.GetRewriters(expression, context)
-                .Concat(this.GetCustomRewriters(expression, context));
+            IEnumerable<IExpressionRewriter> originalRewriters =
+                base.GetRewriters(expression, context);
+
+            IEnumerable<IExpressionRewriter> customRewriters =
+                this.GetCustomRewriters(expression, context);
+
+            return originalRewriters.Concat(customRewriters);
         }
 
-        private IEnumerable<IExpressionRewriter> GetCustomRewriters(Expression expression, TransformationContext context)
+        private IEnumerable<IExpressionRewriter> GetCustomRewriters(
+            Expression expression, 
+            TransformationContext context)
         {
             if (this.EnableOptimization)
             {

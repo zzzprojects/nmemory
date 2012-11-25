@@ -34,7 +34,10 @@ namespace NMemory.Linq
         private Transaction transaction;
         private IDictionary<string, object> parameters;
 
-        public TableQueryWrapper(TableQuery<T> tableQuery, IDictionary<string, object> parameters, Transaction transaction)
+        public TableQueryWrapper(
+            TableQuery<T> tableQuery, 
+            IDictionary<string, object> parameters, 
+            Transaction transaction)
         {
             this.tableQuery = tableQuery;
             this.transaction = transaction;

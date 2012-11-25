@@ -87,7 +87,9 @@ namespace NMemory.Linq
             return GetEnumerator(null, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
-        public IEnumerator<TEntity> GetEnumerator(IDictionary<string, object> parameters, Transaction transaction)
+        internal IEnumerator<TEntity> GetEnumerator(
+            IDictionary<string, object> parameters, 
+            Transaction transaction)
         {
             IExecutionPlan<IEnumerable<TEntity>> planToExecute = null;
 
@@ -101,10 +103,16 @@ namespace NMemory.Linq
                 planToExecute = this.CompilePlan();
             }
 
-            using (TransactionContext transactionContext = Transaction.EnsureTransaction(ref transaction, this.Database))
+            using (TransactionContext transactionContext = 
+                Transaction.EnsureTransaction(ref transaction, this.Database))
             {
-                IExecutionContext executionContext = new ExecutionContext(this.Database, transaction, parameters);
-                IEnumerator<TEntity> result = this.Database.DatabaseEngine.Executor.Execute(planToExecute, executionContext);
+                IExecutionContext executionContext = 
+                    new ExecutionContext(this.Database, transaction, parameters);
+
+                IEnumerator<TEntity> result = 
+                    this.Database.DatabaseEngine.Executor.Execute(
+                        planToExecute, 
+                        executionContext);
 
                 transactionContext.Complete();
 
@@ -126,7 +134,10 @@ namespace NMemory.Linq
         {
             Expression expression = ((IQueryable)this).Expression;
 
-            return this.Database.DatabaseEngine.Compiler.Compile<IEnumerable<TEntity>>(expression);
+            return this.Database
+                .DatabaseEngine
+                .Compiler
+                .Compile<IEnumerable<TEntity>>(expression);
         }
     }
 }

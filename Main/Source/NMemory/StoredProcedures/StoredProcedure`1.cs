@@ -34,27 +34,31 @@ namespace NMemory.StoredProcedures
     using NMemory.Linq;
     using NMemory.Modularity;
     using NMemory.Transactions;
+    using NMemory.Exceptions;
 
     /// <summary>
-    /// Represents a stored procedure that returns with a result set.
+    ///     Represents a stored procedure that returns with a result set.
     /// </summary>
-    /// <typeparam name="T">The type of the elements of the result set.</typeparam>
-    public class StoredProcedure<T> : IStoredProcedure<T>, IStoredProcedure
+    /// <typeparam name="T">
+    ///     The type of the result set elements.
+    /// </typeparam>
+    public class StoredProcedure<T> : 
+        StoredProcedureBase,
+        IStoredProcedure<T>, 
+        IStoredProcedure
     {
         private TableQuery<T> query;
-        private IList<ParameterDescription> parameters;
 
         public StoredProcedure(IQueryable<T> query, bool precompile)
         {
             IDatabase database = ((ITableQuery)query).Database;
             Expression expression = query.Expression;
 
-            // Create parameter description
-            this.parameters = StoredProcedureParameterSearchVisitor
-                .FindParameters(expression)
-                .Select(p => new ParameterDescription(p.Name, p.Type))
-                .ToList()
-                .AsReadOnly();
+            // Set parameter description
+            this.SetParameters(
+                StoredProcedureParameterSearchVisitor
+                    .FindParameters(expression)
+                    .Select(p => new ParameterDescription(p.Name, p.Type)));
 
             this.query = new TableQuery<T>(database, expression, precompile);
 
@@ -64,29 +68,35 @@ namespace NMemory.StoredProcedures
             }
         }
 
-        public IEnumerable<T> Execute(IDictionary<string, object> parameters)
+        public IEnumerable<T> Execute(
+            IDictionary<string, object> parameters)
         {
             return this.Execute(parameters, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
-        public IEnumerable<T> Execute(IDictionary<string, object> parameters, Transaction transaction)
+        public IEnumerable<T> Execute(
+            IDictionary<string, object> parameters, 
+            Transaction transaction)
         {
+            // Verify parameters
+            this.VerifyParameters(parameters);
+
             return this.query.Execute(parameters, transaction);
         }
 
-        IList<ParameterDescription> IStoredProcedure.Parameters
-        {
-            get { return this.parameters; }
-        }
-
-        IEnumerable IStoredProcedure.Execute(IDictionary<string, object> parameters)
+        IEnumerable IStoredProcedure.Execute(
+            IDictionary<string, object> parameters)
         {
             return this.Execute(parameters, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
-        IEnumerable IStoredProcedure.Execute(IDictionary<string, object> parameters, Transaction transaction)
+        IEnumerable IStoredProcedure.Execute(
+            IDictionary<string, object> parameters, 
+            Transaction transaction)
         {
             return this.Execute(parameters, transaction);
         }
+
+        
     }
 }

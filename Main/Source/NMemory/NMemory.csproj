@@ -169,6 +169,7 @@
     <Compile Include="Linq\QueryableEx.cs" />
     <Compile Include="Common\DynamicMethodBuilder.cs" />
     <Compile Include="Modularity\DefaultDatabaseComponentFactory.cs" />
+    <Compile Include="StoredProcedures\StoredProcedureBase.cs" />
     <Compile Include="Tables\DefaultTableFactory.cs" />
     <Compile Include="Modularity\IConcurrencyManager.cs" />
     <Compile Include="Modularity\IDatabaseEngine.cs" />

@@ -29,27 +29,32 @@ namespace NMemory.Test
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using NMemory.StoredProcedures;
     using NMemory.Test.Environment.Data;
+    using NMemory.Exceptions;
 
     [TestClass]
     public class StoredProcedureFixture
     {
 
         [TestMethod]
-        public void StoredProcedureParameterDescription()
+        public void StoredProcedure_ParameterDescription()
         {
             TestDatabase database = new TestDatabase();
 
-            IQueryable<Group> query = database.Groups.Where(g => g.Id > new Parameter<int>("param1") + (int)new Parameter<long>("param2"));
+            IQueryable<Group> query = 
+                database.Groups.Where(g =>
+                    g.Id > new Parameter<int>("param1") + new Parameter<long?>("param2"));
 
             var procedure = database.StoredProcedures.Create(query);
 
             Assert.AreEqual(procedure.Parameters.Count, 2);
-            Assert.IsTrue(procedure.Parameters.Any(p => p.Name == "param1" && p.Type == typeof(int)));
-            Assert.IsTrue(procedure.Parameters.Any(p => p.Name == "param2" && p.Type == typeof(long)));
+            Assert.IsTrue(procedure.Parameters.Any(p => 
+                p.Name == "param1" && p.Type == typeof(int)));
+            Assert.IsTrue(procedure.Parameters.Any(p =>
+                p.Name == "param2" && p.Type == typeof(long?)));
         }
 
         [TestMethod]
-        public void StoredProcedureInternalParameter()
+        public void StoredProcedure_InternalParameter()
         {
             TestDatabase database = new TestDatabase();
 
@@ -57,14 +62,71 @@ namespace NMemory.Test
             database.Groups.Insert(new Group { Name = "Group 2" });
             database.Groups.Insert(new Group { Name = "Group 3" });
 
-            IQueryable<Group> query = database.Groups.Where(g => g.Id > new Parameter<int>("param1"));
+            IQueryable<Group> query = 
+                database.Groups.Where(g => g.Id > new Parameter<int>("param1"));
 
             var procedure = database.StoredProcedures.Create(query);
 
-            var result = procedure.Execute(new Dictionary<string, object> { { "param1", 1 } }).ToList();
+            var result = procedure
+                .Execute(new Dictionary<string, object> { { "param1", 1 } })
+                .ToList();
 
             Assert.AreEqual(2, result.Count);
             Assert.IsTrue(result.All(g => g.Id > 1));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParameterException))]
+        public void StoredProcedure_IncompatibleType1()
+        {
+            TestDatabase database = new TestDatabase();
+
+            IQueryable<Group> query =
+                database.Groups.Where(g =>
+                    g.Id == new Parameter<int>("param1"));
+
+            var procedure = database.StoredProcedures.Create(query);
+
+            var result = procedure
+                .Execute(
+                    new Dictionary<string, object> { { "param1", null } })
+                .ToList();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParameterException))]
+        public void StoredProcedure_IncompatibleType2()
+        {
+            TestDatabase database = new TestDatabase();
+
+            IQueryable<Group> query =
+                database.Groups.Where(g =>
+                    g.Id == new Parameter<int>("param1"));
+
+            var procedure = database.StoredProcedures.Create(query);
+
+            var result = procedure
+                .Execute(
+                    new Dictionary<string, object> { { "param1", "" } })
+                .ToList();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParameterException))]
+        public void StoredProcedure_MissingParameter()
+        {
+            TestDatabase database = new TestDatabase();
+
+            IQueryable<Group> query =
+                database.Groups.Where(g =>
+                    g.Id == new Parameter<int>("param1"));
+
+            var procedure = database.StoredProcedures.Create(query);
+
+            var result = procedure
+                .Execute(
+                    new Dictionary<string, object> { { "param1", "" } })
+                .ToList();
         }
 
         [TestMethod]
@@ -83,6 +145,54 @@ namespace NMemory.Test
 
             Assert.AreEqual(2, result.Count);
             Assert.IsTrue(result.All(g => g.Id > 1));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParameterException))]
+        public void SharedStoredProcedure_IncompatibleType1()
+        {
+            TestDatabase database = new TestDatabase();
+
+            var procedure = new SharedStoredProcedure<TestDatabase, Group>(
+               d => d.Groups.Where(g => g.Id == new Parameter<int>("param1")));
+
+            var result = procedure
+                .Execute(
+                    database,
+                    new Dictionary<string, object> { { "param1", null } })
+                .ToList();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParameterException))]
+        public void SharedStoredProcedure_IncompatibleType2()
+        {
+            TestDatabase database = new TestDatabase();
+
+            var procedure = new SharedStoredProcedure<TestDatabase, Group>(
+               d => d.Groups.Where(g => g.Id == new Parameter<int>("param1")));
+
+            var result = procedure
+                .Execute(
+                    database,
+                    new Dictionary<string, object> { { "param1", "" } })
+                .ToList();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParameterException))]
+        public void SharedStoredProcedure_MissingParameter()
+        {
+            TestDatabase database = new TestDatabase();
+
+            var procedure = new SharedStoredProcedure<TestDatabase, Group>(
+               d => d.Groups.Where(g => g.Id == new Parameter<int>("param1")));
+
+            var result = procedure
+                .Execute(
+                    database,
+                    new Dictionary<string, object> { { "param1", "" } })
+                .ToList();
         }
 
         
