@@ -1,5 +1,5 @@
-﻿// ----------------------------------------------------------------------------------
-// <copyright file="NVarCharConstraint.cs" company="NMemory Team">
+﻿// -----------------------------------------------------------------------------------
+// <copyright file="FakeEnlistmentNotification.cs" company="NMemory Team">
 //     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,38 +20,49 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //     THE SOFTWARE.
 // </copyright>
-// ----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 
-namespace NMemory.Constraints
+namespace NMemory.Test.Environment.Fake
 {
     using System;
-    using System.Linq.Expressions;
-    using NMemory.Exceptions;
     using NMemory.Execution;
+    using NMemory.Modularity;
+    using NMemory.Transactions;
 
-    public class NVarCharConstraint<TEntity> : ConstraintBase<TEntity, string>
+    internal class FakeExecutionContext : IExecutionContext
     {
-        private int maxLength;
+        private IDatabase database;
+        private Transaction transaction;
+        private OperationType operationType;
 
-        public NVarCharConstraint(
-            Expression<Func<TEntity, string>> propertySelector, 
-            int maxLength)
-            : base(propertySelector)
+        public FakeExecutionContext(
+            IDatabase database = null,
+            Transaction transaction = null,
+            OperationType operationType = OperationType.Query)
         {
-            this.maxLength = maxLength;
+            this.database = database;
+            this.transaction = transaction;
+            this.operationType = operationType;
         }
 
-        protected override string Apply(string value, IExecutionContext context)
+        public IDatabase Database
         {
-            if (value != null && value.Length > this.maxLength)
-            {
-                throw new ConstraintException(
-                    string.Format("Column '{0}' cannot be longer than {1} characters.", 
-                        this.PropertyName, 
-                        this.maxLength));
-            }
+            get { return this.database; }
+        }
 
-            return value;
-        } 
+        public Transaction Transaction
+        {
+            get { return this.transaction; }
+        }
+
+        public T GetParameter<T>(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public OperationType OperationType
+        {
+            get { return this.operationType; }
+        }
     }
 }

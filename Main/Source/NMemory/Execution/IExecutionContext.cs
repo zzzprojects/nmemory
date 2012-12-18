@@ -34,5 +34,7 @@ namespace NMemory.Execution
         Transaction Transaction { get; }
 
         T GetParameter<T>(string name);
+
+        OperationType OperationType { get; }
     }
 }

@@ -27,6 +27,7 @@ namespace NMemory.Constraints
     using System;
     using System.Linq.Expressions;
     using NMemory.Exceptions;
+    using NMemory.Execution;
 
     public class NumericConstraint<TEntity> : ConstraintBase<TEntity, decimal>
     {
@@ -65,11 +66,12 @@ namespace NMemory.Constraints
             }
         }
 
-        protected override decimal Apply(decimal value)
+        protected override decimal Apply(decimal value, IExecutionContext context)
         {
             if (value >= this.threshold)
             {
-                throw new ConstraintException(string.Format("Column '{0}' overflowed.", this.PropertyName));
+                throw new ConstraintException(
+                    string.Format("Column '{0}' overflowed.", this.PropertyName));
             }
 
             return Math.Round(value, this.fractionalPartDigits, MidpointRounding.AwayFromZero);

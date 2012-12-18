@@ -24,6 +24,8 @@
 
 namespace NMemory.Constraints
 {
+    using NMemory.Execution;
+
     /// <summary>
     /// Defines constraint against database entities.
     /// </summary>
@@ -31,9 +33,10 @@ namespace NMemory.Constraints
     public interface IConstraint<TEntity>
     {
         /// <summary>
-        /// Apply the constraint on an entity. 
+        /// Apply the constraint on an entity.
         /// </summary>
         /// <param name="entity">The entity to apply the constraint on.</param>
-        void Apply(TEntity entity);
+        /// <param name="context">The execution context.</param>
+        void Apply(TEntity entity, IExecutionContext context);
     }
 }

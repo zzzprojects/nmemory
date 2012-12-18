@@ -34,6 +34,7 @@ namespace NMemory.Tables
     using NMemory.Constraints;
     using NMemory.Data;
     using NMemory.Exceptions;
+    using NMemory.Execution;
     using NMemory.Indexes;
     using NMemory.Linq;
     using NMemory.Modularity;
@@ -664,11 +665,11 @@ namespace NMemory.Tables
         /// Applies the contraints on the specified entity.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        protected void ApplyContraints(TEntity entity)
+        protected void ApplyContraints(TEntity entity, IExecutionContext context)
         {
             foreach (IConstraint<TEntity> constraint in this.constraints)
             {
-                constraint.Apply(entity);
+                constraint.Apply(entity, context);
             }
         }
 

@@ -1,5 +1,5 @@
-﻿// ----------------------------------------------------------------------------------
-// <copyright file="NVarCharConstraint.cs" company="NMemory Team">
+﻿// -----------------------------------------------------------------------------------
+// <copyright file="GuidEntity.cs" company="NMemory Team">
 //     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,38 +20,14 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //     THE SOFTWARE.
 // </copyright>
-// ----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 
-namespace NMemory.Constraints
+namespace NMemory.Test.Environment.Data
 {
     using System;
-    using System.Linq.Expressions;
-    using NMemory.Exceptions;
-    using NMemory.Execution;
 
-    public class NVarCharConstraint<TEntity> : ConstraintBase<TEntity, string>
+    public class GuidEntity
     {
-        private int maxLength;
-
-        public NVarCharConstraint(
-            Expression<Func<TEntity, string>> propertySelector, 
-            int maxLength)
-            : base(propertySelector)
-        {
-            this.maxLength = maxLength;
-        }
-
-        protected override string Apply(string value, IExecutionContext context)
-        {
-            if (value != null && value.Length > this.maxLength)
-            {
-                throw new ConstraintException(
-                    string.Format("Column '{0}' cannot be longer than {1} characters.", 
-                        this.PropertyName, 
-                        this.maxLength));
-            }
-
-            return value;
-        } 
+        public Guid Field { get; set; }
     }
 }

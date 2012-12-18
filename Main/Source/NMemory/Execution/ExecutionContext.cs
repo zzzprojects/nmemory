@@ -34,18 +34,28 @@ namespace NMemory.Execution
         private Transaction transaction;
         private IDictionary<string, object> parameters;
         private IDatabase database;
-       
-        public ExecutionContext(IDatabase database, Transaction transaction)
+        private OperationType operationType;
+
+        public ExecutionContext(
+            IDatabase database, 
+            Transaction transaction,
+            OperationType operationType)
         {
             this.database = database;
             this.transaction = transaction;
+            this.operationType = operationType;
             this.parameters = new Dictionary<string, object>();
         }
 
-        public ExecutionContext(IDatabase database, Transaction transaction,  IDictionary<string, object> parameters)
+        public ExecutionContext(
+            IDatabase database, 
+            Transaction transaction,
+            OperationType operationType,
+            IDictionary<string, object> parameters)
         {
             this.database = database;
             this.transaction = transaction;
+            this.operationType = operationType;
             this.parameters = parameters;
 
             // Ensure initialization
@@ -63,6 +73,11 @@ namespace NMemory.Execution
         public Transaction Transaction
         {
             get { return this.transaction; }
+        }
+
+        public OperationType OperationType
+        {
+            get { return this.operationType; }
         }
 
         public T GetParameter<T>(string name)

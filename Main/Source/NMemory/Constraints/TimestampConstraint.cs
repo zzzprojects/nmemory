@@ -27,14 +27,16 @@ namespace NMemory.Constraints
     using System;
     using System.Linq.Expressions;
     using NMemory.Data;
+    using NMemory.Execution;
 
     internal class TimestampConstraint<TEntity> : ConstraintBase<TEntity, Timestamp>
     {
-        public TimestampConstraint(Expression<Func<TEntity, Timestamp>> propertySelector) : base(propertySelector)
+        public TimestampConstraint(Expression<Func<TEntity, Timestamp>> propertySelector) 
+            : base(propertySelector)
         {
         }
 
-        protected override Timestamp Apply(Timestamp value)
+        protected override Timestamp Apply(Timestamp value, IExecutionContext context)
         {
             return Timestamp.CreateNew();
         }

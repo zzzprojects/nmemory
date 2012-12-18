@@ -29,6 +29,7 @@ namespace NMemory.Constraints
     using System.Reflection;
     using NMemory.Common;
     using NMemory.Exceptions;
+    using NMemory.Execution;
 
     public abstract class ConstraintBase<TEntity, TProperty> : IConstraint<TEntity>
     {
@@ -53,7 +54,11 @@ namespace NMemory.Constraints
             }
 
             this.propertyGetter = propertySelector.Compile();
-            this.propertySetter = DynamicMethodBuilder.CreateSinglePropertySetter<TEntity, TProperty>(propertyInfo);
+
+            this.propertySetter = 
+                DynamicMethodBuilder.CreateSinglePropertySetter<TEntity, TProperty>(
+                    propertyInfo);
+
             this.propertyName = propertyInfo.Name;
         }
 
@@ -66,12 +71,14 @@ namespace NMemory.Constraints
             get { return this.propertyName; }
         }
 
-        public void Apply(TEntity entity)
+        public void Apply(TEntity entity, IExecutionContext context)
         {
             TProperty originalValue = this.propertyGetter.Invoke(entity);
-            this.propertySetter.Invoke(entity, this.Apply(originalValue));
+            TProperty newValue = this.Apply(originalValue, context);
+
+            this.propertySetter.Invoke(entity, newValue);
         }
 
-        protected abstract TProperty Apply(TProperty value);
+        protected abstract TProperty Apply(TProperty value, IExecutionContext context);
     }
 }

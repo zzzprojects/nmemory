@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="NVarCharConstraint.cs" company="NMemory Team">
+// <copyright file="GeneratedGuidConstraintFixture.cs" company="NMemory Team">
 //     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,36 +22,51 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Constraints
+namespace NMemory.Test.Constraints
 {
     using System;
-    using System.Linq.Expressions;
-    using NMemory.Exceptions;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NMemory.Constraints;
     using NMemory.Execution;
+    using NMemory.Test.Environment.Data;
+    using NMemory.Test.Environment.Fake;
 
-    public class NVarCharConstraint<TEntity> : ConstraintBase<TEntity, string>
+    [TestClass]
+    public class GeneratedGuidConstraintFixture
     {
-        private int maxLength;
-
-        public NVarCharConstraint(
-            Expression<Func<TEntity, string>> propertySelector, 
-            int maxLength)
-            : base(propertySelector)
+        [TestMethod]
+        public void GeneratedGuidConstraint_ChangeGuidOnInsert()
         {
-            this.maxLength = maxLength;
+            GeneratedGuidConstraint<GuidEntity> constraint =
+                new GeneratedGuidConstraint<GuidEntity>(e => e.Field);
+
+            GuidEntity entity = new GuidEntity();
+            Guid originalValue = entity.Field;
+
+            IExecutionContext context = 
+                new FakeExecutionContext(operationType: OperationType.Insert);
+
+            constraint.Apply(entity, context);
+
+            Assert.AreNotEqual(originalValue, entity.Field);
+
         }
 
-        protected override string Apply(string value, IExecutionContext context)
+        [TestMethod]
+        public void GeneratedGuidConstraint_DoNotChangeGuidOnUpdate()
         {
-            if (value != null && value.Length > this.maxLength)
-            {
-                throw new ConstraintException(
-                    string.Format("Column '{0}' cannot be longer than {1} characters.", 
-                        this.PropertyName, 
-                        this.maxLength));
-            }
+            GeneratedGuidConstraint<GuidEntity> constraint =
+                new GeneratedGuidConstraint<GuidEntity>(e => e.Field);
 
-            return value;
-        } 
+            GuidEntity entity = new GuidEntity();
+            Guid originalValue = entity.Field;
+
+            IExecutionContext context =
+                new FakeExecutionContext(operationType: OperationType.Update);
+
+            constraint.Apply(entity, context);
+
+            Assert.AreEqual(originalValue, entity.Field);
+        }
     }
 }

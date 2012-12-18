@@ -56,8 +56,14 @@ namespace NMemory.Linq
 
             using (var tran = Transaction.EnsureTransaction(ref transaction, this.database))
             {
-                IExecutionPlan<TResult> plan = this.database.DatabaseEngine.Compiler.Compile<TResult>(expression);
-                IExecutionContext context = new ExecutionContext(this.database, transaction);
+                IExecutionPlan<TResult> plan = 
+                    this.database.DatabaseEngine.Compiler.Compile<TResult>(expression);
+
+                IExecutionContext context = 
+                    new ExecutionContext(
+                        this.database, 
+                        transaction,
+                        OperationType.Query);
 
                 TResult result = plan.Execute(context);
 

@@ -77,10 +77,13 @@ namespace NMemory.Tables
         /// <param name="transaction">The transaction within which the update operation executes.</param>
         protected override void InsertCore(TEntity entity, Transaction transaction)
         {
+            IExecutionContext executionContext = 
+                new ExecutionContext(this.Database, transaction, OperationType.Insert);
+
             TEntity storedEntity = this.CreateStoredEntity();
             this.cloner.Clone(entity, storedEntity);
 
-            this.ApplyContraints(storedEntity);
+            this.ApplyContraints(storedEntity, executionContext);
 
             // Find referred relations
             List<IRelation> referredRelations = new List<IRelation>();
@@ -195,6 +198,9 @@ namespace NMemory.Tables
 
         private void UpdateCore(IList<TEntity> storedEntities, Expression<Func<TEntity, TEntity>> updater, Transaction transaction)
         {
+            IExecutionContext executionContext =
+                new ExecutionContext(this.Database, transaction, OperationType.Update);
+
             Func<TEntity, TEntity> updaterFunc = updater.Compile();
             IList<TEntity> updated = new List<TEntity>(storedEntities.Count);
 
@@ -263,7 +269,7 @@ namespace NMemory.Tables
                     TEntity newEntity = updaterFunc.Invoke(storedEntity);
 
                     // Apply contraints on the entity
-                    this.ApplyContraints(newEntity);
+                    this.ApplyContraints(newEntity, executionContext);
 
                     // Update entity
                     this.cloner.Clone(newEntity, storedEntity);
@@ -411,7 +417,11 @@ namespace NMemory.Tables
             // Find the remaining tables of the query
             ITable[] tables = TableLocator.FindAffectedTables(this.Database, plan).Except(new ITable[] { this }).ToArray();
             
-            IExecutionContext context = new ExecutionContext(this.Database, transaction);
+            IExecutionContext context = 
+                new ExecutionContext(
+                    this.Database, 
+                    transaction,
+                    OperationType.Query);
 
             // Lock these tables
             for (int i = 0; i < tables.Length; i++)

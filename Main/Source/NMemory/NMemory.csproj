@@ -48,11 +48,13 @@
     <Compile Include="Common\TableLocator.cs" />
     <Compile Include="Common\Visitors\EntityTypeSearchVisitor.cs" />
     <Compile Include="Common\Visitors\ExpressionSearchVisitor.cs" />
+    <Compile Include="Constraints\GeneratedGuidConstraint.cs" />
     <Compile Include="Constraints\NotNullableConstraint.cs" />
     <Compile Include="Exceptions\ExceptionMessages.cs" />
     <Compile Include="Execution\ExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlan`1.cs" />
+    <Compile Include="Execution\OperationType.cs" />
     <Compile Include="Execution\Optimization\EqualityMappingDetector.cs" />
     <Compile Include="Execution\Optimization\JoinGroup.cs" />
     <Compile Include="Execution\Optimization\JoinGroup`2.cs" />

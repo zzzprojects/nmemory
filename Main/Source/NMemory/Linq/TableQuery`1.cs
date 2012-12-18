@@ -107,7 +107,11 @@ namespace NMemory.Linq
                 Transaction.EnsureTransaction(ref transaction, this.Database))
             {
                 IExecutionContext executionContext = 
-                    new ExecutionContext(this.Database, transaction, parameters);
+                    new ExecutionContext(
+                        this.Database, 
+                        transaction, 
+                        OperationType.Query, 
+                        parameters);
 
                 IEnumerator<TEntity> result = 
                     this.Database.DatabaseEngine.Executor.Execute(

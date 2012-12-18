@@ -28,6 +28,7 @@ namespace NMemory.Constraints
     using System.Linq.Expressions;
     using System.Reflection;
     using NMemory.Exceptions;
+    using NMemory.Execution;
 
     public class NotNullableConstraint<TEntity> : IConstraint<TEntity>
     {
@@ -47,7 +48,6 @@ namespace NMemory.Constraints
                 member = propertySelector.Body as MemberExpression;
             }
 
-
             if (member == null)
             {
                 throw new ArgumentException(ExceptionMessages.Missing, "propertySelector");
@@ -64,15 +64,15 @@ namespace NMemory.Constraints
             this.propertyName = propertyInfo.Name;
         }
 
-        public void Apply(TEntity entity)
+        public void Apply(TEntity entity, IExecutionContext context)
         {
             object originalValue = this.propertyGetter.Invoke(entity);
 
             if (originalValue == null)
             {
-                throw new ConstraintException(string.Format("Column '{0}' cannot be null", this.propertyName));
+                throw new ConstraintException(
+                    string.Format("Column '{0}' cannot be null", this.propertyName));
             }
         }
-
     }
 }

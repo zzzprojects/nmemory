@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="NVarCharConstraint.cs" company="NMemory Team">
+// <copyright file="GeneratedGuidConstraint.cs" company="NMemory Team">
 //     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,33 +25,26 @@
 namespace NMemory.Constraints
 {
     using System;
-    using System.Linq.Expressions;
-    using NMemory.Exceptions;
     using NMemory.Execution;
+    using System.Linq.Expressions;
 
-    public class NVarCharConstraint<TEntity> : ConstraintBase<TEntity, string>
+    public class GeneratedGuidConstraint<TEntity> : ConstraintBase<TEntity, Guid>
     {
-        private int maxLength;
-
-        public NVarCharConstraint(
-            Expression<Func<TEntity, string>> propertySelector, 
-            int maxLength)
+        public GeneratedGuidConstraint(Expression<Func<TEntity, Guid>> propertySelector) 
             : base(propertySelector)
         {
-            this.maxLength = maxLength;
         }
 
-        protected override string Apply(string value, IExecutionContext context)
+        protected override Guid Apply(Guid value, IExecutionContext context)
         {
-            if (value != null && value.Length > this.maxLength)
+            if (context.OperationType == OperationType.Insert)
             {
-                throw new ConstraintException(
-                    string.Format("Column '{0}' cannot be longer than {1} characters.", 
-                        this.PropertyName, 
-                        this.maxLength));
+                return Guid.NewGuid();
             }
-
-            return value;
-        } 
+            else
+            {
+                return value;
+            }
+        }
     }
 }

@@ -27,17 +27,21 @@ namespace NMemory.Constraints
     using System;
     using System.Linq.Expressions;
     using NMemory.Exceptions;
+    using NMemory.Execution;
 
     public class NCharConstraint<TEntity> : ConstraintBase<TEntity, string>
     {
         private int maxLength;
 
-        public NCharConstraint(Expression<Func<TEntity, string>> propertySelector, int maxLength) : base(propertySelector)
+        public NCharConstraint(
+            Expression<Func<TEntity, string>> propertySelector, 
+            int maxLength) 
+            : base(propertySelector)
         {
             this.maxLength = maxLength;
         }
 
-        protected override string Apply(string value)
+        protected override string Apply(string value, IExecutionContext context)
         {
             if (value != null)
             {
@@ -47,7 +51,11 @@ namespace NMemory.Constraints
                 }
                 else
                 {
-                    throw new ConstraintException(string.Format("Column '{0}' cannot be longer than {1} characters.", this.PropertyName, this.maxLength));
+                    throw new ConstraintException(
+                        string.Format(
+                            "Column '{0}' cannot be longer than {1} characters.", 
+                            this.PropertyName, 
+                            this.maxLength));
                 }
             }
             return value;

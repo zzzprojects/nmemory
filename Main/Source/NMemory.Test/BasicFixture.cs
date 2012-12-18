@@ -93,7 +93,6 @@ namespace NMemory.Test
             Assert.IsTrue(newEntities.All(e => e.Name.EndsWith("(deleted)")));
         }
 
-
         [TestMethod]
         public void DeleteEntity()
         {
@@ -127,7 +126,6 @@ namespace NMemory.Test
             Assert.AreEqual(database.Groups.Count, 0);
         }
 
-
         [TestMethod]
         public void EnumerateTable()
         {
@@ -135,7 +133,6 @@ namespace NMemory.Test
 
             database.Groups.ToList();
         }
-        
 
         [TestMethod]
         public void QueryTable()

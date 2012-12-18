@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="NVarCharConstraint.cs" company="NMemory Team">
+// <copyright file="OperationType.cs" company="NMemory Team">
 //     Copyright (C) 2012 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,36 +22,18 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Constraints
+namespace NMemory.Execution
 {
     using System;
-    using System.Linq.Expressions;
-    using NMemory.Exceptions;
-    using NMemory.Execution;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
 
-    public class NVarCharConstraint<TEntity> : ConstraintBase<TEntity, string>
+    public enum OperationType
     {
-        private int maxLength;
-
-        public NVarCharConstraint(
-            Expression<Func<TEntity, string>> propertySelector, 
-            int maxLength)
-            : base(propertySelector)
-        {
-            this.maxLength = maxLength;
-        }
-
-        protected override string Apply(string value, IExecutionContext context)
-        {
-            if (value != null && value.Length > this.maxLength)
-            {
-                throw new ConstraintException(
-                    string.Format("Column '{0}' cannot be longer than {1} characters.", 
-                        this.PropertyName, 
-                        this.maxLength));
-            }
-
-            return value;
-        } 
+        Query,
+        Insert,
+        Update,
+        Delete
     }
 }

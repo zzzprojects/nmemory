@@ -51,9 +51,11 @@
     <Compile Include="BasicFixture.cs" />
     <Compile Include="BinaryFixture.cs" />
     <Compile Include="ConstraintFixture.cs" />
+    <Compile Include="Constraints\GeneratedGuidConstraintFixture.cs" />
     <Compile Include="Environment\Data\Group.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Environment\Data\GuidEntity.cs" />
     <Compile Include="Environment\Data\Member.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -64,6 +66,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Environment\Fake\FakeEnlistmentNotification.cs" />
+    <Compile Include="Environment\Fake\FakeExecutionContext.cs" />
     <Compile Include="Environment\Utils\ExpressionUtils.cs" />
     <Compile Include="ExpressionRewriters\OuterJoinLogicalRewriterFixture.cs" />
     <Compile Include="ExpressionRewriters\InnerJoinLogicalRewriterFixture.cs" />
