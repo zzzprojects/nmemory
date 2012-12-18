@@ -30,6 +30,8 @@ namespace NMemory.Tables
 
     internal class EntityPropertyCloner<TEntity>
     {
+        public static EntityPropertyCloner<TEntity> Instance = new EntityPropertyCloner<TEntity>();
+
         private Action<TEntity, TEntity> entityPropertyCloner;
 
         public EntityPropertyCloner()

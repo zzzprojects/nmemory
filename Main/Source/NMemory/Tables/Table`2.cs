@@ -744,7 +744,7 @@ namespace NMemory.Tables
                 return;
             }
 
-            EntityPropertyCloner<TEntity> cloner = new EntityPropertyCloner<TEntity>();
+            EntityPropertyCloner<TEntity> cloner = EntityPropertyCloner<TEntity>.Instance;
 
             foreach (TEntity entity in initialEntities)
             {
