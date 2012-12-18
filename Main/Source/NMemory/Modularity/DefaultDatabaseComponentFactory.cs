@@ -29,6 +29,7 @@ namespace NMemory.Modularity
     using NMemory.Execution;
     using NMemory.Tables;
     using NMemory.Transactions;
+    using System.Collections;
 
     public class DefaultDatabaseComponentFactory : IDatabaseComponentFactory
     {
@@ -64,6 +65,11 @@ namespace NMemory.Modularity
         public virtual ILoggingPort CreateLoggingPort()
         {
             return new ConsoleLoggingPort();
+        }
+
+        public virtual IEnumerable CreateCustomComponents()
+        {
+            yield break;
         }
     }
 }

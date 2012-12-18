@@ -35,8 +35,11 @@ namespace NMemory.Modularity
         private ITableFactory tableFactory;
         private ITransactionHandler transactionHandler;
         private ILoggingPort loggingPort;
+        private object[] customComponents;
 
-        public DefaultDatabaseEngine(IDatabaseComponentFactory databaseEngineFactory, IDatabase database)
+        public DefaultDatabaseEngine(
+            IDatabaseComponentFactory databaseEngineFactory, 
+            IDatabase database)
         {
             this.compiler = databaseEngineFactory.CreateQueryCompiler();
             this.executor = databaseEngineFactory.CreateQueryExecutor();     
@@ -44,6 +47,17 @@ namespace NMemory.Modularity
             this.tableFactory = databaseEngineFactory.CreateTableFactory();
             this.transactionHandler = databaseEngineFactory.CreateTransactionHandler();
             this.loggingPort = databaseEngineFactory.CreateLoggingPort();
+
+            IEnumerable customComponents = databaseEngineFactory.CreateCustomComponents();
+
+            if (customComponents != null)
+            {
+                this.customComponents = customComponents
+                    .Cast<object>()
+                    .Where(c => c != null)
+                    .Distinct()
+                    .ToArray();
+            }
 
             foreach (IDatabaseComponent component in 
                 this.Components.OfType<IDatabaseComponent>())
@@ -87,17 +101,43 @@ namespace NMemory.Modularity
         {
             get 
             {
-                yield return this.tableFactory;
+                if (this.tableFactory != null)
+                {
+                    yield return this.tableFactory;
+                }
 
-                yield return this.concurrencyManager;
+                if (this.concurrencyManager != null)
+                {
+                    yield return this.concurrencyManager;
+                }
 
-                yield return this.compiler;
+                if (this.compiler != null)
+                {
+                    yield return this.compiler;
+                }
 
-                yield return this.executor;
+                if (this.executor != null)
+                {
+                    yield return this.executor;
+                }
 
-                yield return this.transactionHandler;
+                if (this.transactionHandler != null)
+                {
+                    yield return this.transactionHandler;
+                }
 
-                yield return this.loggingPort;
+                if (this.loggingPort != null)
+                {
+                    yield return this.loggingPort;
+                }
+
+                if (customComponents != null)
+                {
+                    for (int i = 0; i < customComponents.Length; i++)
+                    {
+                        yield return customComponents[i];
+                    }
+                }
             }
         }
     }

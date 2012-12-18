@@ -22,6 +22,7 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
+using System.Collections;
 namespace NMemory.Modularity
 {
     /// <summary>
@@ -64,5 +65,11 @@ namespace NMemory.Modularity
         /// </summary>
         /// <returns></returns>
         ILoggingPort CreateLoggingPort();
+
+        /// <summary>
+        /// Creates the custom components.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable CreateCustomComponents();
     }
 }
