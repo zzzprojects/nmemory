@@ -32,6 +32,8 @@ namespace NMemory.Tables
 
     internal class EntityPropertyChangeDetector<TEntity>
     {
+        public static EntityPropertyChangeDetector<TEntity> Instance = new EntityPropertyChangeDetector<TEntity>();
+
         private Func<TEntity, TEntity, List<PropertyInfo>> entityPropertyChangeDetector; 
 
         public EntityPropertyChangeDetector()

@@ -57,7 +57,7 @@ namespace NMemory.Execution
             EntityPropertyCloner<T> cloner = null;
             if (this.database.Tables.IsEntityType<T>())
             {
-                cloner = new EntityPropertyCloner<T>();
+                cloner = EntityPropertyCloner<T>.Instance;
             }
 
             LinkedList<T> result = new LinkedList<T>();

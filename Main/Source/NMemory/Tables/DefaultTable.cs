@@ -55,8 +55,8 @@ namespace NMemory.Tables
 
             : base(database, primaryKey, identitySpecification)
         {
-            this.changeDetector = new EntityPropertyChangeDetector<TEntity>();
-            this.cloner = new EntityPropertyCloner<TEntity>();
+            this.changeDetector = EntityPropertyChangeDetector<TEntity>.Instance;
+            this.cloner = EntityPropertyCloner<TEntity>.Instance;
         }
 
         /// <summary>
