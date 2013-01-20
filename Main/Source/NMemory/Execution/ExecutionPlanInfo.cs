@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="TableLocator.cs" company="NMemory Team">
+// <copyright file="ExecutionPlanInfo.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,31 +22,36 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Common
+namespace NMemory.Execution
 {
-    using System;
+    using NMemory.Execution.Optimization;
     using System.Collections.Generic;
     using System.Linq;
-    using NMemory.Common.Visitors;
-    using NMemory.Execution;
-    using NMemory.Modularity;
-    using NMemory.Tables;
+    using System.Linq.Expressions;
 
-    internal static class TableLocator
+    internal class ExecutionPlanInfo : IExecutionPlanInfo
     {
-        public static ITable[] FindAffectedTables(IDatabase database, IExecutionPlan plan)
+        private IList<ITransformationStep> steps;
+
+        public ExecutionPlanInfo(IList<ITransformationStep> steps)
         {
-            EntityTypeSearchVisitor search = new EntityTypeSearchVisitor();
-            search.Visit(plan.Info.Final);
+            this.steps = steps;
+        }
 
-            ISet<ITable> result = new HashSet<ITable>();
-
-            foreach (Type entityType in search.FoundEntityTypes)
+        public Expression Final
+        {
+            get 
             {
-                result.Add(database.Tables.FindTable(entityType));
+                return this.steps.Last().Expression;
             }
+        }
 
-            return result.ToArray();
+        public IList<ITransformationStep> TransformationSteps
+        {
+            get 
+            {
+                return this.steps;
+            }
         }
     }
 }

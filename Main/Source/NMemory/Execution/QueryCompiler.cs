@@ -38,7 +38,7 @@ namespace NMemory.Execution
 
         protected override IEnumerable<IExpressionRewriter> GetRewriters(
             Expression expression, 
-            TransformationContext context)
+            ITransformationContext context)
         {
             IEnumerable<IExpressionRewriter> originalRewriters =
                 base.GetRewriters(expression, context);
@@ -51,7 +51,7 @@ namespace NMemory.Execution
 
         private IEnumerable<IExpressionRewriter> GetCustomRewriters(
             Expression expression, 
-            TransformationContext context)
+            ITransformationContext context)
         {
             if (this.EnableOptimization)
             {
@@ -59,6 +59,10 @@ namespace NMemory.Execution
 
                 yield return new OuterJoinLogicalRewriter();
             }
+
+            yield return new TableAccessRewriter(context);
+
+            // TODO: physical rewriters
 
             yield return new PropertyAccessRewriter();
 

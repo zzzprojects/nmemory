@@ -24,10 +24,8 @@
 
 namespace NMemory.Execution
 {
-    using System.Linq.Expressions;
-
     public interface IExecutionPlan
     {
-        Expression Plan { get; }
+        IExecutionPlanInfo Info { get; }
     }
 }

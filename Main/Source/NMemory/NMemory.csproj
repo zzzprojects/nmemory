@@ -52,10 +52,14 @@
     <Compile Include="Constraints\NotNullableConstraint.cs" />
     <Compile Include="Exceptions\ExceptionMessages.cs" />
     <Compile Include="Execution\ExecutionPlan.cs" />
+    <Compile Include="Execution\ExecutionPlanInfo.cs" />
     <Compile Include="Execution\IExecutionPlan.cs" />
+    <Compile Include="Execution\IExecutionPlanInfo.cs" />
     <Compile Include="Execution\IExecutionPlan`1.cs" />
     <Compile Include="Execution\OperationType.cs" />
     <Compile Include="Execution\Optimization\EqualityMappingDetector.cs" />
+    <Compile Include="Execution\Optimization\ITransformationContext.cs" />
+    <Compile Include="Execution\Optimization\ITransformationStep.cs" />
     <Compile Include="Execution\Optimization\JoinGroup.cs" />
     <Compile Include="Execution\Optimization\JoinGroup`2.cs" />
     <Compile Include="Execution\Optimization\Rewriters\OuterJoinLogicalRewriter.cs" />
@@ -65,6 +69,9 @@
     <Compile Include="Execution\Optimization\Rewriters\PropertyAccessRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\QueryableRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\DatabaseParameterRewriter.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\TableAccessRewriter.cs" />
+    <Compile Include="Execution\Optimization\TransformationStep.cs" />
+    <Compile Include="Execution\Optimization\TransformationStepRecorder.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\DefaultKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfoFactory.cs" />
@@ -145,7 +152,7 @@
     <Compile Include="Execution\Optimization\Rewriters\ExpressionRewriterBase.cs" />
     <Compile Include="Execution\Optimization\Rewriters\StoredProcedureParameterRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\TableScanRewriter.cs" />
-    <Compile Include="Execution\TransformationContext.cs" />
+    <Compile Include="Execution\Optimization\TransformationContext.cs" />
     <Compile Include="Execution\QueryCompilerBase.cs" />
     <Compile Include="Execution\QueryExecutor.cs" />
     <Compile Include="Functions.cs" />

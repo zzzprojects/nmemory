@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="TableLocator.cs" company="NMemory Team">
+// <copyright file="TransformationStepRecorder.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,31 +22,34 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Common
+namespace NMemory.Execution.Optimization
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using NMemory.Common.Visitors;
-    using NMemory.Execution;
-    using NMemory.Modularity;
-    using NMemory.Tables;
 
-    internal static class TableLocator
+    internal class TransformationStepRecorder
     {
-        public static ITable[] FindAffectedTables(IDatabase database, IExecutionPlan plan)
+        private IList<ITransformationStep> steps;
+        private IList<ITransformationStep> readonlySteps;
+
+        public TransformationStepRecorder()
         {
-            EntityTypeSearchVisitor search = new EntityTypeSearchVisitor();
-            search.Visit(plan.Info.Final);
+            var steps = new List<ITransformationStep>(16);
 
-            ISet<ITable> result = new HashSet<ITable>();
+            this.steps = steps;
+            this.readonlySteps = steps.AsReadOnly();
+        }
 
-            foreach (Type entityType in search.FoundEntityTypes)
+        public void Record(ITransformationStep step)
+        {
+            this.steps.Add(step);
+        }
+
+        public IList<ITransformationStep> Steps
+        {
+            get
             {
-                result.Add(database.Tables.FindTable(entityType));
+                return this.readonlySteps;
             }
-
-            return result.ToArray();
         }
     }
 }

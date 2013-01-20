@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="TransformationContext.cs" company="NMemory Team">
+// <copyright file="TransformationStep.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,27 +22,41 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Execution
+namespace NMemory.Execution.Optimization
 {
+    using System;
     using System.Linq.Expressions;
 
-    public class TransformationContext
+    public class TransformationStep : ITransformationStep
     {
-        private ParameterExpression parameter;
+        private Expression expression;
 
-        public TransformationContext(ParameterExpression parameter)
+        public TransformationStep(Expression expression)
         {
-            this.parameter = parameter;
+            if (expression == null)
+            {
+                throw new ArgumentNullException("expression");
+            }
+
+            this.expression = expression;
         }
 
-        public bool IsFinished 
-        { 
-            get; set; 
+        public Expression Expression
+        {
+            get 
+            {
+                return this.expression;
+            }
         }
 
-        public ParameterExpression Parameter 
+        public override string ToString()
         {
-            get { return this.parameter; }
+            return this.expression.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return this.expression.GetHashCode();
         }
     }
 }

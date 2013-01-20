@@ -30,17 +30,17 @@ namespace NMemory.Execution
     public class ExecutionPlan<T> : IExecutionPlan<T>
     {
         private Func<IExecutionContext, T> executable;
-        private Expression plan;
+        private IExecutionPlanInfo info;
 
-        public ExecutionPlan(Func<IExecutionContext, T> executable, Expression plan)
+        public ExecutionPlan(Func<IExecutionContext, T> executable, IExecutionPlanInfo info)
         {
             this.executable = executable;
-            this.plan = plan;
+            this.info = info;
         }
 
-        public Expression Plan
+        public IExecutionPlanInfo Info
         {
-            get { return this.plan; }
+            get { return this.info; }
         }
 
         public T Execute(IExecutionContext context)

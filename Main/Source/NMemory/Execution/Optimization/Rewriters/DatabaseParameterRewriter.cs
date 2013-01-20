@@ -31,9 +31,9 @@ namespace NMemory.Execution.Optimization.Rewriters
 
     public class DatabaseParameterRewriter : ExpressionRewriterBase
     {
-        private TransformationContext context;
+        private ITransformationContext context;
 
-        public DatabaseParameterRewriter(TransformationContext context)
+        public DatabaseParameterRewriter(ITransformationContext context)
         {
             this.context = context;
         }

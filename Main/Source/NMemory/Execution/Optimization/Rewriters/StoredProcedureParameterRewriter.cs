@@ -31,9 +31,9 @@ namespace NMemory.Execution.Optimization.Rewriters
 
     internal class StoredProcedureParameterRewriter : ExpressionRewriterBase
     {
-        private TransformationContext context;
+        private ITransformationContext context;
 
-        public StoredProcedureParameterRewriter(TransformationContext context)
+        public StoredProcedureParameterRewriter(ITransformationContext context)
         {
             this.context = context;
         }

@@ -44,42 +44,59 @@ namespace NMemory.Execution
         public IExecutionPlan<T> Compile<T>(Expression expression)
         {
             // Define execution context as parameter
-            ParameterExpression parameter = Expression.Parameter(typeof(IExecutionContext), "executionContext");
+            ParameterExpression parameter = 
+                Expression.Parameter(typeof(IExecutionContext), "executionContext");
+
+            // Create new transformation context
+            ITransformationContext context = new TransformationContext(parameter);
+            TransformationStepRecorder recorder = new TransformationStepRecorder();
             
             // Execute optimization
-            expression = this.TransformExpression(expression, parameter);
-
-            // Reduce the expression
-            while (expression.CanReduce)
-            {
-                expression = expression.Reduce();
-            }
+            expression = this.TransformExpression(expression, context, recorder);
 
             // Compile query
-            Func<IExecutionContext, T> executable = this.CompileCore(expression, parameter) as Func<IExecutionContext, T>;
+            Func<IExecutionContext, T> executable = 
+                this.CompileCore(expression, parameter) as Func<IExecutionContext, T>;
 
-            return new ExecutionPlan<T>(executable, expression);
+            // Compose result
+            IExecutionPlanInfo info = new ExecutionPlanInfo(recorder.Steps);
+            IExecutionPlan<T> plan = new ExecutionPlan<T>(executable, info);
+
+            return plan;
         }
 
-        protected virtual Expression PreprocessExpression(Expression expression, TransformationContext context)
+        protected virtual Expression PreprocessExpression(
+            Expression expression, 
+            ITransformationContext context)
         {
             return expression;
         }
 
-        protected virtual IEnumerable<IExpressionRewriter> GetRewriters(Expression expression, TransformationContext context)
+        protected virtual IEnumerable<IExpressionRewriter> GetRewriters(
+            Expression expression, 
+            ITransformationContext context)
         {
             yield break;
         }
 
-        protected virtual Expression PostprocessExpression(Expression expression, TransformationContext context)
+        protected virtual Expression PostprocessExpression(
+            Expression expression, 
+            ITransformationContext context)
         {
             return expression;
         }
 
-        private Expression TransformExpression(Expression expression, ParameterExpression parameter)
+        protected IList<IExpressionRewriter> ReviewRewriters(
+            IList<IExpressionRewriter> rewriters)
         {
-            TransformationContext context = new TransformationContext(parameter);
+            return rewriters;
+        }
 
+        private Expression TransformExpression(
+            Expression expression,
+            ITransformationContext context,
+            TransformationStepRecorder recorder)
+        {
             expression = this.PreprocessExpression(expression, context);
 
             if (context.IsFinished)
@@ -87,36 +104,55 @@ namespace NMemory.Execution
                 return expression;
             }
 
-            // Collect expressions
-            IEnumerable<IExpressionRewriter> rewriters = this.GetRewriters(expression, context);
-            
-            // Add essential rewriters
-            rewriters =
+            // Set up the rewriter chain
+            IList<IExpressionRewriter> allRewriters =
                 new IExpressionRewriter[] 
                 { 
                     new DatabaseParameterRewriter(context), 
                     new StoredProcedureParameterRewriter(context), 
                 }
-                .Concat(rewriters)
+                .Concat(
+                    this.GetRewriters(expression, context))
                 .Concat(new IExpressionRewriter[] 
                 { 
                     new TableScanRewriter(),
                     new QueryableRewriter()
-                });
+                })
+                .ToList();
 
             // Initialize rewriters
-            foreach (IDatabaseComponent databaseComponent in rewriters)
+            foreach (IDatabaseComponent databaseComponent in allRewriters)
             {
                 databaseComponent.Initialize(this.database);
             }
 
+            // Last chance to alter rewriters
+            allRewriters = this.ReviewRewriters(allRewriters);
+
+            // Record the initial state
+            recorder.Record(new TransformationStep(expression));
+
             // Execute rewriters
-            foreach (IExpressionRewriter rewriter in rewriters)
+            foreach (IExpressionRewriter rewriter in allRewriters)
             {
+                if (rewriter == null)
+                {
+                    continue;
+                }
+
                 expression = rewriter.Rewrite(expression);
+                recorder.Record(new TransformationStep(expression));
             }
 
             expression = this.PostprocessExpression(expression, context);
+            recorder.Record(new TransformationStep(expression));
+
+            // Reduce the expression
+            while (expression.CanReduce)
+            {
+                expression = expression.Reduce();
+                recorder.Record(new TransformationStep(expression));
+            }
 
             return expression;
         }

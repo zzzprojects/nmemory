@@ -34,7 +34,6 @@ namespace NMemory.Test
     [TestClass]
     public class StoredProcedureFixture
     {
-
         [TestMethod]
         public void StoredProcedure_ParameterDescription()
         {

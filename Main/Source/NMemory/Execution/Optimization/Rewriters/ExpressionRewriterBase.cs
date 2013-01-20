@@ -58,6 +58,14 @@ namespace NMemory.Execution.Optimization.Rewriters
             }
         }
 
+        protected IDatabase Database
+        {
+            get
+            {
+                return this.database;
+            }
+        }
+
         protected virtual IList<Expression> VisitExpressions(IList<Expression> original)
         {
             List<Expression> sequence = null;
