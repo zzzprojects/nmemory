@@ -474,7 +474,7 @@ namespace NMemory.Tables
 
                 if (referredRelations != null)
                 {
-                    foreach (IRelation relation in this.Database.Tables.GetReferedRelations(index))
+                    foreach (IRelation relation in this.Database.Tables.GetReferredRelations(index))
                     {
                         referredRelations.Add(relation);
                     }

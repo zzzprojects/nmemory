@@ -163,7 +163,7 @@ namespace NMemory.Tables
             return this.referringRelations[primaryIndex.Table].Where(x => x.PrimaryIndex == primaryIndex).ToList();
         }
 
-        internal IList<IRelation> GetReferedRelations(IIndex foreignIndex)
+        internal IList<IRelation> GetReferredRelations(IIndex foreignIndex)
         {
             return this.referredRelations[foreignIndex.Table].Where(x => x.ForeignIndex == foreignIndex).ToList();
         }

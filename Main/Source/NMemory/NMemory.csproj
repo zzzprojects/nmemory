@@ -62,6 +62,7 @@
     <Compile Include="Execution\Optimization\ITransformationStep.cs" />
     <Compile Include="Execution\Optimization\JoinGroup.cs" />
     <Compile Include="Execution\Optimization\JoinGroup`2.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\GroupJoinPhysicalRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\OuterJoinLogicalRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\InnerJoinLogicalRewriter.cs">
       <SubType>Code</SubType>
@@ -126,6 +127,7 @@
     <Compile Include="Indexes\TupleKeyInfo.cs" />
     <Compile Include="Indexes\TupleKeyInfoExpressionBuilder.cs" />
     <Compile Include="Indexes\TupleKeyInfo`2.cs" />
+    <Compile Include="Linq\EnumerableEx.cs" />
     <Compile Include="Linq\TableQueryWrapper`1.cs" />
     <Compile Include="Modularity\DefaultDatabaseEngine.cs" />
     <Compile Include="Modularity\IDatabase.cs" />

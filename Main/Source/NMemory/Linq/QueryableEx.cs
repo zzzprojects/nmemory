@@ -139,54 +139,6 @@ namespace NMemory.Linq
             return new TableQueryWrapper<T>(query, parameters, transaction);
         }
 
-        #region JoinIndexed
-
-        internal static IEnumerable<TResult> JoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
-            IEnumerable<TOuter> outer,
-            IIndex<TInner, TInnerKey> inner,
-            Func<TOuterKey, TInnerKey> keyToIndexKey,
-            Func<TOuter, TOuterKey> outerKeySelector,
-            Func<TOuter, TInner, TResult> resultSelector)
-
-            where TInner : class
-        {
-            foreach(TOuter outerItem in outer)
-            {
-                TOuterKey outerKey = outerKeySelector.Invoke(outerItem);
-                TInnerKey key = keyToIndexKey.Invoke(outerKey);
-
-                foreach(TInner inner_item in inner.Select(key))
-                {
-                    TResult result = resultSelector.Invoke(outerItem, inner_item);
-
-                    yield return result;
-                }
-            }
-        }
-
-        public static IEnumerable<TResult> JoinIndexed<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
-            IEnumerable<TOuter> outer,
-            IIndex<TInner, TInnerKey> inner,
-            Func<TOuterKey, TInnerKey> keyToIndexKey,
-            Func<TOuter, TOuterKey> outerKeySelector,
-            Func<TOuter, TInner, TResult> resultSelector)
-
-            where TInner : class
-        {
-            // TODO: Add validation
-
-            return JoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
-                outer, 
-                inner, 
-                keyToIndexKey, 
-                outerKeySelector, 
-                resultSelector);
-        }
-
-        #endregion
-
-
-
         public static int Count<T>(IQueryable<T> source)
         {
             if (source is ITable)

@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="QueryCompiler.cs" company="NMemory Team">
+// <copyright file="GroupJoinPhysicalRewriter.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,54 +22,52 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Execution
+namespace NMemory.Execution.Optimization.Rewriters
 {
-    using System.Collections.Generic;
-    using System.Linq;
+    using NMemory.Common;
+    using NMemory.Indexes;
+    using NMemory.Tables;
     using System.Linq.Expressions;
-    using NMemory.Execution.Optimization;
-    using NMemory.Execution.Optimization.Rewriters;
 
-    public class QueryCompiler : QueryCompilerBase
+    public class GroupJoinPhysicalRewriter : ExpressionRewriterBase
     {
-        public bool EnableCompilationCaching { get; set; }
-
-        public bool EnableOptimization { get; set; }
-
-        protected override IEnumerable<IExpressionRewriter> GetRewriters(
-            Expression expression, 
-            ITransformationContext context)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            IEnumerable<IExpressionRewriter> originalRewriters =
-                base.GetRewriters(expression, context);
-
-            IEnumerable<IExpressionRewriter> customRewriters =
-                this.GetCustomRewriters(expression, context);
-
-            return originalRewriters.Concat(customRewriters);
-        }
-
-        private IEnumerable<IExpressionRewriter> GetCustomRewriters(
-            Expression expression, 
-            ITransformationContext context)
-        {
-            if (this.EnableOptimization)
+            if (!node.Method.IsGenericMethod ||
+                node.Method.GetGenericMethodDefinition() != QueryMethods.GroupJoin)
             {
-                yield return new InnerJoinLogicalRewriter();
-
-                yield return new OuterJoinLogicalRewriter();
+                // Not GroupJoin
+                return base.VisitMethodCall(node);
             }
 
-            yield return new TableAccessRewriter(context);
+            ConstantExpression secondExpression = node.Arguments[1] as ConstantExpression;
 
-            if (this.EnableOptimization)
+            if (secondExpression == null)
             {
-                yield return new GroupJoinPhysicalRewriter();
+                // Not constant expression
+                return base.VisitMethodCall(node);
             }
 
-            yield return new PropertyAccessRewriter();
+            ITable table = secondExpression.Value as ITable;
 
-            yield break;
+            if (table == null)
+            {
+                // Not table
+                return base.VisitMethodCall(node);
+            }
+
+            Expression secondKeySelector = node.Arguments[3];
+
+       
+            foreach (IIndex index in table.Indexes)
+            {
+                var keys = index.KeyInfo.EntityKeyMembers;
+
+                var rels = this.Database.Tables.GetReferringRelations(index);
+
+            }
+
+            return base.VisitMethodCall(node);
         }
     }
 }

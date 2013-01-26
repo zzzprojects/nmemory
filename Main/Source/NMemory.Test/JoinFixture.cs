@@ -42,7 +42,7 @@ namespace NMemory.Test
 
             db.Members.Insert(new Member { Id = "A", Name = "John", GroupId = null });
             db.Members.Insert(new Member { Id = "B", Name = "Kay", GroupId = group.Id });
-
+            
             var q =
                 from m in db.Members
                 join g_ in db.Groups on m.GroupId equals g_.Id into groups_
@@ -50,7 +50,7 @@ namespace NMemory.Test
                 select new { Name = m.Name, GroupName = g.Name };
 
             var result = q.ToList();
-
+            
             Assert.IsTrue(result.Any(x => x.GroupName == null));
         }
     }
