@@ -25,15 +25,17 @@
 namespace NMemory.Indexes
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using NMemory.Common;
 
-    internal class TupleKeyInfoExpressionBuilder : IKeyInfoExpressionBuilder
+    internal class TupleKeyInfoExpressionServices : IKeyInfoExpressionServices
     {
         private Type tupleType;
 
-        public TupleKeyInfoExpressionBuilder(Type tupleType)
+        public TupleKeyInfoExpressionServices(Type tupleType)
         {
             if (!ReflectionHelper.IsTuple(tupleType))
             {
@@ -41,6 +43,17 @@ namespace NMemory.Indexes
             }
 
             this.tupleType = tupleType;
+        }
+
+        public int MemberCount
+        {
+            get
+            {
+                return this.tupleType
+                    .GetProperties()
+                    .Count(p => 
+                        p.Name.StartsWith("Item"));
+            }
         }
 
         public Expression CreateKeyFactoryExpression(params Expression[] arguments)
@@ -89,6 +102,77 @@ namespace NMemory.Indexes
             }
 
             return Expression.Property(source, property);
+        }
+
+
+        public MemberInfo[] ParseKeySelectorExpression(Expression keySelector, bool strict)
+        {
+            if (keySelector == null)
+            {
+                throw new ArgumentNullException("keySelector");
+            }
+
+            if (keySelector.Type != this.tupleType)
+            {
+                throw new ArgumentException("Invalid expression", "keySelector");
+            }
+
+            NewExpression newTupleExpression = keySelector as NewExpression;
+
+            if (newTupleExpression != null)
+            {
+                return GetMemberInfoFromArguments(newTupleExpression.Arguments, strict);
+            }
+
+            MethodCallExpression createTupleExpression = keySelector as MethodCallExpression;
+
+            if (createTupleExpression != null)
+            {
+                MethodInfo createMethod = createTupleExpression.Method;
+
+                if (createMethod.DeclaringType != typeof(Tuple) || 
+                    createMethod.Name != "Create")
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+
+                return GetMemberInfoFromArguments(createTupleExpression.Arguments, strict);
+            }
+
+            throw new ArgumentException("Invalid expression", "keySelector");
+        }
+
+        private static MemberInfo[] GetMemberInfoFromArguments(
+            IList<Expression> arguments, 
+            bool strict)
+        {
+            MemberInfo[] result = new MemberInfo[arguments.Count];
+
+            for (int i = 0; i < arguments.Count; i++)
+            {
+                Expression expr = arguments[i];
+
+                if (!strict)
+                {
+                    expr = ExpressionHelper.SkipConversionNodes(expr);
+                }
+
+                MemberExpression member = arguments[i] as MemberExpression;
+
+                if (member == null)
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+
+                if (member.Expression.NodeType != ExpressionType.Parameter)
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+
+                result[i] = member.Member;
+            }
+
+            return result;
         }
     }
 }

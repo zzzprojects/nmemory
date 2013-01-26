@@ -29,13 +29,14 @@ namespace NMemory.Indexes
     using System.Reflection;
     using NMemory.Common;
     using NMemory.Exceptions;
+    using System.Collections.Generic;
 
-    internal class AnonymousTypeKeyInfoExpressionBuilder : IKeyInfoExpressionBuilder
+    internal class AnonymousTypeKeyInfoExpressionServices : IKeyInfoExpressionServices
     {
         private Type anonymousType;
         private PropertyInfo[] orderedProperties;
 
-        public AnonymousTypeKeyInfoExpressionBuilder(Type anonymousType)
+        public AnonymousTypeKeyInfoExpressionServices(Type anonymousType)
         {
             if (!ReflectionHelper.IsAnonymousType(anonymousType))
             {
@@ -43,6 +44,11 @@ namespace NMemory.Indexes
             }
 
             this.anonymousType = anonymousType;
+        }
+
+        public int GetMemberCount()
+        {
+            return this.anonymousType.GetProperties().Length;
         }
 
         public Expression CreateKeyFactoryExpression(params Expression[] arguments)
@@ -125,6 +131,59 @@ namespace NMemory.Indexes
                     }
                 }
             }
+        }
+
+        public MemberInfo[] ParseKeySelectorExpression(Expression keySelector, bool strict)
+        {
+            if (keySelector == null)
+            {
+                throw new ArgumentNullException("keySelector");
+            }
+
+            if (keySelector.Type != this.anonymousType)
+            {
+                throw new ArgumentException("Invalid expression", "keySelector");
+            }
+
+            NewExpression resultCreator = keySelector as NewExpression;
+
+            if (resultCreator == null)
+            {
+                throw new ArgumentException("Invalid expression", "keySelector");
+            }
+
+            if (resultCreator.Type != this.anonymousType)
+            {
+                throw new ArgumentException("Invalid expression", "keySelector");
+            }
+
+            List<MemberInfo> result = new List<MemberInfo>();
+
+            foreach (Expression arg in resultCreator.Arguments)
+            {
+                Expression expr = arg;
+
+                if (!strict)
+                {
+                    expr = ExpressionHelper.SkipConversionNodes(expr);
+                }
+
+                MemberExpression member = expr as MemberExpression;
+
+                if (member == null)
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+
+                //if (member.Expression.NodeType != ExpressionType.Parameter)
+                //{
+                //    throw new ArgumentException("Invalid expression", "keySelector");
+                //}
+
+                result.Add(member.Member);
+            }
+
+            return result.ToArray();
         }
     }
 }

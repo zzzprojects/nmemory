@@ -55,8 +55,8 @@ namespace NMemory.Tables
             IKeyInfo<TTo> toKeyInfo,
             int[] mapping)
         {
-            IKeyInfoExpressionBuilder fromKeyInfoExprBuilder = GetExpressionBuilder(fromKeyInfo);
-            IKeyInfoExpressionBuilder toKeyInfoExprBuilder = GetExpressionBuilder(toKeyInfo);
+            IKeyInfoExpressionServices fromKeyInfoExprBuilder = GetExpressionBuilder(fromKeyInfo);
+            IKeyInfoExpressionServices toKeyInfoExprBuilder = GetExpressionBuilder(toKeyInfo);
 
             int memberCount = mapping.Length;
 
@@ -133,18 +133,18 @@ namespace NMemory.Tables
             return mapping.ToArray();
         }
 
-        private static IKeyInfoExpressionBuilder GetExpressionBuilder(IKeyInfo keyInfo)
+        private static IKeyInfoExpressionServices GetExpressionBuilder(IKeyInfo keyInfo)
         {
-            IKeyInfoExpressionBuilderProvider builderProvider = null;
+            IKeyInfoExpressionServicesProvider builderProvider = null;
 
-            builderProvider = keyInfo as IKeyInfoExpressionBuilderProvider;
+            builderProvider = keyInfo as IKeyInfoExpressionServicesProvider;
 
             if (builderProvider == null)
             {
                 throw new ArgumentException("", "keyInfo");
             }
 
-            IKeyInfoExpressionBuilder keyInfoExprBuilder = builderProvider.KeyInfoExpressionBuilder;
+            IKeyInfoExpressionServices keyInfoExprBuilder = builderProvider.KeyInfoExpressionServices;
 
             if (keyInfoExprBuilder == null)
             {

@@ -27,9 +27,12 @@ namespace NMemory.Indexes
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
+    using NMemory.Common;
 
-    public abstract class KeyInfoBase<TEntity, TKey> : IKeyInfo<TEntity, TKey>
+    public abstract class KeyInfoBase<TEntity, TKey> : 
+        IKeyInfo<TEntity, TKey>
         where TEntity : class
     {
         private MemberInfo[] entityKeyMembers;
@@ -40,19 +43,30 @@ namespace NMemory.Indexes
         private Func<TKey, bool> keyEmptinessDetector;
 
         public KeyInfoBase(
-            MemberInfo[] entityKeyMembers,
+            Expression<Func<TEntity, TKey>> keySelector,
             SortOrder[] sortOrders,
-
             IComparer<TKey> keyComparer,
-            Func<TEntity, TKey> keySelector,
-            Func<TKey, bool> keyEmptinessDetector)
+            IKeyInfoExpressionServices services)
         {
-            this.entityKeyMembers = entityKeyMembers;
+            this.entityKeyMembers =
+                services.ParseKeySelectorExpression(
+                    keySelector.Body,
+                    true);
+
+            if (sortOrders == null)
+            {
+                sortOrders = Enumerable
+                    .Repeat(SortOrder.Ascending, services.GetMemberCount())
+                    .ToArray();
+            }
+
             this.sortOrders = sortOrders;
 
             this.keyComparer = keyComparer;
-            this.keySelector = keySelector;
-            this.keyEmptinessDetector = keyEmptinessDetector;
+            this.keySelector = keySelector.Compile();
+            this.keyEmptinessDetector = KeyExpressionHelper
+                .CreateKeyEmptinessDetector<TEntity, TKey>(services)
+                .Compile();
         }
 
         public TKey SelectKey(TEntity entity)
@@ -83,6 +97,11 @@ namespace NMemory.Indexes
         public Type KeyType
         {
             get { return typeof(TKey); }
+        }
+
+        private static SortOrder[] GetDefaultSortOrders(int count)
+        {
+            return Enumerable.Repeat(SortOrder.Ascending, count).ToArray();
         }
     }
 }

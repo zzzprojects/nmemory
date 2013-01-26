@@ -42,6 +42,7 @@
     <Compile Include="Common\DatabaseMembers.cs" />
     <Compile Include="Common\DatabaseReflectionHelper.cs" />
     <Compile Include="Common\ExpressionHelper.cs" />
+    <Compile Include="Common\KeyExpressionHelper.cs" />
     <Compile Include="Common\LinqJoinKeyHelper.cs" />
     <Compile Include="Common\MemberChain.cs" />
     <Compile Include="Common\QueryExpressionHelper.cs" />
@@ -73,11 +74,12 @@
     <Compile Include="Execution\Optimization\Rewriters\TableAccessRewriter.cs" />
     <Compile Include="Execution\Optimization\TransformationStep.cs" />
     <Compile Include="Execution\Optimization\TransformationStepRecorder.cs" />
-    <Compile Include="Indexes\AnonymousTypeKeyInfoExpressionBuilder.cs" />
+    <Compile Include="Indexes\AnonymousTypeKeyInfoExpressionServices.cs" />
     <Compile Include="Indexes\DefaultKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfo`1.cs" />
-    <Compile Include="Indexes\PrimitiveKeyInfoExpressionBuilder.cs" />
+    <Compile Include="Indexes\DefaultKeyInfoExpressionServicesProvider.cs" />
+    <Compile Include="Indexes\PrimitiveKeyInfoExpressionServices.cs" />
     <Compile Include="Indexes\TupleKeyComparer.cs" />
     <Compile Include="Indexes\PrimitiveComparer.cs" />
     <Compile Include="Indexes\PrimitiveKeyComparer`1.cs" />
@@ -116,8 +118,8 @@
     <Compile Include="Diagnostics\ConsoleLoggingPort.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfo.cs" />
     <Compile Include="Indexes\AnonymousTypeKeyInfo`2.cs" />
-    <Compile Include="Indexes\IKeyInfoExpressionBuilder.cs" />
-    <Compile Include="Indexes\IKeyInfoExpressionBuilderProvider.cs" />
+    <Compile Include="Indexes\IKeyInfoExpressionServices.cs" />
+    <Compile Include="Indexes\IKeyInfoExpressionServicesProvider.cs" />
     <Compile Include="Indexes\IUniqueIndex.cs" />
     <Compile Include="Indexes\IUniqueIndex`1.cs" />
     <Compile Include="Indexes\KeyInfoBase.cs" />
@@ -125,7 +127,7 @@
     <Compile Include="Indexes\PrimitiveKeyInfo`2.cs" />
     <Compile Include="Indexes\SortOrder.cs" />
     <Compile Include="Indexes\TupleKeyInfo.cs" />
-    <Compile Include="Indexes\TupleKeyInfoExpressionBuilder.cs" />
+    <Compile Include="Indexes\TupleKeyInfoExpressionServices.cs" />
     <Compile Include="Indexes\TupleKeyInfo`2.cs" />
     <Compile Include="Linq\EnumerableEx.cs" />
     <Compile Include="Linq\TableQueryWrapper`1.cs" />

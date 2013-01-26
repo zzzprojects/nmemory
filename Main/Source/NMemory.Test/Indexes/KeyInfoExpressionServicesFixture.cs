@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------------
-// <copyright file="KeyInfoExpressionBuilderFixture.cs" company="NMemory Team">
+// <copyright file="KeyInfoExpressionServicesFixture.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,12 +30,12 @@ namespace NMemory.Test.Indexes
     using NMemory.Indexes;
 
     [TestClass]
-    public class KeyInfoExpressionBuilderFixture
+    public class KeyInfoExpressionServicesFixture
     {
         [TestMethod]
-        public void TupleKeyInfoExpressionBuilderFactory()
+        public void TupleKeyInfoExpressionServices_KeyFactory()
         {
-            TupleKeyInfoExpressionBuilder builder = new TupleKeyInfoExpressionBuilder(typeof(Tuple<int, string>));
+            TupleKeyInfoExpressionServices builder = new TupleKeyInfoExpressionServices(typeof(Tuple<int, string>));
 
             Expression factory = builder.CreateKeyFactoryExpression(
                 Expression.Constant(1, typeof(int)), 
@@ -49,9 +49,9 @@ namespace NMemory.Test.Indexes
         }
 
         [TestMethod]
-        public void TupleKeyInfoExpressionBuilderSelector()
+        public void TupleKeyInfoExpressionServices_KeyMemberSelector()
         {
-            TupleKeyInfoExpressionBuilder builder = new TupleKeyInfoExpressionBuilder(typeof(Tuple<int, string>));
+            TupleKeyInfoExpressionServices builder = new TupleKeyInfoExpressionServices(typeof(Tuple<int, string>));
 
             Expression source = Expression.Constant(Tuple.Create(1, "2"));
             Expression selector1 = builder.CreateKeyMemberSelectorExpression(source, 0);
@@ -65,9 +65,9 @@ namespace NMemory.Test.Indexes
         }
 
         [TestMethod]
-        public void PrimitiveKeyInfoExpressionBuilderFactory()
+        public void PrimitiveKeyInfoExpressionServices_KeyFactory()
         {
-            PrimitiveKeyInfoExpressionBuilder builder = new PrimitiveKeyInfoExpressionBuilder(typeof(int));
+            PrimitiveKeyInfoExpressionServices builder = new PrimitiveKeyInfoExpressionServices(typeof(int));
 
             Expression factory = builder.CreateKeyFactoryExpression(
                 Expression.Constant(1, typeof(int)));
@@ -78,9 +78,9 @@ namespace NMemory.Test.Indexes
         }
 
         [TestMethod]
-        public void PrimitiveKeyInfoExpressionBuilderSelector()
+        public void PrimitiveKeyInfoExpressionServices_KeyMemberSelector()
         {
-            PrimitiveKeyInfoExpressionBuilder builder = new PrimitiveKeyInfoExpressionBuilder(typeof(int));
+            PrimitiveKeyInfoExpressionServices builder = new PrimitiveKeyInfoExpressionServices(typeof(int));
             Expression source = Expression.Constant(1, typeof(int));
 
             Expression selector = builder.CreateKeyMemberSelectorExpression(source, 0);
@@ -90,10 +90,10 @@ namespace NMemory.Test.Indexes
         }
 
         [TestMethod]
-        public void AnonymousTypeKeyInfoExpressionBuilderFactory()
+        public void AnonymousTypeKeyInfoExpressionServices_KeyFactory()
         {
             var key = new { Key1 = 1, Key2 = "2" };
-            AnonymousTypeKeyInfoExpressionBuilder builder = new AnonymousTypeKeyInfoExpressionBuilder(key.GetType());
+            AnonymousTypeKeyInfoExpressionServices builder = new AnonymousTypeKeyInfoExpressionServices(key.GetType());
            
             Expression factory = builder.CreateKeyFactoryExpression(
                 Expression.Constant(1, typeof(int)),
@@ -106,10 +106,10 @@ namespace NMemory.Test.Indexes
         }
 
         [TestMethod]
-        public void AnonymousTypeKeyInfoExpressionBuilderSelector()
+        public void AnonymousTypeKeyInfoExpressionServices_KeyMemberSelector()
         {
             var key = new { Key1 = 1, Key2 = "2" };
-            AnonymousTypeKeyInfoExpressionBuilder builder = new AnonymousTypeKeyInfoExpressionBuilder(key.GetType());
+            AnonymousTypeKeyInfoExpressionServices builder = new AnonymousTypeKeyInfoExpressionServices(key.GetType());
 
             Expression source = Expression.Constant(key);
             Expression selector1 = builder.CreateKeyMemberSelectorExpression(source, 0);

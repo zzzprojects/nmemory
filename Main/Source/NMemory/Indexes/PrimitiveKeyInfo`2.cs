@@ -29,16 +29,15 @@ namespace NMemory.Indexes
     using System.Linq.Expressions;
     using System.Reflection;
 
-    public class PrimitiveKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>, IKeyInfoExpressionBuilderProvider
+    public class PrimitiveKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>, IKeyInfoExpressionServicesProvider
         where TEntity : class
     {
         public PrimitiveKeyInfo(Expression<Func<TEntity, TKey>> keySelector, SortOrder sortOrder) : 
             base(
-                GetEntityKeyMembers(keySelector),
+                keySelector,
                 new SortOrder[1] { sortOrder },
                 Comparer<TKey>.Default,
-                keySelector.Compile(),
-                PrimitiveKeyInfo<TEntity, TKey>.IsKeyEmpty)
+                new PrimitiveKeyInfoExpressionServices(typeof(TKey)))
         {
         }
 
@@ -47,33 +46,11 @@ namespace NMemory.Indexes
         {
         }
 
-        private static MemberInfo[] GetEntityKeyMembers(Expression<Func<TEntity, TKey>> keySelector)
-        {
-            MemberExpression member = keySelector.Body as MemberExpression;
-
-            if (member == null)
-            {
-                throw new ArgumentException("Invalid expression", "keySelector");
-            }
-
-            if (member.Expression.NodeType != ExpressionType.Parameter)
-            {
-                throw new ArgumentException("Invalid expression", "keySelector");
-            }
-
-            return new MemberInfo[] { member.Member };
-        }
-
-        private static bool IsKeyEmpty(TKey key)
-        {
-            return key == null;
-        }
-
-        IKeyInfoExpressionBuilder IKeyInfoExpressionBuilderProvider.KeyInfoExpressionBuilder
+        IKeyInfoExpressionServices IKeyInfoExpressionServicesProvider.KeyInfoExpressionServices
         {
             get 
             { 
-                return new PrimitiveKeyInfoExpressionBuilder(typeof(TKey)); 
+                return new PrimitiveKeyInfoExpressionServices(typeof(TKey)); 
             }
         }
     }

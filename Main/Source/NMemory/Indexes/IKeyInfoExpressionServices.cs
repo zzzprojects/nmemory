@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="PrimitiveKeyInfoExpressionBuilder.cs" company="NMemory Team">
+// <copyright file="IKeyInfoExpressionBuilder.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,46 +24,21 @@
 
 namespace NMemory.Indexes
 {
-    using System;
     using System.Linq.Expressions;
+    using System.Reflection;
 
-    internal class PrimitiveKeyInfoExpressionBuilder : IKeyInfoExpressionBuilder
+    public interface IKeyInfoExpressionServices
     {
-        private Type primitiveType;
+        int GetMemberCount();
 
-        public PrimitiveKeyInfoExpressionBuilder(Type primitiveType)
-        {
-            this.primitiveType = primitiveType;
-        }
+        Expression CreateKeyFactoryExpression(params Expression[] arguments);
 
-        public Expression CreateKeyFactoryExpression(params Expression[] arguments)
-        {
-            if (arguments == null)
-            {
-                throw new ArgumentNullException("arguments");
-            }
+        Expression CreateKeyMemberSelectorExpression(
+            Expression source, 
+            int index);
 
-            if (arguments.Length != 1)
-            {
-                throw new ArgumentException("", "arguments");
-            }
-
-            if (arguments[0].Type != primitiveType)
-            {
-                throw new ArgumentException("", "arguments");
-            }
-
-            return arguments[0];
-        }
-
-        public Expression CreateKeyMemberSelectorExpression(Expression source, int index)
-        {
-            if (index != 0)
-            {
-                throw new ArgumentException("", "index");
-            }
-
-            return source;
-        }
+        MemberInfo[] ParseKeySelectorExpression(
+            Expression keySelector, 
+            bool strict);
     }
 }
