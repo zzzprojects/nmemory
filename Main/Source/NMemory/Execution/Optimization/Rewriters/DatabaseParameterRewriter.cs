@@ -56,8 +56,15 @@ namespace NMemory.Execution.Optimization.Rewriters
                 // Check if ITable<>
                 if (entityType != null)
                 {
-                    Expression database = Expression.Property(this.context.Parameter, DatabaseMembers.ExecutionContext_Database);
-                    Expression tables = Expression.Property(database, DatabaseMembers.Database_Tables);
+                    Expression database = 
+                        Expression.Property(
+                            this.context.Parameter, 
+                            DatabaseMembers.ExecutionContext_Database);
+
+                    Expression tables = 
+                        Expression.Property(
+                            database, 
+                            DatabaseMembers.Database_Tables);
 
                     return Expression.Call(DatabaseMembers.TableCollectionExtensions_FindTable.MakeGenericMethod(entityType), tables);
                 }
@@ -70,7 +77,7 @@ namespace NMemory.Execution.Optimization.Rewriters
         {
             // ----------------------------------------------------
             // original:
-            //  dbParam.Database
+            //  dbParam
             // ----------------------------------------------------
             // transformed:
             //  executionContextParam.Database

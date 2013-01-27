@@ -27,7 +27,9 @@ namespace NMemory.Execution.Optimization.Rewriters
     using NMemory.Common;
     using NMemory.Indexes;
     using NMemory.Tables;
+    using System;
     using System.Linq.Expressions;
+    using System.Reflection;
 
     public class GroupJoinPhysicalRewriter : ExpressionRewriterBase
     {
@@ -56,18 +58,117 @@ namespace NMemory.Execution.Optimization.Rewriters
                 return base.VisitMethodCall(node);
             }
 
-            Expression secondKeySelector = node.Arguments[3];
+            // Key type
+            LambdaExpression secondKeySelector = 
+                ExpressionHelper.SkipQuoteNode(node.Arguments[3]) as LambdaExpression;
 
-       
-            foreach (IIndex index in table.Indexes)
+            Type keyType = secondKeySelector.Body.Type;
+    
+            DefaultKeyInfoExpressionServicesProvider provider;
+
+            if (!DefaultKeyInfoExpressionServicesProvider.TryCreate(keyType, out provider))
             {
-                var keys = index.KeyInfo.EntityKeyMembers;
-
-                var rels = this.Database.Tables.GetReferringRelations(index);
-
+                // Cannot detect key
+                return base.VisitMethodCall(node);
             }
 
-            return base.VisitMethodCall(node);
+            var services = provider.KeyInfoExpressionServices;
+
+            // TODO: TryParseKeySelectorExpression
+            MemberInfo[] keyMembers = 
+                services.ParseKeySelectorExpression(secondKeySelector.Body, false);
+
+            IIndex matchedIndex = null;
+            int[] mapping = null;
+
+            foreach (IIndex index in table.Indexes)
+            {
+                if (KeyExpressionHelper.TryGetMemberMapping(
+                    index.KeyInfo.EntityKeyMembers, 
+                    keyMembers, 
+                    out mapping))
+                {
+                    matchedIndex = index;
+                    break;
+                }
+            }
+
+            if (matchedIndex == null)
+            {
+                // No matched index was found
+                return base.VisitMethodCall(node);
+            }
+
+            var indexServices = GetKeyInfoExpressionServices(matchedIndex.KeyInfo);
+
+            if (indexServices == null)
+            {
+                return base.VisitMethodCall(node);
+            }
+
+            // Create key converter
+            ParameterExpression keyConverterParam = Expression.Parameter(keyType, "x");
+
+            LambdaExpression keyConverter = 
+                Expression.Lambda(
+                    KeyExpressionHelper.CreateKeyConversionExpression(
+                        keyConverterParam,
+                        services,
+                        indexServices,
+                        matchedIndex.KeyInfo.EntityKeyMembers,
+                        mapping),
+                    keyConverterParam);
+
+            // Create key emptyness detector
+            ParameterExpression keyEmptinessDetectorParam = Expression.Parameter(keyType, "x");
+
+            LambdaExpression keyEmptinessDetector =
+                Expression.Lambda(
+                    KeyExpressionHelper.CreateKeyEmptinessDetector(
+                        keyEmptinessDetectorParam, 
+                        services),
+                    keyEmptinessDetectorParam);
+
+            Type[] generics = node.Method.GetGenericArguments();
+
+            MethodInfo groupJoinIndexedMethod = QueryMethods
+                .GroupJoinIndex
+                .MakeGenericMethod(
+                    generics[0],
+                    generics[2],
+                    generics[1],
+                    matchedIndex.KeyInfo.KeyType,
+                    generics[3]);
+
+            Expression groupJoinIndexedCall =
+                Expression.Call(
+                    node.Object,
+                    groupJoinIndexedMethod,
+                    this.Visit(node.Arguments[0]),
+                    Expression.Constant(matchedIndex),
+                    ExpressionHelper.SkipQuoteNode(node.Arguments[2]),
+                    keyEmptinessDetector,
+                    keyConverter,
+                    ExpressionHelper.SkipQuoteNode(node.Arguments[4]));
+
+            Type elementType = ReflectionHelper.GetElementType(groupJoinIndexedCall.Type);
+
+            return Expression.Call(
+                null,
+                QueryMethods.AsQueryable.MakeGenericMethod(elementType), 
+                groupJoinIndexedCall);
+        }
+
+        private static IKeyInfoExpressionServices GetKeyInfoExpressionServices(IKeyInfo keyInfo)
+        {
+            var provider = keyInfo as IKeyInfoExpressionServicesProvider;
+
+            if (provider == null)
+            {
+                return null;
+            }
+
+            return provider.KeyInfoExpressionServices;
         }
     }
 }

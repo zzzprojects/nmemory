@@ -25,6 +25,7 @@
 namespace NMemory.Execution.Optimization.Rewriters
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using NMemory.Common;
@@ -36,12 +37,67 @@ namespace NMemory.Execution.Optimization.Rewriters
     /// </summary>
     public class TableAccessRewriter : ExpressionRewriterBase
     {
-        public TableAccessRewriter(ITransformationContext context)
+        protected override Expression VisitMember(MemberExpression node)
         {
+            // ----------------------------------------------------
+            // original:
+            //  dbParam.Table    OR
+            //  dbConst.Table    OR
+            //  const.db.Table
+            // ----------------------------------------------------
+            // transformed: 
+            //  tableConstant
+            // ----------------------------------------------------
+
+            Type tableInterface = null;
+
+            if (node.Type.IsInterface &&
+                node.Type.IsGenericType && 
+                node.Type.GetGenericTypeDefinition() == typeof(ITable<>))
+            {
+                tableInterface = node.Type;
+            }
+            else
+            {
+                tableInterface = node.Type
+                    .GetInterfaces()
+                    .FirstOrDefault(i => 
+                        i.IsGenericType && 
+                        i.GetGenericTypeDefinition() == typeof(ITable<>));
+            }
+
+            if (tableInterface == null)
+            {
+                return base.VisitMember(node);
+            }
+
+            Type entityType = tableInterface.GetGenericArguments()[0];
+
+            IDatabase database = this.FindDatabase(node.Expression);
+
+            if (database == null)
+            {
+                // TODO: This should not happen, log this
+                return base.VisitMember(node);
+            }
+
+            ITable table = database.Tables.FindTable(entityType);
+
+            return Expression.Constant(table);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            // ----------------------------------------------------
+            // original:
+            //  executionContext.Database.Tables.FindTable<>   OR
+            //  dbConst.Tables.FindTable<>                     OR
+            //  const.db.Tables.FindTable<>
+            // ----------------------------------------------------
+            // transformed: 
+            //  tableConstant
+            // ----------------------------------------------------
+
             if (!node.Method.IsGenericMethod ||
                 node.Method.GetGenericMethodDefinition() != DatabaseMembers.TableCollectionExtensions_FindTable)
             {
@@ -78,19 +134,30 @@ namespace NMemory.Execution.Optimization.Rewriters
 
         private IDatabase FindDatabase(Expression databaseAccess)
         {
-            ConstantExpression databaseConstant = databaseAccess as ConstantExpression;
+            ConstantExpression constant = databaseAccess as ConstantExpression;
 
-            if (databaseConstant != null)
+            if (constant != null)
             {
-                return databaseConstant.Value as IDatabase;
+                return constant.Value as IDatabase;
             }
 
-            MemberExpression databaseContextMember = databaseAccess as MemberExpression;
+            MemberExpression member = databaseAccess as MemberExpression;
 
-            if (databaseContextMember != null &&
-                databaseContextMember.Member == DatabaseMembers.ExecutionContext_Database)
+            if (member != null)
             {
-                return this.Database;
+                // ExecutionContext
+                if (member.Member == DatabaseMembers.ExecutionContext_Database)
+                {
+                    return this.Database;
+                }
+
+                ConstantExpression source = member.Expression as ConstantExpression;
+
+                if (source != null)
+                {
+                    return ReflectionHelper
+                        .GetMemberValue(member.Member, source.Value) as IDatabase;
+                }
             }
 
             return null;

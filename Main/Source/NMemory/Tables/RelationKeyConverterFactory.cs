@@ -58,6 +58,8 @@ namespace NMemory.Tables
             IKeyInfoExpressionServices fromKeyInfoExprBuilder = GetExpressionBuilder(fromKeyInfo);
             IKeyInfoExpressionServices toKeyInfoExprBuilder = GetExpressionBuilder(toKeyInfo);
 
+            // TODO: Call KeyExpressionHelper.CreateKeyConversionExpression
+
             int memberCount = mapping.Length;
 
             ParameterExpression keyParam = Expression.Parameter(fromKeyInfo.KeyType);
@@ -65,7 +67,7 @@ namespace NMemory.Tables
 
             for (int i = 0; i < memberCount; i++)
             {
-                Type requestedType = ReflectionHelper.GetMemberUnderlyingType(toKeyInfo.EntityKeyMembers[i]);
+                Type requestedType = ReflectionHelper.GetMemberType(toKeyInfo.EntityKeyMembers[i]);
                 Expression arg = fromKeyInfoExprBuilder.CreateKeyMemberSelectorExpression(keyParam, mapping[i]);
 
                 if (arg.Type != requestedType)

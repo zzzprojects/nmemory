@@ -38,12 +38,9 @@ namespace NMemory.Indexes
             this.primitiveType = primitiveType;
         }
 
-        public int MemberCount
+        public int GetMemberCount()
         {
-            get
-            {
-                return 1;
-            }
+            return 1;
         }
 
         public Expression CreateKeyFactoryExpression(params Expression[] arguments)

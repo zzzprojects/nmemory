@@ -45,15 +45,12 @@ namespace NMemory.Indexes
             this.tupleType = tupleType;
         }
 
-        public int MemberCount
+        public int GetMemberCount()
         {
-            get
-            {
-                return this.tupleType
-                    .GetProperties()
-                    .Count(p => 
-                        p.Name.StartsWith("Item"));
-            }
+            return this.tupleType
+                .GetProperties()
+                .Count(p => 
+                    p.Name.StartsWith("Item", StringComparison.InvariantCulture));
         }
 
         public Expression CreateKeyFactoryExpression(params Expression[] arguments)
@@ -157,7 +154,7 @@ namespace NMemory.Indexes
                     expr = ExpressionHelper.SkipConversionNodes(expr);
                 }
 
-                MemberExpression member = arguments[i] as MemberExpression;
+                MemberExpression member = expr as MemberExpression;
 
                 if (member == null)
                 {

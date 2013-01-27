@@ -26,9 +26,10 @@ namespace NMemory.Common
 {
     using System;
     using System.Linq.Expressions;
+    using System.Reflection;
     using NMemory.Indexes;
 
-    public static class KeyExpressionHelper
+    internal static class KeyExpressionHelper
     {
         public static Expression<Func<TKey, bool>> CreateKeyEmptinessDetector<TEntity,TKey>(     
             IKeyInfoExpressionServices services)
@@ -78,6 +79,71 @@ namespace NMemory.Common
             }
 
             return body;
+        }
+
+        public static bool TryGetMemberMapping(
+            MemberInfo[] left, 
+            MemberInfo[] right,
+            out int[] mapping)
+        {
+            if (left.Length != right.Length)
+            {
+                mapping = null;
+                return false;
+            }
+
+            int length = left.Length;
+            int[] result = new int[length];
+
+            for (int i = 0; i < length; i++)
+            {
+                result[i] = -1;
+
+                for (int j = 0; j < length; j++)
+                {
+                    if (left[i] == right[j])
+                    {
+                        result[i] = j;
+                        break;
+                    }
+                }
+
+                if (result[i] == -1)
+                {
+                    mapping = null;
+                    return false;
+                }
+            }
+
+            mapping = result;
+            return true;
+        }
+
+        public static Expression CreateKeyConversionExpression(
+            Expression source,
+            IKeyInfoExpressionServices from,
+            IKeyInfoExpressionServices to,
+            MemberInfo[] toMembers,
+            int[] mapping)
+        {
+            int memberCount = mapping.Length;
+
+            Expression[] factoryArgs = new Expression[memberCount];
+
+            for (int i = 0; i < memberCount; i++)
+            {
+                Type requestedType = ReflectionHelper.GetMemberType(toMembers[i]);
+                Expression arg = from.CreateKeyMemberSelectorExpression(source, mapping[i]);
+
+                if (arg.Type != requestedType)
+                {
+                    arg = Expression.Convert(arg, requestedType);
+                }
+
+                factoryArgs[i] = arg;
+            }
+
+            return to.CreateKeyFactoryExpression(factoryArgs);
         }
     }
 }

@@ -80,7 +80,7 @@ namespace NMemory.Common.Visitors
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            Type type = ReflectionHelper.GetMemberUnderlyingType(node.Member);
+            Type type = ReflectionHelper.GetMemberType(node.Member);
 
             if (typeof(ITable).IsAssignableFrom(type))
             {

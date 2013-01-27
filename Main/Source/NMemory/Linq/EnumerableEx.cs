@@ -27,11 +27,12 @@ namespace NMemory.Linq
     using NMemory.Indexes;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     public static class EnumerableEx
     {
         public static IEnumerable<TResult> JoinIndexed<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
-            IEnumerable<TOuter> outer,
+            this IEnumerable<TOuter> outer,
             IIndex<TInner, TInnerKey> inner,
             Func<TOuterKey, TInnerKey> keyToIndexKey,
             Func<TOuter, TOuterKey> outerKeySelector,
@@ -50,10 +51,11 @@ namespace NMemory.Linq
         }
 
         public static IEnumerable<TResult> GroupJoinIndexed<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
-            IEnumerable<TOuter> outer,
+            this IEnumerable<TOuter> outer,
             IIndex<TInner, TInnerKey> inner,
-            Func<TOuterKey, TInnerKey> keyToIndexKey,
             Func<TOuter, TOuterKey> outerKeySelector,
+            Func<TOuterKey, bool> isEmpty,
+            Func<TOuterKey, TInnerKey> outerKeyToIndexKey,
             Func<TOuter, IEnumerable<TInner>, TResult> resultSelector)
 
             where TInner : class
@@ -63,8 +65,9 @@ namespace NMemory.Linq
             return GroupJoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
                 outer,
                 inner,
-                keyToIndexKey,
                 outerKeySelector,
+                isEmpty,
+                outerKeyToIndexKey,
                 resultSelector);
         }
 
@@ -93,20 +96,29 @@ namespace NMemory.Linq
         private static IEnumerable<TResult> GroupJoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
             IEnumerable<TOuter> outer,
             IIndex<TInner, TInnerKey> inner,
-            Func<TOuterKey, TInnerKey> keyToIndexKey,
             Func<TOuter, TOuterKey> outerKeySelector,
+            Func<TOuterKey, bool> isEmpty,
+            Func<TOuterKey, TInnerKey> outerKeyToIndexKey,
             Func<TOuter, IEnumerable<TInner>, TResult> resultSelector)
             where TInner : class
         {
             foreach (TOuter outerItem in outer)
             {
                 TOuterKey outerKey = outerKeySelector.Invoke(outerItem);
-                TInnerKey key = keyToIndexKey.Invoke(outerKey);
-                
-                IEnumerable<TInner> innerItems = inner.Select(key);
-                TResult result = resultSelector.Invoke(outerItem, innerItems);
 
-                yield return result;
+                IEnumerable<TInner> innerItems = null;
+                
+                if (!isEmpty.Invoke(outerKey))
+                {
+                    TInnerKey key = outerKeyToIndexKey.Invoke(outerKey);
+                    innerItems = inner.Select(key);
+                }
+                else
+                {
+                    innerItems = Enumerable.Empty<TInner>();
+                }
+
+                yield return resultSelector.Invoke(outerItem, innerItems);
             }
         }
     }

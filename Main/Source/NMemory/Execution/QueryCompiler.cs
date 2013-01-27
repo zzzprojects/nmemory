@@ -60,7 +60,7 @@ namespace NMemory.Execution
                 yield return new OuterJoinLogicalRewriter();
             }
 
-            yield return new TableAccessRewriter(context);
+            yield return new TableAccessRewriter();
 
             if (this.EnableOptimization)
             {

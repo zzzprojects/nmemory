@@ -34,7 +34,7 @@ namespace NMemory.Common
 
     public class ReflectionHelper
     {
-        public static Type GetMemberUnderlyingType(MemberInfo member)
+        public static Type GetMemberType(MemberInfo member)
         {
             switch (member.MemberType)
             {
@@ -46,6 +46,19 @@ namespace NMemory.Common
                     return ((EventInfo)member).EventHandlerType;
                 default:
                     throw new ArgumentException("MemberInfo must be if type FieldInfo, PropertyInfo or EventInfo", "member");
+            }
+        }
+
+        public static object GetMemberValue(MemberInfo member, object source)
+        {
+            switch (member.MemberType)
+            {
+                case MemberTypes.Field:
+                    return ((FieldInfo)member).GetValue(source);
+                case MemberTypes.Property:
+                    return ((PropertyInfo)member).GetValue(source, null);
+                default:
+                    throw new ArgumentException("MemberInfo must be if type FieldInfo, PropertyInfo", "member");
             }
         }
 

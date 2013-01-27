@@ -134,6 +134,21 @@ namespace NMemory.Common
             }
         }
 
+        public static MethodInfo GroupJoinIndex
+        {
+            get
+            {
+                return GetMethodInfo(() =>
+                    EnumerableEx.GroupJoinIndexed<object, object, object, object, object>(
+                        null,
+                        null,
+                        x => null,
+                        x => false,
+                        x => null,
+                        (x, y) => null));
+            }
+        }
+
         public static MethodInfo AsQueryable
         {
             get
