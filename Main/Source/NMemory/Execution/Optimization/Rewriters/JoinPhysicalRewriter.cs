@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="GroupJoinPhysicalRewriter.cs" company="NMemory Team">
+// <copyright file="JoinPhysicalRewriter.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,16 +27,16 @@ namespace NMemory.Execution.Optimization.Rewriters
     using System.Reflection;
     using NMemory.Common;
 
-    public class GroupJoinPhysicalRewriter : JoinPhysicalRewriterBase
+    public class JoinPhysicalRewriter : JoinPhysicalRewriterBase
     {
         protected override MethodInfo Original
         {
-            get { return QueryMethods.GroupJoin; }
+            get { return QueryMethods.Join; }
         }
 
         protected override MethodInfo Indexed
         {
-            get { return QueryMethods.GroupJoinIndexed; }
+            get { return QueryMethods.JoinIndexed; }
         }
     }
 }

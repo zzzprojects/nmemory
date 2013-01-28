@@ -24,33 +24,63 @@
 
 namespace NMemory.Linq
 {
-    using NMemory.Indexes;
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using NMemory.Indexes;
 
     public static class EnumerableEx
     {
-        public static IEnumerable<TResult> JoinIndexed<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+        public static IEnumerable<TResult> JoinIndexed<TOuter, TInner, TOuterKey, TInnerKey, TResult>(
             this IEnumerable<TOuter> outer,
             IIndex<TInner, TInnerKey> inner,
-            Func<TOuterKey, TInnerKey> keyToIndexKey,
             Func<TOuter, TOuterKey> outerKeySelector,
+            Func<TOuterKey, bool> isEmpty,
+            Func<TOuterKey, TInnerKey> outerKeyToIndexKey,
             Func<TOuter, TInner, TResult> resultSelector)
 
             where TInner : class
         {
-            // TODO: Add validation
+            if (outer == null)
+            {
+                throw new ArgumentNullException("outer");
+            }
 
-            return JoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+            if (inner == null)
+            {
+                throw new ArgumentNullException("inner");
+            }
+
+            if (outerKeySelector == null)
+            {
+                throw new ArgumentNullException("outerKeySelector");
+            }
+
+            if (isEmpty == null)
+            {
+                throw new ArgumentNullException("isEmpty");
+            }
+
+            if (outerKeyToIndexKey == null)
+            {
+                throw new ArgumentNullException("keyToIndexKey");
+            }
+
+            if (resultSelector == null)
+            {
+                throw new ArgumentNullException("resultSelector");
+            }
+
+            return JoinIndexedCore<TOuter, TInner, TOuterKey, TInnerKey, TResult>(
                 outer,
                 inner,
-                keyToIndexKey,
                 outerKeySelector,
+                isEmpty,
+                outerKeyToIndexKey,
                 resultSelector);
         }
 
-        public static IEnumerable<TResult> GroupJoinIndexed<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+        public static IEnumerable<TResult> GroupJoinIndexed<TOuter, TInner, TOuterKey, TInnerKey, TResult>(
             this IEnumerable<TOuter> outer,
             IIndex<TInner, TInnerKey> inner,
             Func<TOuter, TOuterKey> outerKeySelector,
@@ -60,9 +90,37 @@ namespace NMemory.Linq
 
             where TInner : class
         {
-            // TODO: Add validation
+            if (outer == null)
+            {
+                throw new ArgumentNullException("outer");
+            }
 
-            return GroupJoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+            if (inner == null)
+            {
+                throw new ArgumentNullException("inner");
+            }
+
+            if (outerKeySelector == null)
+            {
+                throw new ArgumentNullException("outerKeySelector");
+            }
+
+            if (isEmpty == null)
+            {
+                throw new ArgumentNullException("isEmpty");
+            }
+
+            if (outerKeyToIndexKey == null)
+            {
+                throw new ArgumentNullException("keyToIndexKey");
+            }
+
+            if (resultSelector == null)
+            {
+                throw new ArgumentNullException("resultSelector");
+            }
+
+            return GroupJoinIndexedCore<TOuter, TInner, TOuterKey, TInnerKey, TResult>(
                 outer,
                 inner,
                 outerKeySelector,
@@ -71,18 +129,25 @@ namespace NMemory.Linq
                 resultSelector);
         }
 
-        private static IEnumerable<TResult> JoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+        private static IEnumerable<TResult> JoinIndexedCore<TOuter, TInner, TOuterKey, TInnerKey, TResult>(
             IEnumerable<TOuter> outer,
             IIndex<TInner, TInnerKey> inner,
-            Func<TOuterKey, TInnerKey> keyToIndexKey,
             Func<TOuter, TOuterKey> outerKeySelector,
+            Func<TOuterKey, bool> isEmpty,
+            Func<TOuterKey, TInnerKey> outerKeyToIndexKey,
             Func<TOuter, TInner, TResult> resultSelector)
             where TInner : class
         {
             foreach (TOuter outerItem in outer)
             {
                 TOuterKey outerKey = outerKeySelector.Invoke(outerItem);
-                TInnerKey key = keyToIndexKey.Invoke(outerKey);
+                
+                if (isEmpty.Invoke(outerKey))
+                {
+                    continue;
+                }
+
+                TInnerKey key = outerKeyToIndexKey.Invoke(outerKey);
 
                 foreach (TInner innerItem in inner.Select(key))
                 {
@@ -93,7 +158,7 @@ namespace NMemory.Linq
             }
         }
 
-        private static IEnumerable<TResult> GroupJoinIndexedCore<TOuter, TOuterKey, TInner, TInnerKey, TResult>(
+        private static IEnumerable<TResult> GroupJoinIndexedCore<TOuter, TInner, TOuterKey, TInnerKey, TResult>(
             IEnumerable<TOuter> outer,
             IIndex<TInner, TInnerKey> inner,
             Func<TOuter, TOuterKey> outerKeySelector,

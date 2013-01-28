@@ -40,11 +40,8 @@ namespace NMemory.Execution
             Expression expression, 
             ITransformationContext context)
         {
-            IEnumerable<IExpressionRewriter> originalRewriters =
-                base.GetRewriters(expression, context);
-
-            IEnumerable<IExpressionRewriter> customRewriters =
-                this.GetCustomRewriters(expression, context);
+            var originalRewriters = base.GetRewriters(expression, context);
+            var customRewriters = this.GetCustomRewriters(expression, context);
 
             return originalRewriters.Concat(customRewriters);
         }
@@ -64,6 +61,8 @@ namespace NMemory.Execution
 
             if (this.EnableOptimization)
             {
+                yield return new JoinPhysicalRewriter();
+
                 yield return new GroupJoinPhysicalRewriter();
             }
 

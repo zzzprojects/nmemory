@@ -41,10 +41,14 @@ namespace NMemory.Tables
     using NMemory.Transactions;
 
     /// <summary>
-    /// Represents a database table.
+    ///     Represents a database table.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the entities contained by the table</typeparam>
-    /// <typeparam name="TPrimaryKey">The type of the primary key of the entities.</typeparam>
+    /// <typeparam name="TEntity">
+    ///     The type of the entities contained by the table
+    /// </typeparam>
+    /// <typeparam name="TPrimaryKey">
+    ///     The type of the primary key of the entities.
+    /// </typeparam>
     public abstract class Table<TEntity, TPrimaryKey> :
 
         TableQuery<TEntity>,
@@ -73,11 +77,12 @@ namespace NMemory.Tables
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Table&lt;TEntity, TPrimaryKey&gt;"/> class.
+        ///     Initializes a new instance of the <see cref="Table{TEntity, TPrimaryKey}"/> 
+        ///     class.
         /// </summary>
-        /// <param name="database">The database.</param>
-        /// <param name="primaryKey">The primary key.</param>
-        /// <param name="identitySpecification">The identity specification.</param>
+        /// <param name="database"> The database. </param>
+        /// <param name="primaryKey"> The primary key. </param>
+        /// <param name="identitySpecification"> The identity specification. </param>
         public Table(
             IDatabase database,
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
@@ -92,7 +97,8 @@ namespace NMemory.Tables
             this.indexes = new List<IIndex<TEntity>>();
             this.constraints = new List<IConstraint<TEntity>>();
 
-            this.primaryKeyIndex = CreateUniqueIndex(new DictionaryIndexFactory(), primaryKey);
+            this.primaryKeyIndex = 
+                this.CreateUniqueIndex(new DictionaryIndexFactory(), primaryKey);
 
             this.RegisterTimestampConstraints();
 
@@ -103,7 +109,8 @@ namespace NMemory.Tables
         }
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="Table{TPrimaryKey}" /> class from being created.
+        ///     Prevents a default instance of the <see cref="Table{TPrimaryKey}" /> class from
+        ///     being created.
         /// </summary>
         private Table() : base(null)
         {

@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------------
-// <copyright file="GroupJoinPhysicalRewriterFixture.cs" company="NMemory Team">
+// <copyright file="JoinPhysicalRewriterFixture.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,7 +28,6 @@ namespace NMemory.Test.ExpressionRewriters
     using System.Linq;
     using System.Linq.Expressions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using NMemory.Execution;
     using NMemory.Execution.Optimization;
     using NMemory.Execution.Optimization.Rewriters;
     using NMemory.Indexes;
@@ -37,10 +36,10 @@ namespace NMemory.Test.ExpressionRewriters
     using NMemory.Test.Environment.Data;
 
     [TestClass]
-    public class GroupJoinPhysicalRewriterFixture
+    public class JoinPhysicalRewriterFixture
     {
         [TestMethod]
-        public void GroupJoinPhysicalRewriterFixture_SingleFieldKey()
+        public void JoinPhysicalRewriterFixture_SingleFieldKey()
         {
             // NOTE: some parameter names are hard coded into the optimizer 
 
@@ -49,14 +48,14 @@ namespace NMemory.Test.ExpressionRewriters
             IIndex<Group, int> index = db.Groups.PrimaryKeyIndex as IIndex<Group, int>;
 
             Expression expression = CreateExpression(() =>
-                db.Members.GroupJoin(
+                db.Members.Join(
                     db.Groups,
                     outer => outer.GroupId,
                     inner => inner.Id,
                     (m, g) => new { Member = m, Group = g }));
 
             Expression expectedExpression = CreateExpression(() =>
-                db.Members.GroupJoinIndexed(
+                db.Members.JoinIndexed(
                     index,
                     outer => outer.GroupId,
                     x => x == null,
@@ -64,7 +63,7 @@ namespace NMemory.Test.ExpressionRewriters
                     (m, g) => new { Member = m, Group = g })
                 .AsQueryable());
 
-            IExpressionRewriter rewriter = new GroupJoinPhysicalRewriter();
+            IExpressionRewriter rewriter = new JoinPhysicalRewriter();
             expression = rewriter.Rewrite(expression);
 
             Assert.AreEqual(expectedExpression.Type, expression.Type);
@@ -72,7 +71,7 @@ namespace NMemory.Test.ExpressionRewriters
         }
 
         [TestMethod]
-        public void GroupJoinPhysicalRewriterFixture_DoubleJoin()
+        public void JoinPhysicalRewriterFixture_DoubleJoin()
         {
             // NOTE: some parameter names are hard coded into the optimizer 
 
@@ -81,26 +80,26 @@ namespace NMemory.Test.ExpressionRewriters
             IIndex<Group, int> index = db.Groups.PrimaryKeyIndex as IIndex<Group, int>;
 
             Expression expression = CreateExpression(() =>
-                db.Members.GroupJoin(
+                db.Members.Join(
                     db.Groups,
                     outer => outer.GroupId,
                     inner => inner.Id,
                     (m, g) => new { Member = m, Group1 = g })
-               .GroupJoin(
+               .Join(
                     db.Groups,
                     outer => outer.Member.GroupId,
                     inner => inner.Id,
                     (m, g) => new { Member = m.Member, Group1 = m.Group1, Group2 = g }));
 
             Expression expectedExpression = CreateExpression(() =>
-                db.Members.GroupJoinIndexed(
+                db.Members.JoinIndexed(
                     index,
                     outer => outer.GroupId,
                     x => x == null,
                     x => (int)x,
                     (m, g) => new { Member = m, Group1 = g })
                 .AsQueryable()
-                .GroupJoinIndexed(
+                .JoinIndexed(
                     index,
                     outer => outer.Member.GroupId,
                     x => x == null,
@@ -108,7 +107,7 @@ namespace NMemory.Test.ExpressionRewriters
                     (m, g) => new { Member = m.Member, Group1 = m.Group1, Group2 = g })
                 .AsQueryable());
 
-            IExpressionRewriter rewriter = new GroupJoinPhysicalRewriter();
+            IExpressionRewriter rewriter = new JoinPhysicalRewriter();
             expression = rewriter.Rewrite(expression);
 
             Assert.AreEqual(expectedExpression.Type, expression.Type);
@@ -116,7 +115,7 @@ namespace NMemory.Test.ExpressionRewriters
         }
 
         [TestMethod]
-        public void GroupJoinPhysicalRewriterFixture_DoubleFieldKey()
+        public void JoinPhysicalRewriterFixture_DoubleFieldKey()
         {
             // NOTE: some parameter names are hard coded into the optimizer 
 
@@ -128,14 +127,14 @@ namespace NMemory.Test.ExpressionRewriters
                 as IIndex<Group, Tuple<int, int>>;
 
             Expression expression = CreateExpression(() =>
-                db.Members.GroupJoin(
+                db.Members.Join(
                     db.Groups,
                     outer => new Tuple<int?, int>(outer.GroupId, outer.GroupId2),
                     inner => new Tuple<int?, int>((int?)inner.Id, inner.Id2),
                     (m, g) => new { Member = m, Group = g }));
 
             Expression expectedExpression = CreateExpression(() =>
-                db.Members.GroupJoinIndexed(
+                db.Members.JoinIndexed(
                     index,
                     outer => new Tuple<int?, int>(outer.GroupId, outer.GroupId2),
                     x => x.Item1 == null,
@@ -143,7 +142,7 @@ namespace NMemory.Test.ExpressionRewriters
                     (m, g) => new { Member = m, Group = g })
                 .AsQueryable());
 
-            IExpressionRewriter rewriter = new GroupJoinPhysicalRewriter();
+            IExpressionRewriter rewriter = new JoinPhysicalRewriter();
             expression = rewriter.Rewrite(expression);
 
             Assert.AreEqual(expectedExpression.Type, expression.Type);

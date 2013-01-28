@@ -63,8 +63,10 @@
     <Compile Include="Execution\Optimization\ITransformationStep.cs" />
     <Compile Include="Execution\Optimization\JoinGroup.cs" />
     <Compile Include="Execution\Optimization\JoinGroup`2.cs" />
-    <Compile Include="Execution\Optimization\Rewriters\IndexAccessRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\GroupJoinPhysicalRewriter.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\IndexAccessRewriter.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\JoinPhysicalRewriter.cs" />
+    <Compile Include="Execution\Optimization\Rewriters\JoinPhysicalRewriterBase.cs" />
     <Compile Include="Execution\Optimization\Rewriters\OuterJoinLogicalRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\InnerJoinLogicalRewriter.cs">
       <SubType>Code</SubType>
