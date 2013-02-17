@@ -40,7 +40,9 @@ namespace NMemory.Execution
             this.database = database;
         }
 
-        public IEnumerator<T> Execute<T>(IExecutionPlan<IEnumerable<T>> plan, IExecutionContext context)
+        public IEnumerator<T> Execute<T>(
+            IExecutionPlan<IEnumerable<T>> plan, 
+            IExecutionContext context)
         {
             Transaction transaction = context.Transaction;
 
@@ -49,9 +51,7 @@ namespace NMemory.Execution
                 throw new InvalidOperationException();
             }
 
-            IEnumerable<T> query = plan.Execute(context);
             IConcurrencyManager cm = this.database.DatabaseEngine.ConcurrencyManager;
-
             ITable[] tables = TableLocator.FindAffectedTables(context.Database, plan);
 
             EntityPropertyCloner<T> cloner = null;
@@ -66,6 +66,8 @@ namespace NMemory.Execution
             {
                 cm.AcquireTableReadLock(tables[i], transaction);
             }
+
+            IEnumerable<T> query = plan.Execute(context);
 
             try
             {
@@ -95,7 +97,9 @@ namespace NMemory.Execution
             return result.GetEnumerator();
         }
 
-        public T Execute<T>(IExecutionPlan<T> plan, IExecutionContext context)
+        public T Execute<T>(
+            IExecutionPlan<T> plan, 
+            IExecutionContext context)
         {
             Transaction transaction = context.Transaction;
 
@@ -104,9 +108,25 @@ namespace NMemory.Execution
                 throw new InvalidOperationException();
             }
 
-            // TODO: Proper implementation
+            IConcurrencyManager cm = this.database.DatabaseEngine.ConcurrencyManager;
+            ITable[] tables = TableLocator.FindAffectedTables(context.Database, plan);
 
-            return plan.Execute(context);
+            for (int i = 0; i < tables.Length; i++)
+            {
+                cm.AcquireTableReadLock(tables[i], transaction);
+            }
+
+            try
+            {
+                return plan.Execute(context);
+            }
+            finally
+            {
+                for (int i = 0; i < tables.Length; i++)
+                {
+                    cm.ReleaseTableReadLock(tables[i], transaction);
+                }
+            }
         }
     }
 }

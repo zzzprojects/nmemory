@@ -65,7 +65,8 @@ namespace NMemory.Linq
                         transaction,
                         OperationType.Query);
 
-                TResult result = plan.Execute(context);
+                TResult result = 
+                    this.database.DatabaseEngine.Executor.Execute<TResult>(plan, context);
 
                 tran.Complete();
                 return result;
