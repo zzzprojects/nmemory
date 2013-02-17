@@ -54,44 +54,5 @@ namespace NMemory.Test
 
             Assert.AreEqual(group1.Id + 1, group2.Id);
         }
-
-        [TestMethod]
-        public void InsertEntityWithIdentityAndInitialData()
-        {
-            Database database = new Database();
-
-            Group[] initialData = {
-                new Group { Id = 1, Name = "Group 1" }, 
-                new Group { Id = 2, Name = "Group 2" } };
-
-            Table<Group, int> table = database.Tables.Create<Group, int>(g => g.Id, new IdentitySpecification<Group>(g => g.Id));
-            (table as IInitializableTable<Group>).Initialize(initialData);
-
-            Group group = new Group { Name = "Group 3" };
-
-            table.Insert(group);
-
-            Assert.AreEqual(3, group.Id);
-        }
-
-        [TestMethod]
-        public void ReflectionInsertEntityWithIdentityAndInitialData()
-        {
-            Database database = new Database();
-
-            Group[] initialData = {
-                new Group { Id = 1, Name = "Group 1" }, 
-                new Group { Id = 2, Name = "Group 2" } };
-
-            Table<Group, int> table = database.Tables.Create<Group, int>(g => g.Id, new IdentitySpecification<Group>(g => g.Id));
-            (table as IInitializableTable<Group>).Initialize(initialData);
-
-
-            Group group = new Group { Name = "Group 3" };
-
-            ((IReflectionTable)table).Insert(group);
-
-            Assert.AreEqual(3, group.Id);
-        }
     }
 }
