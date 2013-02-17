@@ -24,14 +24,10 @@
 
 namespace NMemory.Transactions
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading;
-    using NMemory.Transactions.Logs;
     using System.Collections.Concurrent;
+    using System.Threading;
     using NMemory.Modularity;
+    using NMemory.Transactions.Logs;
 
     public class TransactionHandler : ITransactionHandler
     {
