@@ -771,12 +771,18 @@ namespace NMemory.Tables
 
         protected virtual void GenerateIdentityFieldValue(TEntity entity)
         {
-            this.identityField.Generate(entity);
+            if (this.identityField != null)
+            {
+                this.identityField.Generate(entity);
+            }
         }
 
         protected void CalculateIdentityFeed()
         {
-            this.identityField.InitializeBasedOnData(this.primaryKeyIndex.SelectAll());
+            if (this.identityField != null)
+            {
+                this.identityField.InitializeBasedOnData(this.primaryKeyIndex.SelectAll());                                
+            }
         }
 
         private void VerifyType()
