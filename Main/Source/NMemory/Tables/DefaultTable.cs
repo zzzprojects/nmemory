@@ -37,11 +37,15 @@ namespace NMemory.Tables
     using NMemory.Transactions.Logs;
 
     /// <summary>
-    /// Represents a database table.
+    ///     Represents a database table.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the entities contained by the table</typeparam>
-    /// <typeparam name="TPrimaryKey">The type of the primary key of the entities.</typeparam>
-    internal class DefaultTable<TEntity, TPrimaryKey> : 
+    /// <typeparam name="TEntity">
+    ///     The type of the entities contained by the table
+    /// </typeparam>
+    /// <typeparam name="TPrimaryKey">
+    ///     The type of the primary key of the entities.
+    /// </typeparam>
+    public class DefaultTable<TEntity, TPrimaryKey> : 
         Table<TEntity, TPrimaryKey> 
         where TEntity : class
     {
@@ -60,7 +64,8 @@ namespace NMemory.Tables
         }
 
         /// <summary>
-        /// Prevents a default instance of the <see cref="DefaultTable{TPrimaryKey}" /> class from being created.
+        ///     Prevents a default instance of the <see cref="DefaultTable{TPrimaryKey}" /> 
+        ///     class from being created.
         /// </summary>
         private DefaultTable()
             : base(null, null, null)
@@ -71,10 +76,14 @@ namespace NMemory.Tables
         #region Insert
 
         /// <summary>
-        /// Core implementation of an entity insert.
+        ///     Core implementation of an entity insert.
         /// </summary>
-        /// <param name="entity">The entity that contains the primary key of the entity to be deleted.</param>
-        /// <param name="transaction">The transaction within which the update operation executes.</param>
+        /// <param name="entity">
+        ///     The entity that contains the primary key of the entity to be deleted.
+        /// </param>
+        /// <param name="transaction">
+        ///     The transaction within which the update operation executes.
+        /// </param>
         protected override void InsertCore(TEntity entity, Transaction transaction)
         {
             IExecutionContext executionContext = 
@@ -143,11 +152,17 @@ namespace NMemory.Tables
         #region Update
 
         /// <summary>
-        /// Core implementation of an entity update.
+        ///     Core implementation of an entity update.
         /// </summary>
-        /// <param name="key">The primary key of the entity to be updated.</param>
-        /// <param name="entity">An entity that contains the new propery values.</param>
-        /// <param name="transaction">The transaction within which the update operation is executed.</param>
+        /// <param name="key">
+        ///     The primary key of the entity to be updated.
+        /// </param>
+        /// <param name="entity">
+        ///     An entity that contains the new propery values.
+        /// </param>
+        /// <param name="transaction">
+        ///     The transaction within which the update operation is executed.
+        /// </param>
         protected override void UpdateCore(TPrimaryKey key, TEntity entity, Transaction transaction)
         {
             this.AcquireWriteLock(transaction);
@@ -169,13 +184,24 @@ namespace NMemory.Tables
         }
 
         /// <summary>
-        /// Core implementation of a bulk entity update.
+        ///     Core implementation of a bulk entity update.
         /// </summary>
-        /// <param name="expression">A query expression that represents the entities to be updated.</param>
-        /// <param name="updater">An expression that represents the update mechanism.</param>
-        /// <param name="transaction">The transaction within which the update operation is executed.</param>
-        /// <returns>The updated entities.</returns>
-        protected override IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater, Transaction transaction)
+        /// <param name="expression">
+        ///     A query expression that represents the entities to be updated.
+        /// </param>
+        /// <param name="updater">
+        ///     An expression that represents the update mechanism.
+        /// </param>
+        /// <param name="transaction">
+        ///     The transaction within which the update operation is executed.
+        /// </param>
+        /// <returns>
+        ///     The updated entities.
+        /// </returns>
+        protected override IEnumerable<TEntity> UpdateCore(
+            Expression expression, 
+            Expression<Func<TEntity, TEntity>> updater, 
+            Transaction transaction)
         {
             // Optimize and compile the query
             List<TEntity> result = null;
@@ -196,7 +222,10 @@ namespace NMemory.Tables
             return this.CloneEntities(result);
         }
 
-        private void UpdateCore(IList<TEntity> storedEntities, Expression<Func<TEntity, TEntity>> updater, Transaction transaction)
+        private void UpdateCore(
+            IList<TEntity> storedEntities, 
+            Expression<Func<TEntity, TEntity>> updater, 
+            Transaction transaction)
         {
             IExecutionContext executionContext =
                 new ExecutionContext(this.Database, transaction, OperationType.Update);
@@ -310,11 +339,17 @@ namespace NMemory.Tables
         #region Delete
 
         /// <summary>
-        /// Core implementation of an entity delete.
+        ///     Core implementation of an entity delete.
         /// </summary>
-        /// <param name="key">The primary key of the entity to be deleted.</param>
-        /// <param name="transaction">The transaction within which the delete operation is executed.</param>
-        protected override int DeleteCore(Expression expression, Transaction transaction)
+        /// <param name="key">
+        ///     The primary key of the entity to be deleted.
+        /// </param>
+        /// <param name="transaction">
+        ///     The transaction within which the delete operation is executed.
+        /// </param>
+        protected override int DeleteCore(
+            Expression expression, 
+            Transaction transaction)
         {
             List<TEntity> result = null;
 
@@ -335,11 +370,17 @@ namespace NMemory.Tables
         }
 
         /// <summary>
-        /// Core implementation of a bulk entity delete.
+        ///     Core implementation of a bulk entity delete.
         /// </summary>
-        /// <param name="expression">A query expression that represents the entities to be deleted.</param>
-        /// <param name="transaction">The transaction within which the delete operation is executed.</param>
-        /// <returns>The count of deleted entities.</returns>
+        /// <param name="expression">
+        ///     A query expression that represents the entities to be deleted.
+        /// </param>
+        /// <param name="transaction">
+        ///     The transaction within which the delete operation is executed.
+        /// </param>
+        /// <returns>
+        ///     The count of deleted entities.
+        /// </returns>
         protected override void DeleteCore(TPrimaryKey key, Transaction transaction)
         {
             this.AcquireWriteLock(transaction);
@@ -443,7 +484,9 @@ namespace NMemory.Tables
             }
         }
 
-        private IEnumerable<ITable> GetRelatedTables(IEnumerable<IRelation> referringRelations, IEnumerable<IRelation> referredRelations)
+        private IEnumerable<ITable> GetRelatedTables(
+            IEnumerable<IRelation> referringRelations, 
+            IEnumerable<IRelation> referredRelations)
         {
             return
                 (referringRelations ?? Enumerable.Empty<IRelation>()).Select(x => x.ForeignTable)
@@ -452,15 +495,23 @@ namespace NMemory.Tables
                 .Except(new ITable[] { this }); // This table is already locked
         }
 
-        private void LockRelatedTables(Transaction transaction, IEnumerable<ITable> relatedTables)
+        private void LockRelatedTables(
+            Transaction transaction, 
+            IEnumerable<ITable> relatedTables)
         {
             foreach (ITable table in relatedTables)
             {
-                this.Database.DatabaseEngine.ConcurrencyManager.AcquireRelatedTableLock(table, transaction);
+                this.Database
+                    .DatabaseEngine
+                    .ConcurrencyManager
+                    .AcquireRelatedTableLock(table, transaction);
             }
         }
 
-        private void FindRelations(IEnumerable<IIndex> indexes, ICollection<IRelation> referringRelations, ICollection<IRelation> referredRelations)
+        private void FindRelations(
+            IEnumerable<IIndex> indexes, 
+            ICollection<IRelation> referringRelations, 
+            ICollection<IRelation> referredRelations)
         {
             foreach (IIndex index in indexes)
             {
@@ -486,7 +537,6 @@ namespace NMemory.Tables
             IList<TEntity> storedEntities, 
             IEnumerable<IRelation> referringRelations, 
             IEnumerable<IRelation> referredRelations, 
-            
             HashSet<object> referringEntities, 
             HashSet<object> referredEntities)
         {
@@ -518,7 +568,9 @@ namespace NMemory.Tables
             }
         }
 
-        private void ValidateReferredRelations(IList<IRelation> referredRelations, IList<TEntity> storedEntities)
+        private void ValidateReferredRelations(
+            IList<IRelation> referredRelations, 
+            IList<TEntity> storedEntities)
         {
             if (referredRelations.Count == 0)
             {
@@ -536,7 +588,9 @@ namespace NMemory.Tables
             }
         }
 
-        private void ValidateReferringRelations(IList<IRelation> referringRelations, HashSet<object> referringEntities)
+        private void ValidateReferringRelations(
+            IList<IRelation> referringRelations, 
+            HashSet<object> referringEntities)
         {
             if (referringEntities.Count == 0)
             {
@@ -552,7 +606,9 @@ namespace NMemory.Tables
             }
         }
 
-        private Expression<Func<TEntity, TEntity>> CreateSingleEntityUpdater(TEntity entity, TEntity storedEntity)
+        private Expression<Func<TEntity, TEntity>> CreateSingleEntityUpdater(
+            TEntity entity, 
+            TEntity storedEntity)
         {
             List<PropertyInfo> changes = this.changeDetector.GetChanges(storedEntity, entity);
 
@@ -580,7 +636,9 @@ namespace NMemory.Tables
                 bindings[i] = Expression.Bind(property, Expression.Property(source, property));
             }
 
-            MemberInitExpression updater = Expression.MemberInit(Expression.New(typeof(TEntity)), bindings);
+            MemberInitExpression updater = 
+                Expression.MemberInit(Expression.New(typeof(TEntity)), bindings);
+
             return Expression.Lambda<Func<TEntity, TEntity>>(updater, exprParam);
         }
 
