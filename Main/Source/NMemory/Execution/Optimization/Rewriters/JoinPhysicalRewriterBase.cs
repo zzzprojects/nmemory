@@ -77,15 +77,23 @@ namespace NMemory.Execution.Optimization.Rewriters
 
             if (!DefaultKeyInfoExpressionServicesProvider.TryCreate(keyType, out provider))
             {
-                // Cannot detect key
+                // Cannot detect key type
                 return base.VisitMethodCall(node);
             }
 
-            var services = provider.KeyInfoExpressionServices;
+            IKeyInfoExpressionServices services = provider.KeyInfoExpressionServices;
 
-            // TODO: TryParseKeySelectorExpression
-            MemberInfo[] keyMembers = 
-                services.ParseKeySelectorExpression(secondKeySelector.Body, false);
+            // Try to parse expression
+            MemberInfo[] keyMembers;
+
+            if (!services.TryParseKeySelectorExpression(
+                secondKeySelector.Body, 
+                false, 
+                out keyMembers))
+            {
+                // Cannot parse key
+                return base.VisitMethodCall(node);
+            }
 
             IIndex matchedIndex = null;
             int[] mapping = null;

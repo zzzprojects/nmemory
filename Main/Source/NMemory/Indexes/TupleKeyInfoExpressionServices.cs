@@ -101,24 +101,67 @@ namespace NMemory.Indexes
             return Expression.Property(source, property);
         }
 
-
-        public MemberInfo[] ParseKeySelectorExpression(Expression keySelector, bool strict)
+        public MemberInfo[] ParseKeySelectorExpression(
+            Expression keySelector, 
+            bool strict)
         {
             if (keySelector == null)
             {
                 throw new ArgumentNullException("keySelector");
             }
 
+            MemberInfo[] result;
+
+            if (ParseKeySelectorExpressionCore(keySelector, strict, true, out result))
+            {
+                return result;
+            }
+
+            throw new InvalidOperationException("Exception should have been thrown");
+        }
+
+        public bool TryParseKeySelectorExpression(
+            Expression keySelector,
+            bool strict,
+            out MemberInfo[] result)
+        {
+            if (keySelector == null)
+            {
+                throw new ArgumentNullException("keySelector");
+            }
+
+            return ParseKeySelectorExpressionCore(keySelector, strict, false, out result);
+        }
+
+        private bool ParseKeySelectorExpressionCore(
+            Expression keySelector,
+            bool strict,
+            bool throwException,
+            out MemberInfo[] result)
+        {
+            result = null;
+
             if (keySelector.Type != this.tupleType)
             {
-                throw new ArgumentException("Invalid expression", "keySelector");
+                if (throwException)
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             NewExpression newTupleExpression = keySelector as NewExpression;
 
             if (newTupleExpression != null)
             {
-                return GetMemberInfoFromArguments(newTupleExpression.Arguments, strict);
+                return GetMemberInfoFromArguments(
+                    newTupleExpression.Arguments, 
+                    strict, 
+                    throwException,
+                    out result);
             }
 
             MethodCallExpression createTupleExpression = keySelector as MethodCallExpression;
@@ -130,20 +173,41 @@ namespace NMemory.Indexes
                 if (createMethod.DeclaringType != typeof(Tuple) || 
                     createMethod.Name != "Create")
                 {
-                    throw new ArgumentException("Invalid expression", "keySelector");
+                    if (throwException)
+                    {
+                        throw new ArgumentException("Invalid expression", "keySelector");
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
 
-                return GetMemberInfoFromArguments(createTupleExpression.Arguments, strict);
+                return GetMemberInfoFromArguments(
+                    createTupleExpression.Arguments, 
+                    strict,
+                    throwException,
+                    out result);
             }
 
-            throw new ArgumentException("Invalid expression", "keySelector");
+            if (throwException)
+            {
+                throw new ArgumentException("Invalid expression", "keySelector");
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        private static MemberInfo[] GetMemberInfoFromArguments(
+        private static bool GetMemberInfoFromArguments(
             IList<Expression> arguments, 
-            bool strict)
+            bool strict,
+            bool throwException,
+            out MemberInfo[] result)
         {
-            MemberInfo[] result = new MemberInfo[arguments.Count];
+            MemberInfo[] resultList = new MemberInfo[arguments.Count];
+            result = null;
 
             for (int i = 0; i < arguments.Count; i++)
             {
@@ -158,18 +222,33 @@ namespace NMemory.Indexes
 
                 if (member == null)
                 {
-                    throw new ArgumentException("Invalid expression", "keySelector");
+                    if (throwException)
+                    {
+                        throw new ArgumentException("Invalid expression", "keySelector");
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
 
                 if (member.Expression.NodeType != ExpressionType.Parameter)
                 {
-                    throw new ArgumentException("Invalid expression", "keySelector");
+                    if (throwException)
+                    {
+                        throw new ArgumentException("Invalid expression", "keySelector");
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
 
-                result[i] = member.Member;
+                resultList[i] = member.Member;
             }
 
-            return result;
+            result = resultList.ToArray();
+            return true;
         }
     }
 }

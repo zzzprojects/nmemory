@@ -108,7 +108,9 @@ namespace NMemory.Indexes
             }
 
             // Does GetPropeties really ensure appropriately ordered property list?
-            // Ensure an ordered propety list based on the order of generic arguments
+
+            // This code ensures an ordered property list based on the order of generic 
+            // arguments
 
             // Anonymous types are generic
             Type genericAnonType = this.anonymousType.GetGenericTypeDefinition();
@@ -126,38 +128,94 @@ namespace NMemory.Indexes
                 {
                     if (genericProps[j].PropertyType == genericArgs[i])
                     {
-                        this.orderedProperties[i] = this.anonymousType.GetProperty(genericProps[j].Name);
+                        this.orderedProperties[i] = 
+                            this.anonymousType.GetProperty(genericProps[j].Name);
+
                         break;
                     }
                 }
             }
         }
 
-        public MemberInfo[] ParseKeySelectorExpression(Expression keySelector, bool strict)
+        public MemberInfo[] ParseKeySelectorExpression(
+            Expression keySelector, 
+            bool strict)
         {
             if (keySelector == null)
             {
                 throw new ArgumentNullException("keySelector");
             }
 
+            MemberInfo[] result;
+
+            if (ParseKeySelectorExpressionCore(keySelector, strict, true, out result))
+            {
+                return result;
+            }
+
+            throw new ArgumentException("", "keySelector");
+        }
+
+        public bool TryParseKeySelectorExpression(
+            Expression keySelector,
+            bool strict,
+            out MemberInfo[] result)
+        {
+            if (keySelector == null)
+            {
+                throw new ArgumentNullException("keySelector");
+            }
+
+            return ParseKeySelectorExpressionCore(keySelector, strict, false, out result);
+        }
+
+        private bool ParseKeySelectorExpressionCore(
+            Expression keySelector,
+            bool strict,
+            bool throwException,
+            out MemberInfo[] result)
+        {
+            result = null;
+
             if (keySelector.Type != this.anonymousType)
             {
-                throw new ArgumentException("Invalid expression", "keySelector");
+                if (throwException)
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             NewExpression resultCreator = keySelector as NewExpression;
 
             if (resultCreator == null)
             {
-                throw new ArgumentException("Invalid expression", "keySelector");
+                if (throwException)
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             if (resultCreator.Type != this.anonymousType)
             {
-                throw new ArgumentException("Invalid expression", "keySelector");
+                if (throwException)
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+                else
+                {
+                    return false;
+                }
             }
 
-            List<MemberInfo> result = new List<MemberInfo>();
+            List<MemberInfo> resultList = new List<MemberInfo>();
 
             foreach (Expression arg in resultCreator.Arguments)
             {
@@ -172,7 +230,14 @@ namespace NMemory.Indexes
 
                 if (member == null)
                 {
-                    throw new ArgumentException("Invalid expression", "keySelector");
+                    if (throwException)
+                    {
+                        throw new ArgumentException("Invalid expression", "keySelector");
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
 
                 //if (member.Expression.NodeType != ExpressionType.Parameter)
@@ -180,10 +245,11 @@ namespace NMemory.Indexes
                 //    throw new ArgumentException("Invalid expression", "keySelector");
                 //}
 
-                result.Add(member.Member);
+                resultList.Add(member.Member);
             }
 
-            return result.ToArray();
+            result = resultList.ToArray();
+            return true;
         }
     }
 }

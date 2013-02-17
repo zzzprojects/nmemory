@@ -73,17 +73,56 @@ namespace NMemory.Indexes
             return source;
         }
 
-
-        public MemberInfo[] ParseKeySelectorExpression(Expression keySelector, bool strict)
+        public MemberInfo[] ParseKeySelectorExpression(
+            Expression keySelector, 
+            bool strict)
         {
             if (keySelector == null)
             {
                 throw new ArgumentNullException("keySelector");
             }
 
+            MemberInfo[] result;
+
+            if (ParseKeySelectorExpressionCore(keySelector, strict, true, out result))
+            {
+                return result;
+            }
+
+            throw new ArgumentException("", "keySelector");
+        }
+
+        public bool TryParseKeySelectorExpression(
+            Expression keySelector,
+            bool strict,
+            out MemberInfo[] result)
+        {
+            if (keySelector == null)
+            {
+                throw new ArgumentNullException("keySelector");
+            }
+
+            return ParseKeySelectorExpressionCore(keySelector, strict, false, out result);
+        }
+
+        private bool ParseKeySelectorExpressionCore(
+            Expression keySelector,
+            bool strict,
+            bool throwException,
+            out MemberInfo[] result)
+        {
+            result = null;
+
             if (keySelector.Type != this.primitiveType)
             {
-                throw new ArgumentException("Invalid expression", "keySelector");
+                if (throwException)
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             Expression expr = keySelector;
@@ -97,15 +136,23 @@ namespace NMemory.Indexes
 
             if (member == null)
             {
-                throw new ArgumentException("Invalid expression", "keySelector");
+                if (throwException)
+                {
+                    throw new ArgumentException("Invalid expression", "keySelector");
+                }
+                else
+                {
+                    return false;
+                }
             }
-          
+
             //if (member.Expression.NodeType != ExpressionType.Parameter)
             //{
             //    throw new ArgumentException("Invalid expression", "keySelector");
             //}
 
-            return new MemberInfo[] { member.Member };
+            result = new MemberInfo[] { member.Member };
+            return true;
         }
     }
 }

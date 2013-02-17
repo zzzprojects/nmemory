@@ -40,5 +40,10 @@ namespace NMemory.Indexes
         MemberInfo[] ParseKeySelectorExpression(
             Expression keySelector, 
             bool strict);
+
+        bool TryParseKeySelectorExpression(
+            Expression keySelector,
+            bool strict,
+            out MemberInfo[] result);
     }
 }
