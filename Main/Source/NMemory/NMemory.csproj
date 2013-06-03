@@ -33,7 +33,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\Release\NMemory.xml</DocumentationFile>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\AssemblySigning.targets" />
+  <Import Project="..\AssemblySigning.targets" />
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Transactions" />
