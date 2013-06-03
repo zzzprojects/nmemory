@@ -1,53 +1,162 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" DefaultTargets="default">
-  <PropertyGroup>
-    <BaseDir>$(MSBuildProjectDirectory)\..</BaseDir>
-    <Configuration Condition="'$(Configuration)'==''" >Release</Configuration>
-    <PackageDir>$(MSBuildProjectDirectory)\Packages</PackageDir>
-	<SolutionDir>$(BaseDir)\Source</SolutionDir>
-    <SolutionFile>$(SolutionDir)\NMemory.sln</SolutionFile>
-	
-	<SignAssembly Condition="$(SignAssembly) == ''">False</SignAssembly>
-  </PropertyGroup>
- 
-  <Target Name="default" DependsOnTargets="Compile; Package" />
- 
-  <Target Name="Compile">
 	<PropertyGroup>
-		<SigningKeyDir>$(BaseDir)\Build</SigningKeyDir>
-		<PublicKey>$(SigningKeyDir)\PublicKey.snk</PublicKey>
-		<KeyPair>$(SigningKeyDir)\KeyPair.snk</KeyPair>
-		<KeyPairAvailable>False</KeyPairAvailable>
-		<KeyPairAvailable Condition="Exists('$(KeyPair)')">True</KeyPairAvailable>
-		<KeyFile Condition="$(KeyPairAvailable)">$(KeyPair)</KeyFile>
-		<KeyFile Condition="!$(KeyPairAvailable)">$(PublicKey)</KeyFile>
-		<DelaySign>True</DelaySign>
-		<DelaySign Condition="$(KeyPairAvailable)">False</DelaySign>
+		<BaseDir>$(MSBuildProjectDirectory)\..</BaseDir>
+		<TempDir>$(MSBuildProjectDirectory)\_temp</TempDir>
+		<PackageDir>$(MSBuildProjectDirectory)\Packages</PackageDir>
+		<SolutionDir>$(BaseDir)\Source</SolutionDir>
+		<SolutionFile>$(SolutionDir)\NMemory.sln</SolutionFile>
+		<NMemoryNugetPackageDir>NMemoryNuget</NMemoryNugetPackageDir>
+        <NMemoryZipPackageDir>NMemoryZip</NMemoryZipPackageDir>
+		
+		<SignAssembly Condition="$(SignAssembly) == ''">False</SignAssembly>
+		<RunTests Condition="$(RunTests) == ''">False</RunTests>
 	</PropertyGroup>
-	<RemoveDir Directories="$(SolutionDir)\NMemory\bin\$(Configuration)\" />
-	<Message Importance="High" Text="Code signing is enabled" Condition="$(SignAssembly)" />
-	<Message Importance="High" Message="Key pair was not found, executing delayed signing!" Condition="$(SignAssembly) And ! $(KeyPairAvailable)" />
-    <MSBuild 
-		Projects="$(SolutionFile)" 
-		Properties="
-			Configuration=$(Configuration);
-			SignAssembly=$(SignAssembly);
-			DelaySign=$(DelaySign);
-			AssemblyOriginatorKeyFile=$(KeyFile)"  />
-  </Target>
- 
-  <Target Name="Package">
-	<RemoveDir Directories="$(PackageDir)" />
   
-    <ItemGroup>
-      <MainBinaries Include="$(SolutionDir)\NMemory\bin\$(Configuration)\**\*.*" />
+	<ItemGroup>
+        <CompileConfig Include="Release">
+            <NugetDir>lib\net40</NugetDir>
+            <ZipDir>.</ZipDir>
+        </CompileConfig>
     </ItemGroup>
  
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\NMemory.nuspec" DestinationFolder="$(PackageDir)\NMemory" />
+	<Target Name="default" DependsOnTargets="Initialize; Compile; RunTests; Collect; NugetPackage; ZipPackage; Cleanup" />
+	
+	 <Target Name="Initialize">
+        <RemoveDir Directories="$(TempDir)" />
+        <RemoveDir Directories="$(PackageDir)" />
+        <MakeDir Directories="$(PackageDir)" />
+    </Target>
  
-    <Copy SourceFiles="@(MainBinaries)" DestinationFolder="$(PackageDir)\NMemory\lib\net40\%(RecursiveDir)" />
-	<Copy SourceFiles="@(MainBinaries)" DestinationFolder="$(PackageDir)\NMemory\lib\net45\%(RecursiveDir)" />
- 
-    <Exec WorkingDirectory="$(PackageDir)\NMemory" 
-          Command="$(SolutionDir)\.nuget\nuget.exe pack $(PackageDir)\NMemory\NMemory.nuspec" />
-  </Target>
+	<Target Name="Compile" Outputs="%(CompileConfig.Identity)">
+		<PropertyGroup>
+			<SigningKeyDir>$(BaseDir)\Build</SigningKeyDir>
+			<PublicKey>$(SigningKeyDir)\PublicKey.snk</PublicKey>
+			<KeyPair>$(SigningKeyDir)\KeyPair.snk</KeyPair>
+			<KeyPairAvailable>False</KeyPairAvailable>
+			<KeyPairAvailable Condition="Exists('$(KeyPair)')">True</KeyPairAvailable>
+			<KeyFile Condition="$(KeyPairAvailable)">$(KeyPair)</KeyFile>
+			<KeyFile Condition="!$(KeyPairAvailable)">$(PublicKey)</KeyFile>
+			<DelaySign>True</DelaySign>
+			<DelaySign Condition="$(KeyPairAvailable)">False</DelaySign>
+			<BuildTargets>NMemory</BuildTargets>
+			<BuildTargets Condition="$(RunTests)=='True'">$(BuildTargets); NMemory.Test</BuildTargets>
+		</PropertyGroup>
+		<RemoveDir Directories="$(SolutionDir)\NMemory\bin\$(Configuration)\" />
+		<Message Importance="High" Text="Code signing is enabled" Condition="$(SignAssembly)" />
+		<Message Importance="High" Message="Key pair was not found, executing delayed signing!" Condition="$(SignAssembly) And ! $(KeyPairAvailable)" />
+		<MSBuild 
+			Projects="$(SolutionFile)"
+			Targets="$(BuildTargets)"
+			Properties="
+				Configuration=%(CompileConfig.Identity);
+				SignAssembly=$(SignAssembly);
+				DelaySign=$(DelaySign);
+				AssemblyOriginatorKeyFile=$(KeyFile)"  />
+	</Target>
+  
+	<Target Name="RunTests" Condition="$(RunTests)=='True'" Outputs="%(CompileConfig.Identity)">
+		<PropertyGroup>
+			<TestSuccess>1</TestSuccess>
+		</PropertyGroup>
+		<Message Text="Run tests" />
+		<Exec Command="&quot;$(VS110COMNTOOLS)..\IDE\mstest.exe&quot; /testcontainer:&quot;$(SolutionDir)\NMemory.Test\bin\%(CompileConfig.Identity)\NMemory.Test.dll&quot; /testsettings:&quot;$(SolutionDir)\Local.testsettings&quot;">
+			 <Output TaskParameter="ExitCode" PropertyName="TestSuccess"/>
+		</Exec>
+		<Error Text="One or more tests failed" Condition="'$(TestSuccess)'!='0'" />
+	</Target>
+
+	<Target Name="Collect" Outputs="%(CompileConfig.Identity)">
+        <PropertyGroup>
+            <SourceDir>$(SolutionDir)\NMemory\bin\%(CompileConfig.Identity)</SourceDir>
+            <DestinationDirNuget>$(TempDir)\$(NMemoryNugetPackageDir)\%(CompileConfig.NugetDir)</DestinationDirNuget>
+            <DestinationDirZip>$(TempDir)\$(NMemoryZipPackageDir)\%(CompileConfig.ZipDir)</DestinationDirZip>
+        </PropertyGroup>
+        <ItemGroup>
+            <SourceFilesCommon Include="$(SourceDir)\NMemory.dll"/>
+            <SourceFilesCommon Include="$(SourceDir)\NMemory.xml"/>
+        </ItemGroup>
+       <Copy 
+            Condition="%(CompileConfig.NugetDir) != ''"
+            SourceFiles="@(SourceFilesCommon)" 
+            DestinationFolder="$(DestinationDirNuget)" />
+        <Copy 
+            Condition="%(CompileConfig.ZipDir) != ''"
+            SourceFiles="@(SourceFilesCommon)" 
+            DestinationFolder="$(DestinationDirZip)" />
+    </Target>
+	
+	<Target Name="NugetPackage">
+		<PropertyGroup>
+			<PackageStructureDir>$(TempDir)\$(NMemoryNugetPackageDir)</PackageStructureDir>
+		</PropertyGroup>
+	
+        <Copy 
+            SourceFiles="$(MSBuildProjectDirectory)\NMemory.nuspec" 
+            DestinationFolder="$(PackageStructureDir)" />
+			
+		<!-- Currently there is no net45 build, so the net40 dir is cloned -->
+		<ItemGroup>
+			<net40Files Include="$(PackageStructureDir)\lib\net40\**\*.*"/>
+		</ItemGroup>
+		<Copy 
+			Condition="! Exists('$(PackageStructureDir)\lib\net45')"
+			SourceFiles="@(net40Files)" 
+			DestinationFolder="$(PackageStructureDir)\lib\net45\%(RecursiveDir)" />
+		
+        <Exec 
+            WorkingDirectory="$(PackageStructureDir)" 
+            Command="$(SolutionDir)\.nuget\nuget.exe pack $(PackageStructureDir)\NMemory.nuspec" />
+            
+        <ItemGroup>
+            <NugetPackage Include="$(PackageStructureDir)\*.nupkg"/>
+        </ItemGroup>
+        <Message Text="@(NugetPackage)" Importance="High" />
+        <Move 
+            SourceFiles="@(NugetPackage)"
+            DestinationFolder="$(PackageDir)" />
+    </Target>
+	
+	<Target Name="ZipPackage">
+        <CreateZip
+            InputDirectory="$(TempDir)\$(NMemoryZipPackageDir)"
+            OutputFile="$(PackageDir)\NMemory Library.zip" />
+    </Target>
+    
+    <Target Name="Cleanup">
+        <RemoveDir Directories="$(TempDir)" />
+    </Target>
+    
+    <UsingTask TaskName="CreateZip" 
+        TaskFactory="CodeTaskFactory" 
+        AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+        <ParameterGroup>
+            <InputDirectory ParameterType="System.String" Required="true" />
+            <OutputFile ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Reference Include="System.Core" />
+            <Reference Include="System.IO.Compression.FileSystem" />
+            <Using Namespace="System" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.IO.Compression" />
+            <Using Namespace="Microsoft.Build.Framework" />
+            <Using Namespace="Microsoft.Build.Utilities" />
+            <Code Type="Fragment" Language="cs">
+            <![CDATA[
+                try {
+                    InputDirectory = Path.GetFullPath(InputDirectory);
+                    OutputFile = Path.GetFullPath(OutputFile);
+                    
+                    ZipFile.CreateFromDirectory(InputDirectory, OutputFile);
+                    
+                    return true;
+                }
+                catch (Exception ex) {
+                    Log.LogErrorFromException(ex);
+                    return false;
+                }
+            ]]>
+            </Code>
+        </Task>
+    </UsingTask>
 </Project>
