@@ -33,6 +33,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\Release\NMemory.xml</DocumentationFile>
   </PropertyGroup>
+  <Import Project="$(SolutionDir)\AssemblySigning.targets" />
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Transactions" />
@@ -185,6 +186,8 @@
     <Compile Include="Linq\QueryableEx.cs" />
     <Compile Include="Common\DynamicMethodBuilder.cs" />
     <Compile Include="Modularity\DefaultDatabaseComponentFactory.cs" />
+    <Compile Include="Properties\AssemblyVersion.cs" />
+    <Compile Include="Properties\AssemblyVisibility.cs" />
     <Compile Include="StoredProcedures\StoredProcedureBase.cs" />
     <Compile Include="Tables\DefaultTableFactory.cs" />
     <Compile Include="Modularity\IConcurrencyManager.cs" />
