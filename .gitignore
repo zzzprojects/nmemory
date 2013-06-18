@@ -1,0 +1,8 @@
+bin/**
+obj/**
+TestResults/**
+*.suo
+*.user
+StyleCop.Cache
+Main/Build/Packages/**
+Main/Build/KeyPair.snk
