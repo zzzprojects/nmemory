@@ -118,7 +118,7 @@
 
     <Exec
         WorkingDirectory="$(PackageStructureDir)"
-        Command="$(SolutionDir)\.nuget\nuget.exe pack $(PackageStructureDir)\NMemory.nuspec" />
+        Command="&quot;$(SolutionDir)\.nuget\nuget.exe&quot; pack &quot;$(PackageStructureDir)\NMemory.nuspec&quot;" />
 
     <ItemGroup>
       <NugetPackage Include="$(PackageStructureDir)\*.nupkg"/>
