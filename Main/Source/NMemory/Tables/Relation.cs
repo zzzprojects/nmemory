@@ -51,6 +51,7 @@ namespace NMemory.Tables
         TForeign, 
         TForeignKey> :
 
+        IRelationInternal,
         IRelation
 
         where TPrimary : class
@@ -59,11 +60,13 @@ namespace NMemory.Tables
 
         #region Members
 
-        private IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex;
-        private IIndex<TForeign, TForeignKey> foreignIndex;
+        private bool isEnabled;
 
-        private Func<TForeignKey, TPrimaryKey> convertForeignToPrimary;
-        private Func<TPrimaryKey, TForeignKey> convertPrimaryToForeign;
+        private readonly IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex;
+        private readonly IIndex<TForeign, TForeignKey> foreignIndex;
+
+        private readonly Func<TForeignKey, TPrimaryKey> convertForeignToPrimary;
+        private readonly Func<TPrimaryKey, TForeignKey> convertPrimaryToForeign;
 
         #endregion
 
@@ -75,6 +78,8 @@ namespace NMemory.Tables
             Func<TForeignKey, TPrimaryKey>  foreignToPrimary,
             Func<TPrimaryKey, TForeignKey> primaryToForeign)
         {
+            this.isEnabled = true;
+
             this.primaryIndex = primaryIndex;
             this.foreignIndex = foreignIndex;
 
@@ -83,6 +88,30 @@ namespace NMemory.Tables
         }
 
         #endregion
+
+        public bool IsEnabled
+        {
+            get 
+            { 
+                return this.isEnabled; 
+            }
+
+            set 
+            {
+                if (this.isEnabled == value)
+                {
+                    return;
+                }
+
+                if (value)
+                {
+                    // Check if the relation can be enabled
+                    this.ValidateAllCore();
+                }
+
+                this.isEnabled = value;
+            }
+        }
 
         ITable IRelation.PrimaryTable
         {
@@ -104,27 +133,27 @@ namespace NMemory.Tables
             get { return this.foreignIndex; }
         }
 
-        void IRelation.ValidateEntity(object foreign)
+        void IRelationInternal.ValidateEntity(object foreign)
         {
-            TForeign foreignEntity = (TForeign)foreign;
-            TForeignKey foreignKey = this.foreignIndex.KeyInfo.SelectKey(foreignEntity);
-
-            // Empty foreign key means, that it does not refer to anything
-            if (this.foreignIndex.KeyInfo.IsEmptyKey(foreignKey))
+            if (!this.isEnabled)
             {
                 return;
             }
 
-            TPrimaryKey primaryKey = this.convertForeignToPrimary.Invoke(foreignKey);
-
-            if (!this.primaryIndex.Contains(primaryKey))
-            {
-                // TODO: Proper message
-                throw new ForeignKeyViolationException();
-            }
+            this.ValidateEntityCore((TForeign)foreign);
         }
 
-        IEnumerable<object> IRelation.GetReferringEntities(object primary)
+        void IRelationInternal.ValidateAll()
+        {
+            if (!this.isEnabled)
+            {
+                return;
+            }
+
+            this.ValidateAllCore();
+        }
+
+        IEnumerable<object> IRelationInternal.GetReferringEntities(object primary)
         {
             TPrimary primaryEntity = (TPrimary)primary;
             TPrimaryKey primaryKey = this.primaryIndex.KeyInfo.SelectKey(primaryEntity);
@@ -134,7 +163,7 @@ namespace NMemory.Tables
             return this.foreignIndex.Select(foreignKey);
         }
 
-        IEnumerable<object> IRelation.GetReferredEntities(object foreign)
+        IEnumerable<object> IRelationInternal.GetReferredEntities(object foreign)
         {
             TForeign foreignEntity = (TForeign)foreign;
             TForeignKey foreignKey = this.foreignIndex.KeyInfo.SelectKey(foreignEntity);
@@ -148,6 +177,33 @@ namespace NMemory.Tables
             TPrimaryKey primaryKey = this.convertForeignToPrimary.Invoke(foreignKey);
 
             return this.primaryIndex.Select(primaryKey);
+        }
+
+        private void ValidateAllCore()
+        {
+            foreach (TForeign item in this.foreignIndex.SelectAll())
+            {
+                this.ValidateEntityCore(item);
+            }
+        }
+
+        private void ValidateEntityCore(TForeign foreign)
+        {
+            TForeignKey foreignKey = this.foreignIndex.KeyInfo.SelectKey(foreign);
+
+            // Empty foreign key means, that it does not refer to anything
+            if (this.foreignIndex.KeyInfo.IsEmptyKey(foreignKey))
+            {
+                return;
+            }
+
+            TPrimaryKey primaryKey = this.convertForeignToPrimary.Invoke(foreignKey);
+
+            if (!this.primaryIndex.Contains(primaryKey))
+            {
+                // TODO: Proper exception message
+                throw new ForeignKeyViolationException();
+            }
         }
     }
 }

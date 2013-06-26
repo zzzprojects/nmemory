@@ -24,11 +24,11 @@
 
 namespace NMemory.Test.Environment.Data
 {
+    using System;
     using NMemory.Constraints;
     using NMemory.Indexes;
     using NMemory.Tables;
     using NMemory.Utilities;
-    using System;
 
     public class TestDatabase : Database
     {
@@ -84,7 +84,7 @@ namespace NMemory.Test.Environment.Data
             this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory(), g => g.Name);
         }
 
-        public void AddMemberGroupRelation(
+        public IRelation AddMemberGroupRelation(
             bool createMultiField = false, 
             bool useExpressionFactory = false,
             bool useTuple = false)
@@ -98,13 +98,13 @@ namespace NMemory.Test.Environment.Data
 
                     if (useExpressionFactory)
                     {
-                        this.Tables.CreateRelation(uniqueIndex, foreignIndex,
+                        return this.Tables.CreateRelation(uniqueIndex, foreignIndex,
                             g => g.Id, m => m.GroupId,
                             g => g.Id2, m => m.GroupId2);
                     }
                     else
                     {
-                        this.Tables.CreateRelation(uniqueIndex, foreignIndex,
+                        return this.Tables.CreateRelation(uniqueIndex, foreignIndex,
                             x => new Tuple<int, int>(x.Item1.Value, x.Item2),
                             x => new Tuple<int?, int>((int?)x.Item1, x.Item2));
                     }
@@ -116,13 +116,13 @@ namespace NMemory.Test.Environment.Data
 
                     if (useExpressionFactory)
                     {
-                        this.Tables.CreateRelation(uniqueIndex, foreignIndex,
+                        return this.Tables.CreateRelation(uniqueIndex, foreignIndex,
                             g => g.Id, m => m.GroupId,
                             g => g.Id2, m => m.GroupId2);
                     }
                     else
                     {
-                        this.Tables.CreateRelation(uniqueIndex, foreignIndex,
+                        return this.Tables.CreateRelation(uniqueIndex, foreignIndex,
                             x => new { Id = x.GroupId.Value, Id2 = x.GroupId2 },
                             x => new { GroupId = (int?)x.Id, GroupId2 = x.Id2 });
                     }
@@ -135,12 +135,12 @@ namespace NMemory.Test.Environment.Data
 
                 if (useExpressionFactory)
                 {
-                    this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex,
+                    return this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex,
                        new RelationConstraint<Group, Member, int?>(g => g.Id, m => m.GroupId));
                 }
                 else
                 {
-                    this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex, x => x.Value, x => x);
+                    return this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex, x => x.Value, x => x);
                 }
             }
 

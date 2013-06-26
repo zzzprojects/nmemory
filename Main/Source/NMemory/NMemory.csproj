@@ -217,6 +217,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tables\DefaultTable.cs" />
     <Compile Include="Tables\IBulkTable.cs" />
+    <Compile Include="Tables\IRelationInternal.cs" />
     <Compile Include="Tables\IRelation.cs" />
     <Compile Include="Tables\IRelationContraint.cs" />
     <Compile Include="Tables\Relation.cs" />

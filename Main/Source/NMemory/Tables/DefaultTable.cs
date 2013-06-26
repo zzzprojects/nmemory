@@ -95,7 +95,7 @@ namespace NMemory.Tables
             this.ApplyContraints(storedEntity, executionContext);
 
             // Find referred relations
-            List<IRelation> referredRelations = new List<IRelation>();
+            List<IRelationInternal> referredRelations = new List<IRelationInternal>();
             this.FindRelations(this.Indexes, null, referredRelations);
 
             // Find related tables
@@ -252,8 +252,8 @@ namespace NMemory.Tables
             }
 
             // Find relations
-            List<IRelation> referringRelations = new List<IRelation>();
-            List<IRelation> referredRelations = new List<IRelation>();
+            List<IRelationInternal> referringRelations = new List<IRelationInternal>();
+            List<IRelationInternal> referredRelations = new List<IRelationInternal>();
             this.FindRelations(potentialIndexes, referringRelations, referredRelations);
 
             // Find related tables to lock
@@ -400,8 +400,8 @@ namespace NMemory.Tables
         private void DeleteCore(IList<TEntity> storedEntities, Transaction transaction)
         {
             // Find relations
-            List<IRelation> referringRelations = new List<IRelation>();
-            List<IRelation> referredRelations = new List<IRelation>();
+            List<IRelationInternal> referringRelations = new List<IRelationInternal>();
+            List<IRelationInternal> referredRelations = new List<IRelationInternal>();
             this.FindRelations(this.Indexes, referringRelations, referredRelations);
 
             // Find related tables to lock
@@ -510,14 +510,14 @@ namespace NMemory.Tables
 
         private void FindRelations(
             IEnumerable<IIndex> indexes, 
-            ICollection<IRelation> referringRelations, 
-            ICollection<IRelation> referredRelations)
+            ICollection<IRelationInternal> referringRelations, 
+            ICollection<IRelationInternal> referredRelations)
         {
             foreach (IIndex index in indexes)
             {
                 if (referringRelations != null)
                 {
-                    foreach (IRelation relation in this.Database.Tables.GetReferringRelations(index))
+                    foreach (var relation in this.Database.Tables.GetReferringRelations(index))
                     {
                         referringRelations.Add(relation);
                     }
@@ -525,7 +525,7 @@ namespace NMemory.Tables
 
                 if (referredRelations != null)
                 {
-                    foreach (IRelation relation in this.Database.Tables.GetReferredRelations(index))
+                    foreach (var relation in this.Database.Tables.GetReferredRelations(index))
                     {
                         referredRelations.Add(relation);
                     }
@@ -535,8 +535,8 @@ namespace NMemory.Tables
 
         private void FindRelatedEntities(
             IList<TEntity> storedEntities, 
-            IEnumerable<IRelation> referringRelations, 
-            IEnumerable<IRelation> referredRelations, 
+            IEnumerable<IRelationInternal> referringRelations, 
+            IEnumerable<IRelationInternal> referredRelations, 
             HashSet<object> referringEntities, 
             HashSet<object> referredEntities)
         {
@@ -546,7 +546,7 @@ namespace NMemory.Tables
 
                 if (referringRelations != null && referringEntities != null)
                 {
-                    foreach (IRelation relation in referringRelations)
+                    foreach (var relation in referringRelations)
                     {
                         foreach (object entity in relation.GetReferringEntities(storedEntity))
                         {
@@ -557,7 +557,7 @@ namespace NMemory.Tables
 
                 if (referredRelations != null && referredEntities != null)
                 {
-                    foreach (IRelation relation in referredRelations)
+                    foreach (IRelationInternal relation in referredRelations)
                     {
                         foreach (object entity in relation.GetReferredEntities(storedEntity))
                         {
@@ -569,7 +569,7 @@ namespace NMemory.Tables
         }
 
         private void ValidateReferredRelations(
-            IList<IRelation> referredRelations, 
+            IList<IRelationInternal> referredRelations, 
             IList<TEntity> storedEntities)
         {
             if (referredRelations.Count == 0)
@@ -589,7 +589,7 @@ namespace NMemory.Tables
         }
 
         private void ValidateReferringRelations(
-            IList<IRelation> referringRelations, 
+            IList<IRelationInternal> referringRelations, 
             HashSet<object> referringEntities)
         {
             if (referringEntities.Count == 0)

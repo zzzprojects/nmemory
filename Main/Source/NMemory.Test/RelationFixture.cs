@@ -28,6 +28,7 @@ namespace NMemory.Test
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using NMemory.Exceptions;
     using NMemory.Linq;
+    using NMemory.Tables;
     using NMemory.Test.Environment.Data;
 
     [TestClass]
@@ -92,6 +93,35 @@ namespace NMemory.Test
         }
 
         [TestMethod]
+        public void InsertRelatedEntityViolationDisabled()
+        {
+            TestDatabase database = new TestDatabase();
+            IRelation relation = database.AddMemberGroupRelation();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            
+            relation.IsEnabled = false;
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 3 });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ForeignKeyViolationException))]
+        public void InsertRelatedEntityViolationDisabledReenabled()
+        {
+            TestDatabase database = new TestDatabase();
+            IRelation relation = database.AddMemberGroupRelation();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+
+            relation.IsEnabled = false;
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 3 });
+
+            relation.IsEnabled = true;
+        }
+
+        [TestMethod]
         public void InsertRelatedEntityWithEmptyForeignKey()
         {
             TestDatabase database = new TestDatabase();
@@ -108,7 +138,6 @@ namespace NMemory.Test
 
             database.Groups.Insert(new Group { Name = "Group 1" });
             database.Groups.Insert(new Group { Name = "Group 2" });
-
             database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
 
             database.Members.Update(new Member { Id = "JD", Name = "John Doe", GroupId = 2 });
@@ -123,10 +152,40 @@ namespace NMemory.Test
 
             database.Groups.Insert(new Group { Name = "Group 1" });
             database.Groups.Insert(new Group { Name = "Group 2" });
-
             database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
 
             database.Members.Update(new Member { Id = "JD", Name = "John Doe", GroupId = 3 });
+        }
+
+        [TestMethod]
+        public void UpdateRelatedEntityViolationDisabled()
+        {
+            TestDatabase database = new TestDatabase();
+            IRelation relation = database.AddMemberGroupRelation();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
+            
+            relation.IsEnabled = false;
+            database.Members.Update(new Member { Id = "JD", Name = "John Doe", GroupId = 3 });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ForeignKeyViolationException))]
+        public void UpdateRelatedEntityViolationDisabledReenabled()
+        {
+            TestDatabase database = new TestDatabase();
+            IRelation relation = database.AddMemberGroupRelation();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
+            
+            relation.IsEnabled = false;
+            database.Members.Update(new Member { Id = "JD", Name = "John Doe", GroupId = 3 });
+
+            relation.IsEnabled = true;
         }
 
         [TestMethod]
@@ -137,11 +196,9 @@ namespace NMemory.Test
 
             database.Groups.Insert(new Group { Id = 1, Name = "Group 1" });
             database.Groups.Insert(new Group { Id = 2, Name = "Group 2" });
-
             database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
             database.Members.Insert(new Member { Id = "MS", Name = "Michael Smith", GroupId = 2 });
 
-            // Flip the IDs
             database.Groups.Update(g => new Group { Id = g.Id % 2 + 1 });
         }
 
@@ -154,14 +211,44 @@ namespace NMemory.Test
 
             database.Groups.Insert(new Group { Id = 1, Name = "Group 1" });
             database.Groups.Insert(new Group { Id = 2, Name = "Group 2" });
-
             database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
             database.Members.Insert(new Member { Id = "MS", Name = "Michael Smith", GroupId = 2 });
 
-            // Increment the Ids
             database.Groups.Update(g => new Group { Id = g.Id + 1 });
         }
 
+        [TestMethod]
+        public void UpdateRelatedEntitiesViolationDisabled()
+        {
+            TestDatabase database = new TestDatabase(false); // No identity
+            IRelation relation = database.AddMemberGroupRelation();
+
+            database.Groups.Insert(new Group { Id = 1, Name = "Group 1" });
+            database.Groups.Insert(new Group { Id = 2, Name = "Group 2" });
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
+            database.Members.Insert(new Member { Id = "MS", Name = "Michael Smith", GroupId = 2 });
+
+            relation.IsEnabled = false;
+            database.Groups.Update(g => new Group { Id = g.Id + 1 });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ForeignKeyViolationException))]
+        public void UpdateRelatedEntitiesViolationDisabledReenabled()
+        {
+            TestDatabase database = new TestDatabase(false); // No identity
+            IRelation relation = database.AddMemberGroupRelation();
+
+            database.Groups.Insert(new Group { Id = 1, Name = "Group 1" });
+            database.Groups.Insert(new Group { Id = 2, Name = "Group 2" });
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
+            database.Members.Insert(new Member { Id = "MS", Name = "Michael Smith", GroupId = 2 });
+
+            relation.IsEnabled = false;
+            database.Groups.Update(g => new Group { Id = g.Id + 1 });
+
+            relation.IsEnabled = true;
+        }
 
         [TestMethod]
         public void DeleteRelatedEntity()
@@ -186,10 +273,40 @@ namespace NMemory.Test
 
             database.Groups.Insert(new Group { Name = "Group 1" });
             database.Groups.Insert(new Group { Name = "Group 2" });
-
             database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
 
             database.Groups.Delete(new Group { Id = 1 });
+        }
+
+        [TestMethod]
+        public void DeleteRelatedEntityViolationDisabled()
+        {
+            TestDatabase database = new TestDatabase();
+            IRelation relation = database.AddMemberGroupRelation();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
+            
+            relation.IsEnabled = false;
+            database.Groups.Delete(new Group { Id = 1 });
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ForeignKeyViolationException))]
+        public void DeleteRelatedEntityViolationDisabledReenable()
+        {
+            TestDatabase database = new TestDatabase();
+            IRelation relation = database.AddMemberGroupRelation();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
+            
+            relation.IsEnabled = false;
+            database.Groups.Delete(new Group { Id = 1 });
+
+            relation.IsEnabled = true;
         }
 
         [TestMethod]
@@ -221,6 +338,39 @@ namespace NMemory.Test
             database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
 
             database.Groups.Delete();
+        }
+
+        [TestMethod]
+        public void DeleteRelatedEntitiesViolationDisabled()
+        {
+            TestDatabase database = new TestDatabase();
+            IRelation relation = database.AddMemberGroupRelation();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            database.Groups.Insert(new Group { Name = "Group 3" });
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
+
+            relation.IsEnabled = false;
+            database.Groups.Delete();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ForeignKeyViolationException))]
+        public void DeleteRelatedEntitiesViolationDisabledReenable()
+        {
+            TestDatabase database = new TestDatabase();
+            IRelation relation = database.AddMemberGroupRelation();
+
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            database.Groups.Insert(new Group { Name = "Group 3" });
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
+
+            relation.IsEnabled = false;
+            database.Groups.Delete();
+
+            relation.IsEnabled = true;
         }
 
         [TestMethod]

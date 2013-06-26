@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------------
-// <copyright file="IRelation.cs" company="NMemory Team">
+// <copyright file="IRelationInternal.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,18 +25,15 @@
 namespace NMemory.Tables
 {
     using System.Collections.Generic;
-    using NMemory.Indexes;
 
-    public interface IRelation
+    internal interface IRelationInternal : IRelation
     {
-        ITable PrimaryTable { get; }
+        void ValidateEntity(object foreign);
 
-        ITable ForeignTable { get; }
+        void ValidateAll();
 
-        IIndex PrimaryIndex { get; }
+        IEnumerable<object> GetReferringEntities(object primary);
 
-        IIndex ForeignIndex { get; }
-
-        bool IsEnabled { get; set; }
+        IEnumerable<object> GetReferredEntities(object foreign);
     }
 }
