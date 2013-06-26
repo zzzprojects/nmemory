@@ -42,9 +42,8 @@ namespace NMemory.Tables
         private readonly List<IRelation> relations;
         private readonly ReadOnlyCollection<ITable> tablesPublic;
         private readonly ReadOnlyCollection<IRelation> relationsPublic;
-        
-        private readonly Dictionary<ITable, List<IRelationInternal>> referredRelations;
-        private readonly Dictionary<ITable, List<IRelationInternal>> referringRelations;
+
+        private readonly Dictionary<ITable, RelationGroup> relationMapping;
 
         private HashSet<Type> entityTypes;
 
@@ -56,8 +55,7 @@ namespace NMemory.Tables
             this.relations = new List<IRelation>();
             this.relationsPublic = this.relations.AsReadOnly();
 
-            this.referredRelations = new Dictionary<ITable, List<IRelationInternal>>();
-            this.referringRelations = new Dictionary<ITable, List<IRelationInternal>>();
+            this.relationMapping = new Dictionary<ITable, RelationGroup>();
 
             this.entityTypes = new HashSet<Type>();
         }
@@ -192,30 +190,34 @@ namespace NMemory.Tables
 
             relation.ValidateAll();
 
-            this.referringRelations[relation.PrimaryTable].Add(relation);
-            this.referredRelations[relation.ForeignTable].Add(relation);
+            this.relationMapping[relation.PrimaryTable].Referring.Add(relation);
+            this.relationMapping[relation.ForeignTable].Referred.Add(relation);
 
             return result;
         }
 
         internal IList<IRelationInternal> GetReferringRelations(ITable primaryTable)
         {
-            return this.referringRelations[primaryTable].AsReadOnly();
+            return this.relationMapping[primaryTable].ReferringReadOnly;
         }
 
         internal IList<IRelationInternal> GetReferredRelations(ITable foreignTable)
         {
-            return this.referredRelations[foreignTable].AsReadOnly();
+            return this.relationMapping[foreignTable].ReferredReadOnly;
         }
 
         internal IList<IRelationInternal> GetReferringRelations(IIndex primaryIndex)
         {
-            return this.referringRelations[primaryIndex.Table].Where(x => x.PrimaryIndex == primaryIndex).ToList();
+            return this.GetReferringRelations(primaryIndex.Table)
+                .Where(x => x.PrimaryIndex == primaryIndex)
+                .ToList();
         }
 
         internal IList<IRelationInternal> GetReferredRelations(IIndex foreignIndex)
         {
-            return this.referredRelations[foreignIndex.Table].Where(x => x.ForeignIndex == foreignIndex).ToList();
+            return this.GetReferredRelations(foreignIndex.Table)
+                .Where(x => x.ForeignIndex == foreignIndex)
+                .ToList();
         }
 
         internal bool IsEntityType<T>()
@@ -239,8 +241,7 @@ namespace NMemory.Tables
             this.tables.Add(table);
             this.entityTypes.Add(table.EntityType);
 
-            this.referredRelations.Add(table, new List<IRelationInternal>());
-            this.referringRelations.Add(table, new List<IRelationInternal>());
+            this.relationMapping.Add(table, new RelationGroup());
         }
     }
 }

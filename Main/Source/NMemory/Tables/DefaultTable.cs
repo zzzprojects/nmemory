@@ -30,6 +30,7 @@ namespace NMemory.Tables
     using System.Linq.Expressions;
     using System.Reflection;
     using NMemory.Common;
+    using NMemory.Exceptions;
     using NMemory.Execution;
     using NMemory.Indexes;
     using NMemory.Modularity;
@@ -95,11 +96,11 @@ namespace NMemory.Tables
             this.ApplyContraints(storedEntity, executionContext);
 
             // Find referred relations
-            List<IRelationInternal> referredRelations = new List<IRelationInternal>();
-            this.FindRelations(this.Indexes, null, referredRelations);
+            // Do not add referring relations!
+            RelationGroup relations = this.FindRelations(this.Indexes, referring: false);
 
             // Find related tables
-            List<ITable> relatedTables = this.GetRelatedTables(null, referredRelations).ToList();
+            List<ITable> relatedTables = this.GetRelatedTables(relations).ToList();
 
             // Lock table
             this.AcquireWriteLock(transaction);
@@ -112,11 +113,7 @@ namespace NMemory.Tables
             try
             {
                 // Validate referred relations
-                this.ValidateReferredRelations(referredRelations, new TEntity[] { storedEntity });
-
-                // Get referred entities
-                HashSet<object> referredEntities = new HashSet<object>();
-                this.FindRelatedEntities(new TEntity[] { storedEntity }, null, referredRelations, null, referredEntities);
+                this.ValidateRelations(relations.Referred, new TEntity[] { storedEntity });
 
                 transaction.EnterAtomicSection();
 
@@ -252,20 +249,17 @@ namespace NMemory.Tables
             }
 
             // Find relations
-            List<IRelationInternal> referringRelations = new List<IRelationInternal>();
-            List<IRelationInternal> referredRelations = new List<IRelationInternal>();
-            this.FindRelations(potentialIndexes, referringRelations, referredRelations);
+            RelationGroup relations = this.FindRelations(potentialIndexes);
 
             // Find related tables to lock
-            List<ITable> relatedTables = this.GetRelatedTables(referringRelations, referredRelations).ToList();
+            List<ITable> relatedTables = this.GetRelatedTables(relations).ToList();
 
             // Lock related tables
             this.LockRelatedTables(transaction, relatedTables);
 
             // Find related entities
-            HashSet<object> referringEntities = new HashSet<object>();
-            HashSet<object> referredEntities = new HashSet<object>();
-            this.FindRelatedEntities(storedEntities, referringRelations, referredRelations, referringEntities, referredEntities);
+            HashSet<object> referringEntities = 
+                this.FindReferringEntities(storedEntities, relations.Referring);
 
             // Get the transaction log
             ITransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
@@ -318,10 +312,10 @@ namespace NMemory.Tables
                 }
 
                 // Validate referred relations
-                this.ValidateReferredRelations(referredRelations, storedEntities);
+                this.ValidateRelations(relations.Referred, storedEntities);
 
                 // Validate referring relations
-                this.ValidateReferringRelations(referringRelations, referringEntities);
+                this.ValidateRelations(relations.Referring, referringEntities);
             }
             catch
             {
@@ -400,20 +394,17 @@ namespace NMemory.Tables
         private void DeleteCore(IList<TEntity> storedEntities, Transaction transaction)
         {
             // Find relations
-            List<IRelationInternal> referringRelations = new List<IRelationInternal>();
-            List<IRelationInternal> referredRelations = new List<IRelationInternal>();
-            this.FindRelations(this.Indexes, referringRelations, referredRelations);
+            RelationGroup relations = this.FindRelations(this.Indexes);
 
             // Find related tables to lock
-            List<ITable> relatedTables = this.GetRelatedTables(referringRelations, referredRelations).ToList();
+            List<ITable> relatedTables = this.GetRelatedTables(relations).ToList();
 
             // Lock related tables
             this.LockRelatedTables(transaction, relatedTables);
 
-            // Find related entities
-            HashSet<object> referringEntities = new HashSet<object>();
-            HashSet<object> referredEntities = new HashSet<object>();
-            this.FindRelatedEntities(storedEntities, referringRelations, referredRelations, referringEntities, referredEntities);
+            // Find referring entities
+            HashSet<object> referringEntities = 
+                this.FindReferringEntities(storedEntities, relations.Referring);
 
             ITransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
             int logPosition = log.CurrentPosition;
@@ -434,8 +425,8 @@ namespace NMemory.Tables
                     }
                 }
 
-                // Validate referring relations
-                this.ValidateReferringRelations(referringRelations, referringEntities);
+                // Validate relations
+                this.ValidateRelations(relations.Referring, referringEntities);
             }
             catch
             {
@@ -484,13 +475,11 @@ namespace NMemory.Tables
             }
         }
 
-        private IEnumerable<ITable> GetRelatedTables(
-            IEnumerable<IRelation> referringRelations, 
-            IEnumerable<IRelation> referredRelations)
+        private IEnumerable<ITable> GetRelatedTables(RelationGroup relations)
         {
             return
-                (referringRelations ?? Enumerable.Empty<IRelation>()).Select(x => x.ForeignTable)
-                .Concat((referredRelations ?? Enumerable.Empty<IRelation>()).Select(x => x.PrimaryTable))
+                relations.Referring.Select(x => x.ForeignTable)
+                .Concat(relations.Referred.Select(x => x.PrimaryTable))
                 .Distinct()
                 .Except(new ITable[] { this }); // This table is already locked
         }
@@ -508,100 +497,73 @@ namespace NMemory.Tables
             }
         }
 
-        private void FindRelations(
+        private RelationGroup FindRelations(
             IEnumerable<IIndex> indexes, 
-            ICollection<IRelationInternal> referringRelations, 
-            ICollection<IRelationInternal> referredRelations)
+            bool referring = true,
+            bool referred = true)
         {
+            RelationGroup relations = new RelationGroup();
+
             foreach (IIndex index in indexes)
             {
-                if (referringRelations != null)
+                if (referring)
                 {
                     foreach (var relation in this.Database.Tables.GetReferringRelations(index))
                     {
-                        referringRelations.Add(relation);
+                        relations.Referring.Add(relation);
                     }
                 }
 
-                if (referredRelations != null)
+                if (referred)
                 {
                     foreach (var relation in this.Database.Tables.GetReferredRelations(index))
                     {
-                        referredRelations.Add(relation);
+                        relations.Referred.Add(relation);
                     }
                 }
             }
+
+            return relations;
         }
 
-        private void FindRelatedEntities(
+        private HashSet<object> FindReferringEntities(
             IList<TEntity> storedEntities, 
-            IEnumerable<IRelationInternal> referringRelations, 
-            IEnumerable<IRelationInternal> referredRelations, 
-            HashSet<object> referringEntities, 
-            HashSet<object> referredEntities)
+            IList<IRelationInternal> relations)
         {
-            for (int i = 0; i < storedEntities.Count; i++)
-            {
-                TEntity storedEntity = storedEntities[i];
-
-                if (referringRelations != null && referringEntities != null)
-                {
-                    foreach (var relation in referringRelations)
-                    {
-                        foreach (object entity in relation.GetReferringEntities(storedEntity))
-                        {
-                            referringEntities.Add(entity);
-                        }
-                    }
-                }
-
-                if (referredRelations != null && referredEntities != null)
-                {
-                    foreach (IRelationInternal relation in referredRelations)
-                    {
-                        foreach (object entity in relation.GetReferredEntities(storedEntity))
-                        {
-                            referredEntities.Add(entity);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void ValidateReferredRelations(
-            IList<IRelationInternal> referredRelations, 
-            IList<TEntity> storedEntities)
-        {
-            if (referredRelations.Count == 0)
-            {
-                return;
-            }
+            HashSet<object> result = new HashSet<object>();
 
             for (int i = 0; i < storedEntities.Count; i++)
             {
                 TEntity storedEntity = storedEntities[i];
 
-                for (int j = 0; j < referredRelations.Count; j++)
+                for (int j = 0; j < relations.Count; j++)
                 {
-                    referredRelations[j].ValidateEntity(storedEntities[i]);
+                    IRelationInternal relation = relations[j];
+
+                    foreach (object entity in relation.GetReferringEntities(storedEntity))
+                    {
+                        result.Add(entity);
+                    }
                 }
             }
+
+            return result;
         }
 
-        private void ValidateReferringRelations(
-            IList<IRelationInternal> referringRelations, 
-            HashSet<object> referringEntities)
+        private void ValidateRelations(
+            IList<IRelationInternal> relations,
+            IEnumerable<object> foreignEntities)
         {
-            if (referringEntities.Count == 0)
+            if (relations.Count == 0)
             {
                 return;
             }
 
-            foreach (object referringEntity in referringEntities)
+            foreach (object entity in foreignEntities)
             {
-                for (int i = 0; i < referringRelations.Count; i++)
+                for (int i = 0; i < relations.Count; i++)
                 {
-                    referringRelations[i].ValidateEntity(referringEntity);
+                    relations[i].ValidateEntity(entity);
                 }
             }
         }
@@ -629,7 +591,7 @@ namespace NMemory.Tables
                 }
                 else
                 {
-                    // Elso, use the old value
+                    // Otherwise, use the old value
                     source = exprParam;
                 }
 
