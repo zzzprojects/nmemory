@@ -99,43 +99,28 @@ namespace NMemory.Tables
             // Do not add referring relations!
             RelationGroup relations = this.FindRelations(this.Indexes, referring: false);
 
-            // Find related tables
-            List<ITable> relatedTables = this.GetRelatedTables(relations).ToList();
-
             // Lock table
             this.AcquireWriteLock(transaction);
             // Lock the related tables
-            this.LockRelatedTables(transaction, relatedTables);
-
-            ITransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
-            int logPosition = log.CurrentPosition;
+            this.LockRelatedTables(transaction, relations);
 
             try
             {
-                // Validate referred relations
-                this.ValidateRelations(relations.Referred, new TEntity[] { storedEntity });
+                // Validate the inserted record
+                this.ValidateForeignKeys(relations.Referred, new TEntity[] { storedEntity });
 
-                transaction.EnterAtomicSection();
-
-                try
+                using (AtomicLogScope logScope = this.StartAtomicLogOperation(transaction))
                 {
                     foreach (IIndex<TEntity> index in this.Indexes)
                     {
                         index.Insert(storedEntity);
-                        log.WriteIndexInsert(index, storedEntity);
+                        logScope.Log.WriteIndexInsert(index, storedEntity);
                     }
 
                     // Copy back the modifications
                     this.cloner.Clone(storedEntity, entity);
-                }
-                catch
-                {
-                    log.RollbackTo(logPosition);
-                    throw;
-                }
-                finally
-                {
-                    transaction.ExitAtomicSection();
+
+                    logScope.Complete();
                 }
             }
             finally
@@ -230,54 +215,35 @@ namespace NMemory.Tables
             Func<TEntity, TEntity> updaterFunc = updater.Compile();
             IList<TEntity> updated = new List<TEntity>(storedEntities.Count);
 
+            // Determine which properties of the entities that are about to be updated
             PropertyInfo[] changes = FindPossibleChanges(updater);
 
-            // It is possible, that there are no changes
-            if (changes.Length == 0)
-            {
-                return;
-            }
-
-            // Determine the potential indexes
-            List<IIndex<TEntity>> potentialIndexes = new List<IIndex<TEntity>>();
-            foreach (IIndex<TEntity> index in this.Indexes)
-            {
-                if (index.KeyInfo.EntityKeyMembers.Any(x => changes.Contains(x)))
-                {
-                    potentialIndexes.Add(index);
-                }
-            }
+            // Determine which indexes are affected by the change
+            // If the key of an index containes a changed property, it is affected
+            IList<IIndex<TEntity>> affectedIndexes = FindAffectedIndexes(changes);
 
             // Find relations
-            RelationGroup relations = this.FindRelations(potentialIndexes);
+            // Add both referring and referred relations!
+            RelationGroup relations = this.FindRelations(affectedIndexes);
 
-            // Find related tables to lock
-            List<ITable> relatedTables = this.GetRelatedTables(relations).ToList();
+            // Lock related tables (based on found relations)
+            this.LockRelatedTables(transaction, relations);
 
-            // Lock related tables
-            this.LockRelatedTables(transaction, relatedTables);
-
-            // Find related entities
-            HashSet<object> referringEntities = 
+            // Find the entities referring the entities that are about to be updated
+            var referringEntities = 
                 this.FindReferringEntities(storedEntities, relations.Referring);
 
-            // Get the transaction log
-            ITransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
-            int logPosition = log.CurrentPosition;
-
-            transaction.EnterAtomicSection();
-
-            try
+            using (AtomicLogScope logScope = this.StartAtomicLogOperation(transaction))
             {
-                // Delete invalid index records
+                // Delete invalid index records (keys are invalid)
                 for (int i = 0; i < storedEntities.Count; i++)
                 {
                     TEntity storedEntity = storedEntities[i];
 
-                    foreach (IIndex<TEntity> index in potentialIndexes)
+                    foreach (IIndex<TEntity> index in affectedIndexes)
                     {
                         index.Delete(storedEntity);
-                        log.WriteIndexDelete(index, storedEntity);
+                        logScope.Log.WriteIndexDelete(index, storedEntity);
                     }
                 }
 
@@ -296,35 +262,28 @@ namespace NMemory.Tables
 
                     // Update entity
                     this.cloner.Clone(newEntity, storedEntity);
-                    log.WriteEntityUpdate(this.cloner, storedEntity, backup);
+                    logScope.Log.WriteEntityUpdate(this.cloner, storedEntity, backup);
                 }
 
-                // Insert to index again
+                // Insert to indexes the entities were removed from
                 for (int i = 0; i < storedEntities.Count; i++)
                 {
                     TEntity storedEntity = storedEntities[i];
 
-                    foreach (IIndex<TEntity> index in potentialIndexes)
+                    foreach (IIndex<TEntity> index in affectedIndexes)
                     {
                         index.Insert(storedEntity);
-                        log.WriteIndexInsert(index, storedEntity);
+                        logScope.Log.WriteIndexInsert(index, storedEntity);
                     }
                 }
 
-                // Validate referred relations
-                this.ValidateRelations(relations.Referred, storedEntities);
+                // Validate the updated entities
+                this.ValidateForeignKeys(relations.Referred, storedEntities);
 
-                // Validate referring relations
-                this.ValidateRelations(relations.Referring, referringEntities);
-            }
-            catch
-            {
-                log.RollbackTo(logPosition);
-                throw;
-            }
-            finally
-            {
-                transaction.ExitAtomicSection();
+                // Validate the entities that were referring to the old version of entities
+                this.ValidateForeignKeys(relations.Referring, referringEntities);
+
+                logScope.Complete();
             }
         }
 
@@ -394,24 +353,17 @@ namespace NMemory.Tables
         private void DeleteCore(IList<TEntity> storedEntities, Transaction transaction)
         {
             // Find relations
-            RelationGroup relations = this.FindRelations(this.Indexes);
-
-            // Find related tables to lock
-            List<ITable> relatedTables = this.GetRelatedTables(relations).ToList();
+            // Do not add referred relations!
+            RelationGroup relations = this.FindRelations(this.Indexes, referred: false);
 
             // Lock related tables
-            this.LockRelatedTables(transaction, relatedTables);
+            this.LockRelatedTables(transaction, relations);
 
             // Find referring entities
-            HashSet<object> referringEntities = 
+            var referringEntities = 
                 this.FindReferringEntities(storedEntities, relations.Referring);
 
-            ITransactionLog log = this.Database.DatabaseEngine.TransactionHandler.GetTransactionLog(transaction);
-            int logPosition = log.CurrentPosition;
-
-            transaction.EnterAtomicSection();
-
-            try
+            using (AtomicLogScope logScope = this.StartAtomicLogOperation(transaction))
             {
                 // Delete invalid index records
                 for (int i = 0; i < storedEntities.Count; i++)
@@ -421,23 +373,15 @@ namespace NMemory.Tables
                     foreach (IIndex<TEntity> index in this.Indexes)
                     {
                         index.Delete(storedEntity);
-                        log.WriteIndexDelete(index, storedEntity);
+                        logScope.Log.WriteIndexDelete(index, storedEntity);
                     }
                 }
 
-                // Validate relations
-                this.ValidateRelations(relations.Referring, referringEntities);
-            }
-            catch
-            {
-                log.RollbackTo(logPosition);
-                throw;
-            }
-            finally
-            {
-                transaction.ExitAtomicSection();
-            }
+                // Validate the entities that are referring to the deleted entities
+                this.ValidateForeignKeys(relations.Referring, referringEntities);
 
+                logScope.Complete();
+            }
         }
 
         #endregion
@@ -482,6 +426,34 @@ namespace NMemory.Tables
                 .Concat(relations.Referred.Select(x => x.PrimaryTable))
                 .Distinct()
                 .Except(new ITable[] { this }); // This table is already locked
+        }
+
+        private AtomicLogScope StartAtomicLogOperation(Transaction transaction)
+        {
+            return new AtomicLogScope(transaction, this.Database);
+        }
+
+        private IList<IIndex<TEntity>> FindAffectedIndexes(PropertyInfo[] changes)
+        {
+            IList<IIndex<TEntity>> affectedIndexes = new List<IIndex<TEntity>>();
+
+            foreach (IIndex<TEntity> index in this.Indexes)
+            {
+                if (index.KeyInfo.EntityKeyMembers.Any(x => changes.Contains(x)))
+                {
+                    affectedIndexes.Add(index);
+                }
+            }
+            return affectedIndexes;
+        }
+
+        private void LockRelatedTables(
+            Transaction transaction,
+            RelationGroup relations)
+        {
+            List<ITable> relatedTables = this.GetRelatedTables(relations).ToList();
+
+            this.LockRelatedTables(transaction, relatedTables);
         }
 
         private void LockRelatedTables(
@@ -550,7 +522,7 @@ namespace NMemory.Tables
             return result;
         }
 
-        private void ValidateRelations(
+        private void ValidateForeignKeys(
             IList<IRelationInternal> relations,
             IEnumerable<object> foreignEntities)
         {

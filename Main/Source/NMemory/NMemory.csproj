@@ -236,6 +236,7 @@
     <Compile Include="Tables\RelationGroup.cs" />
     <Compile Include="Tables\Table`2.cs" />
     <Compile Include="Tables\TableCollection.cs" />
+    <Compile Include="Transactions\Logs\AtomicLogScope.cs" />
     <Compile Include="Transactions\Logs\IndexDeleteTransactionLogItem`1.cs" />
     <Compile Include="Transactions\Logs\IndexInsertTransactionLogItem`1.cs" />
     <Compile Include="Transactions\Logs\ITransactionLog.cs" />
