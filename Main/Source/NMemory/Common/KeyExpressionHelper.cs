@@ -120,11 +120,11 @@ namespace NMemory.Common
         }
 
         public static Expression CreateKeyConversionExpression(
-            Expression source,
-            IKeyInfoExpressionServices from,
-            IKeyInfoExpressionServices to,
-            MemberInfo[] toMembers,
-            int[] mapping)
+            Expression source, 
+            MemberInfo[] toMembers, 
+            int[] mapping, 
+            IKeyInfoExpressionServices from, 
+            IKeyInfoExpressionServices to)
         {
             int memberCount = mapping.Length;
 

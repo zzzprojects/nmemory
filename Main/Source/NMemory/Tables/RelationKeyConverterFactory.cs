@@ -39,7 +39,9 @@ namespace NMemory.Tables
             IKeyInfo<TForeignKey> foreignKey,
             params IRelationContraint[] constraints)
         {
-            return CreateConversion(primaryKey, foreignKey, CreateMapping(primaryKey, foreignKey, constraints, false));
+            int[] mapping = CreateMapping(primaryKey, foreignKey, constraints, false);
+
+            return CreateConversion(primaryKey, foreignKey, mapping);
         }
 
         public static Func<TForeignKey, TPrimaryKey> CreateForeignToPrimaryConverter<TPrimaryKey, TForeignKey>(
@@ -47,7 +49,9 @@ namespace NMemory.Tables
             IKeyInfo<TForeignKey> foreignKey,
             params IRelationContraint[] constraints)
         {
-            return CreateConversion(foreignKey, primaryKey, CreateMapping(primaryKey, foreignKey, constraints, true));
+            int[] mapping = CreateMapping(primaryKey, foreignKey, constraints, true);
+
+            return CreateConversion(foreignKey, primaryKey, mapping);
         }
 
         private static Func<TFrom, TTo> CreateConversion<TFrom, TTo>(
@@ -55,35 +59,27 @@ namespace NMemory.Tables
             IKeyInfo<TTo> toKeyInfo,
             int[] mapping)
         {
-            IKeyInfoExpressionServices fromKeyInfoExprBuilder = GetExpressionBuilder(fromKeyInfo);
-            IKeyInfoExpressionServices toKeyInfoExprBuilder = GetExpressionBuilder(toKeyInfo);
-
-            // TODO: Call KeyExpressionHelper.CreateKeyConversionExpression
-
-            int memberCount = mapping.Length;
+            IKeyInfoExpressionServices from = GetExpressionServices(fromKeyInfo);
+            IKeyInfoExpressionServices to = GetExpressionServices(toKeyInfo);
 
             ParameterExpression keyParam = Expression.Parameter(fromKeyInfo.KeyType);
-            Expression[] factoryArgs = new Expression[memberCount];
 
-            for (int i = 0; i < memberCount; i++)
-            {
-                Type requestedType = ReflectionHelper.GetMemberType(toKeyInfo.EntityKeyMembers[i]);
-                Expression arg = fromKeyInfoExprBuilder.CreateKeyMemberSelectorExpression(keyParam, mapping[i]);
+            Expression body = 
+                KeyExpressionHelper.CreateKeyConversionExpression(
+                    keyParam, 
+                    toKeyInfo.EntityKeyMembers, 
+                    mapping, 
+                    from, 
+                    to);
 
-                if (arg.Type != requestedType)
-                {
-                    arg = Expression.Convert(arg, requestedType);
-                }
-
-                factoryArgs[i] = arg;
-            }
-
-            Expression factory = toKeyInfoExprBuilder.CreateKeyFactoryExpression(factoryArgs);
-
-            return Expression.Lambda<Func<TFrom, TTo>>(factory, keyParam).Compile();
+            return Expression.Lambda<Func<TFrom, TTo>>(body, keyParam).Compile();
         }
 
-        private static int[] CreateMapping<TFrom, TTo>(IKeyInfo<TFrom> primaryKeyInfo, IKeyInfo<TTo> foreignKeyInfo, IRelationContraint[] constraints, bool invert)
+        private static int[] CreateMapping<TFrom, TTo>(
+            IKeyInfo<TFrom> primaryKeyInfo, 
+            IKeyInfo<TTo> foreignKeyInfo, 
+            IRelationContraint[] constraints, 
+            bool invert)
         {
             int memberCount = primaryKeyInfo.EntityKeyMembers.Length;
 
@@ -103,14 +99,19 @@ namespace NMemory.Tables
             {
                 MemberInfo fromMember = primaryKeyInfo.EntityKeyMembers[i];
 
-                IRelationContraint constraint = constraints.FirstOrDefault(c => c.PrimaryField == fromMember);
+                IRelationContraint constraint = constraints
+                    .FirstOrDefault(c => 
+                        c.PrimaryField == fromMember);
 
                 if (constraint == null)
                 {
                     throw new ArgumentException("", "constraints");
                 }
 
-                int mappedIndex = foreignKeyInfo.EntityKeyMembers.ToList().IndexOf(constraint.ForeignField);
+                int mappedIndex = foreignKeyInfo
+                    .EntityKeyMembers
+                    .ToList()
+                    .IndexOf(constraint.ForeignField);
 
                 if (mappedIndex == -1)
                 {
@@ -135,7 +136,7 @@ namespace NMemory.Tables
             return mapping.ToArray();
         }
 
-        private static IKeyInfoExpressionServices GetExpressionBuilder(IKeyInfo keyInfo)
+        private static IKeyInfoExpressionServices GetExpressionServices(IKeyInfo keyInfo)
         {
             IKeyInfoExpressionServicesProvider builderProvider = null;
 
@@ -146,14 +147,14 @@ namespace NMemory.Tables
                 throw new ArgumentException("", "keyInfo");
             }
 
-            IKeyInfoExpressionServices keyInfoExprBuilder = builderProvider.KeyInfoExpressionServices;
+            var expressionServices = builderProvider.KeyInfoExpressionServices;
 
-            if (keyInfoExprBuilder == null)
+            if (expressionServices == null)
             {
                 throw new ArgumentException("", "keyInfo");
             }
 
-            return keyInfoExprBuilder;
+            return expressionServices;
         }
     }
 }

@@ -128,12 +128,7 @@ namespace NMemory.Execution.Optimization.Rewriters
 
             LambdaExpression keyConverter = 
                 Expression.Lambda(
-                    KeyExpressionHelper.CreateKeyConversionExpression(
-                        keyConverterParam,
-                        services,
-                        indexServices,
-                        matchedIndex.KeyInfo.EntityKeyMembers,
-                        mapping),
+                    KeyExpressionHelper.CreateKeyConversionExpression(keyConverterParam, matchedIndex.KeyInfo.EntityKeyMembers, mapping, services, indexServices),
                     keyConverterParam);
 
             // Create key emptyness detector
