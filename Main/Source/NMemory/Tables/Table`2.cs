@@ -726,7 +726,8 @@ namespace NMemory.Tables
         ///     Adds a table constraint.
         /// </summary>
         /// <param name="constraint">
-        ///     The constraint.
+        ///     The constraint. Note that you must not share this constraint instance across 
+        ///     multiple tables.
         /// </param>
         public void AddConstraint(IConstraint<TEntity> constraint)
         {
@@ -736,32 +737,13 @@ namespace NMemory.Tables
         /// <summary>
         ///     Adds a table constraint.
         /// </summary>
-        /// <typeparam name="TMember"> The type of the member. </typeparam>
-        /// <param name="member"> The member description. </param>
-        /// <param name="constraintFactory"> The constraint factory. </param>
-        public void AddConstraint<TMember>(
-            IEntityMemberInfo<TEntity, TMember> member, 
-            IConstraintFactory<TEntity> constraintFactory)
+        /// <param name="constraintFactory"> 
+        ///     The constraint factory that instantiates a dedicated constraint instance for
+        ///     this table.
+        ///     </param>
+        public void AddConstraint(IConstraintFactory<TEntity> constraintFactory)
         {
-            IConstraint<TEntity> constraint = constraintFactory.Create(member);
-
-            this.AddConstraint(constraint);
-        }
-
-        /// <summary>
-        ///     Adds a table constraint.
-        /// </summary>
-        /// <typeparam name="TMember"> The type of the member. </typeparam>
-        /// <param name="memberSelector"> The selector describing the member. </param>
-        /// <param name="constraintFactory"> The constraint factory. </param>
-        public void AddConstraint<TMember>(
-            Expression<Func<TEntity, TMember>> memberSelector,
-            IConstraintFactory<TEntity> constraintFactory)
-        {
-            IEntityMemberInfo<TEntity, TMember> member = 
-                new DefaultEntityMemberInfo<TEntity, TMember>(memberSelector);
-
-            IConstraint<TEntity> constraint = constraintFactory.Create(member);
+            IConstraint<TEntity> constraint = constraintFactory.Create();
 
             this.AddConstraint(constraint);
         }
