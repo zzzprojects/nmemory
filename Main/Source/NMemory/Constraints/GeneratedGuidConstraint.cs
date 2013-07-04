@@ -25,13 +25,19 @@
 namespace NMemory.Constraints
 {
     using System;
-    using NMemory.Execution;
     using System.Linq.Expressions;
+    using NMemory.Common;
+    using NMemory.Execution;
 
     public class GeneratedGuidConstraint<TEntity> : ConstraintBase<TEntity, Guid>
     {
-        public GeneratedGuidConstraint(Expression<Func<TEntity, Guid>> propertySelector) 
-            : base(propertySelector)
+        public GeneratedGuidConstraint(IEntityMemberInfo<TEntity, Guid> member)
+            : base(member)
+        {
+        }
+
+        public GeneratedGuidConstraint(Expression<Func<TEntity, Guid>> memberSelector) 
+            : base(memberSelector)
         {
         }
 

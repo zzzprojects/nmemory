@@ -27,7 +27,7 @@ namespace NMemory.Common
     using System.Linq;
     using System.Linq.Expressions;
 
-    public static class QueryExpressionHelper
+    internal static class QueryExpressionHelper
     {
         public static bool GetSelectManyCollectionSelector(
             Expression node,

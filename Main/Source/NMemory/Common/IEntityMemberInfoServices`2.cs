@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IConstraint.cs" company="NMemory Team">
+// <copyright file="IEntityMemberInfoServices`2.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,13 +22,12 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Constraints
+namespace NMemory.Common
 {
-    /// <summary>
-    ///     Defines functionality for constraint against database entities.
-    /// </summary>
-    /// <typeparam name="TEntity"> The type of the entity. </typeparam>
-    public interface IConstraint
+    public interface IEntityMemberInfoServices<TEntity, TMember>
     {
+        TMember GetValue(TEntity entity);
+
+        void SetValue(TEntity entity, TMember value);
     }
 }

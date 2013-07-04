@@ -723,7 +723,7 @@ namespace NMemory.Tables
         #endregion
 
         /// <summary>
-        ///     Adds a constraint.
+        ///     Adds a table constraint.
         /// </summary>
         /// <param name="constraint">
         ///     The constraint.
@@ -731,6 +731,39 @@ namespace NMemory.Tables
         public void AddConstraint(IConstraint<TEntity> constraint)
         {
             this.constraints.Add(constraint);
+        }
+
+        /// <summary>
+        ///     Adds a table constraint.
+        /// </summary>
+        /// <typeparam name="TMember"> The type of the member. </typeparam>
+        /// <param name="member"> The member description. </param>
+        /// <param name="constraintFactory"> The constraint factory. </param>
+        public void AddConstraint<TMember>(
+            IEntityMemberInfo<TEntity, TMember> member, 
+            IConstraintFactory<TEntity> constraintFactory)
+        {
+            IConstraint<TEntity> constraint = constraintFactory.Create(member);
+
+            this.AddConstraint(constraint);
+        }
+
+        /// <summary>
+        ///     Adds a table constraint.
+        /// </summary>
+        /// <typeparam name="TMember"> The type of the member. </typeparam>
+        /// <param name="memberSelector"> The selector describing the member. </param>
+        /// <param name="constraintFactory"> The constraint factory. </param>
+        public void AddConstraint<TMember>(
+            Expression<Func<TEntity, TMember>> memberSelector,
+            IConstraintFactory<TEntity> constraintFactory)
+        {
+            IEntityMemberInfo<TEntity, TMember> member = 
+                new DefaultEntityMemberInfo<TEntity, TMember>(memberSelector);
+
+            IConstraint<TEntity> constraint = constraintFactory.Create(member);
+
+            this.AddConstraint(constraint);
         }
 
         /// <summary>

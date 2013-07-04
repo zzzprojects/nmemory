@@ -27,52 +27,31 @@ namespace NMemory.Constraints
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
+    using NMemory.Common;
     using NMemory.Exceptions;
     using NMemory.Execution;
 
-    public class NotNullableConstraint<TEntity> : IConstraint<TEntity>
+    public class NotNullableConstraint<TEntity, TMember> : ConstraintBase<TEntity, TMember>
     {
-        private Func<TEntity, object> propertyGetter;
-        private string propertyName;
-
-        public NotNullableConstraint(Expression<Func<TEntity, object>> propertySelector)
+        public NotNullableConstraint(IEntityMemberInfo<TEntity, TMember> member)
+            : base(member)
         {
-            UnaryExpression castexp = propertySelector.Body as UnaryExpression;
-            MemberExpression member=null;
-            if (castexp != null)
-            {
-                member = castexp.Operand as MemberExpression;
-            }
-            else
-            { 
-                member = propertySelector.Body as MemberExpression;
-            }
-
-            if (member == null)
-            {
-                throw new ArgumentException(ExceptionMessages.Missing, "propertySelector");
-            }
-
-            PropertyInfo propertyInfo = member.Member as PropertyInfo;
-
-            if (propertyInfo == null)
-            {
-                throw new ArgumentException(ExceptionMessages.Missing, "propertySelector");
-            }
-
-            this.propertyGetter = propertySelector.Compile();
-            this.propertyName = propertyInfo.Name;
         }
 
-        public void Apply(TEntity entity, IExecutionContext context)
+        public NotNullableConstraint(Expression<Func<TEntity, TMember>> memberSelector)
+            : base(memberSelector)
         {
-            object originalValue = this.propertyGetter.Invoke(entity);
+        }
 
-            if (originalValue == null)
+        protected override TMember Apply(TMember value, IExecutionContext context)
+        {
+            if (value == null)
             {
                 throw new ConstraintException(
-                    string.Format("Column '{0}' cannot be null", this.propertyName));
+                    string.Format("Column '{0}' cannot be null", this.MemberName));
             }
+
+            return value;
         }
     }
 }

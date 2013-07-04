@@ -49,7 +49,7 @@ namespace NMemory.Test.Environment.Data
 
             if (createNotNullConstraint)
             {
-                groups.AddConstraint(new NotNullableConstraint<Group>(x => x.Name));
+                groups.AddConstraint(new NotNullableConstraint<Group, string>(x => x.Name));
             }
 
             this.members = members;

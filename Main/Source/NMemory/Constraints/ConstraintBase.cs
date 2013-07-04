@@ -31,54 +31,64 @@ namespace NMemory.Constraints
     using NMemory.Exceptions;
     using NMemory.Execution;
 
-    public abstract class ConstraintBase<TEntity, TProperty> : IConstraint<TEntity>
+    public abstract class ConstraintBase<TEntity, TMember> : IConstraint<TEntity>
     {
-        private Func<TEntity, TProperty> propertyGetter;
-        private Action<TEntity, TProperty> propertySetter;
-        private string propertyName;
+        private readonly IEntityMemberInfo<TEntity, TMember> member;
+        private readonly IEntityMemberInfoServices<TEntity, TMember> memberServices;
 
-        protected ConstraintBase(Expression<Func<TEntity, TProperty>> propertySelector)
+        protected ConstraintBase(Expression<Func<TEntity, TMember>> memberSelector)
+            : this(ParseSelectorExpression(memberSelector))
         {
-            MemberExpression member = propertySelector.Body as MemberExpression;
+        }
 
+        protected ConstraintBase(IEntityMemberInfo<TEntity, TMember> member)
+        {
             if (member == null)
             {
-                throw new ArgumentException(ExceptionMessages.Missing, "propertySelector");
+                throw new ArgumentNullException("member");
             }
 
-            PropertyInfo propertyInfo = member.Member as PropertyInfo;
+            this.member = member;
 
-            if (propertyInfo == null)
+            var servicesProvider = 
+                this.member as IEntityMemberInfoServicesProvider<TEntity, TMember>;
+
+            if (servicesProvider != null)
             {
-                throw new ArgumentException(ExceptionMessages.Missing, "propertySelector");
+                this.memberServices = 
+                    servicesProvider.EntityMemberInfoServices;
             }
 
-            this.propertyGetter = propertySelector.Compile();
-
-            this.propertySetter = 
-                DynamicMethodBuilder.CreateSinglePropertySetter<TEntity, TProperty>(
-                    propertyInfo);
-
-            this.propertyName = propertyInfo.Name;
+            if (this.memberServices == null)
+            {
+                this.memberServices = 
+                    new DefaultEntityMemberInfoServices<TEntity, TMember>(this.member);
+            }
         }
 
         private ConstraintBase()
         {
         }
 
-        protected string PropertyName
+        protected string MemberName
         {
-            get { return this.propertyName; }
+            get { return this.member.Member.Name; }
         }
 
         public void Apply(TEntity entity, IExecutionContext context)
         {
-            TProperty originalValue = this.propertyGetter.Invoke(entity);
-            TProperty newValue = this.Apply(originalValue, context);
+            TMember originalValue = this.memberServices.GetValue(entity);
+            TMember newValue = this.Apply(originalValue, context);
 
-            this.propertySetter.Invoke(entity, newValue);
+            this.memberServices.SetValue(entity, newValue);
         }
 
-        protected abstract TProperty Apply(TProperty value, IExecutionContext context);
+        protected abstract TMember Apply(TMember value, IExecutionContext context);
+
+        private static IEntityMemberInfo<TEntity, TMember> ParseSelectorExpression(
+            Expression<Func<TEntity, TMember>> selector)
+        {
+            return new DefaultEntityMemberInfo<TEntity, TMember>(selector);
+        }
     }
 }

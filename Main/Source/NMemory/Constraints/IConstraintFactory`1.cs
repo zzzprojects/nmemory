@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IConstraint.cs" company="NMemory Team">
+// <copyright file="IConstraintFactory`1.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,15 +20,14 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //     THE SOFTWARE.
 // </copyright>
-// ----------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 
 namespace NMemory.Constraints
 {
-    /// <summary>
-    ///     Defines functionality for constraint against database entities.
-    /// </summary>
-    /// <typeparam name="TEntity"> The type of the entity. </typeparam>
-    public interface IConstraint
+    using NMemory.Common;
+
+    public interface IConstraintFactory<TEntity>
     {
+        IConstraint<TEntity> Create<TMember>(IEntityMemberInfo<TEntity, TMember> member);
     }
 }

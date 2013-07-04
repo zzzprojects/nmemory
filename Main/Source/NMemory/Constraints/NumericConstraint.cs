@@ -26,17 +26,43 @@ namespace NMemory.Constraints
 {
     using System;
     using System.Linq.Expressions;
+    using NMemory.Common;
     using NMemory.Exceptions;
     using NMemory.Execution;
 
     public class NumericConstraint<TEntity> : ConstraintBase<TEntity, decimal>
     {
-        private int allDigits;
-        private int fractionalPartDigits;
-        private long threshold;
+        private readonly int allDigits;
+        private readonly int fractionalPartDigits;
+        private readonly long threshold;
 
-        public NumericConstraint(Expression<Func<TEntity, decimal>> propertySelector, int precision, int scale) 
-            : base(propertySelector)
+        public NumericConstraint(
+            IEntityMemberInfo<TEntity, decimal> member,
+            int precision,
+            int scale)
+            : base(member)
+        {
+            Validate(precision, scale);
+
+            this.allDigits = precision;
+            this.fractionalPartDigits = scale;
+            this.threshold = (long)Math.Pow(10, this.WholePartDigits);
+        }
+
+        public NumericConstraint(
+            Expression<Func<TEntity, decimal>> memberSelector, 
+            int precision, 
+            int scale) 
+            : base(memberSelector)
+        {
+            Validate(precision, scale);
+
+            this.allDigits = precision;
+            this.fractionalPartDigits = scale;
+            this.threshold = (long)Math.Pow(10, this.WholePartDigits);
+        }
+
+        private static void Validate(int precision, int scale)
         {
             if (scale < 0)
             {
@@ -52,10 +78,6 @@ namespace NMemory.Constraints
             {
                 throw new ArgumentException("Scale cannot be greater than precision.", "scale");
             }
-
-            this.allDigits = precision;
-            this.fractionalPartDigits = scale;
-            this.threshold = (long)Math.Pow(10, this.WholePartDigits);
         }
 
         private int WholePartDigits
@@ -71,7 +93,7 @@ namespace NMemory.Constraints
             if (value >= this.threshold)
             {
                 throw new ConstraintException(
-                    string.Format("Column '{0}' overflowed.", this.PropertyName));
+                    string.Format("Column '{0}' overflowed.", this.MemberName));
             }
 
             return Math.Round(value, this.fractionalPartDigits, MidpointRounding.AwayFromZero);

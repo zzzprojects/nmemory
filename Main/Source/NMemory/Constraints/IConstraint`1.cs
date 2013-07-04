@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IConstraint.cs" company="NMemory Team">
+// <copyright file="IConstraint`1.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,11 +24,19 @@
 
 namespace NMemory.Constraints
 {
+    using NMemory.Execution;
+
     /// <summary>
     ///     Defines functionality for constraint against database entities.
     /// </summary>
     /// <typeparam name="TEntity"> The type of the entity. </typeparam>
-    public interface IConstraint
+    public interface IConstraint<TEntity> : IConstraint
     {
+        /// <summary>
+        ///     Apply the constraint on an entity.
+        /// </summary>
+        /// <param name="entity"> The entity to apply the constraint on. </param>
+        /// <param name="context"> The execution context. </param>
+        void Apply(TEntity entity, IExecutionContext context);
     }
 }

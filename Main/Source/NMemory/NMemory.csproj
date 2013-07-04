@@ -40,9 +40,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\CollectionExtensions.cs" />
+    <Compile Include="Common\DefaultEntityMemberInfo`2.cs" />
+    <Compile Include="Common\DefaultEntityMemberInfoServices`2.cs" />
+    <Compile Include="Common\IEntityMemberInfoServicesProvider`2.cs" />
+    <Compile Include="Common\IEntityMemberInfoServices`2.cs" />
+    <Compile Include="Common\IEntityMemberInfo`2.cs" />
     <Compile Include="Common\DatabaseMembers.cs" />
     <Compile Include="Common\DatabaseReflectionHelper.cs" />
     <Compile Include="Common\ExpressionHelper.cs" />
+    <Compile Include="Common\IEntityMemberInfo.cs" />
+    <Compile Include="Common\IEntityMemberInfo`1.cs" />
     <Compile Include="Common\KeyExpressionHelper.cs" />
     <Compile Include="Common\LinqJoinKeyHelper.cs" />
     <Compile Include="Common\MemberChain.cs" />
@@ -50,7 +57,9 @@
     <Compile Include="Common\TableLocator.cs" />
     <Compile Include="Common\Visitors\EntityTypeSearchVisitor.cs" />
     <Compile Include="Common\Visitors\ExpressionSearchVisitor.cs" />
+    <Compile Include="Constraints\IConstraint.cs" />
     <Compile Include="Constraints\GeneratedGuidConstraint.cs" />
+    <Compile Include="Constraints\IConstraintFactory`1.cs" />
     <Compile Include="Constraints\NotNullableConstraint.cs" />
     <Compile Include="Exceptions\ExceptionMessages.cs" />
     <Compile Include="Execution\ExecutionPlan.cs" />
@@ -100,7 +109,7 @@
     <Compile Include="Concurrency\Locks\WaitingToken.cs" />
     <Compile Include="Concurrency\TransactionLockInventory.cs" />
     <Compile Include="Constraints\ConstraintBase.cs" />
-    <Compile Include="Constraints\IConstraint.cs" />
+    <Compile Include="Constraints\IConstraint`1.cs" />
     <Compile Include="Constraints\NCharConstraint.cs" />
     <Compile Include="Constraints\NumericConstraint.cs" />
     <Compile Include="Constraints\NVarCharConstraint.cs" />
