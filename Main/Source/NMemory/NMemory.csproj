@@ -61,6 +61,8 @@
     <Compile Include="Constraints\GeneratedGuidConstraint.cs" />
     <Compile Include="Constraints\IConstraintFactory`1.cs" />
     <Compile Include="Constraints\NotNullableConstraint.cs" />
+    <Compile Include="Diagnostics\Messages\JoinArgumentsOrderSwappedMessage.cs" />
+    <Compile Include="Diagnostics\Messages\JoinOperatorsSwappedMessage.cs" />
     <Compile Include="Exceptions\ExceptionMessages.cs" />
     <Compile Include="Execution\ExecutionPlan.cs" />
     <Compile Include="Execution\ExecutionPlanInfo.cs" />
@@ -92,6 +94,7 @@
     <Compile Include="Indexes\IKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfo`1.cs" />
     <Compile Include="Indexes\DefaultKeyInfoExpressionServicesProvider.cs" />
+    <Compile Include="Indexes\ModularKeyInfoFactory.cs" />
     <Compile Include="Indexes\PrimitiveKeyInfoExpressionServices.cs" />
     <Compile Include="Indexes\TupleKeyComparer.cs" />
     <Compile Include="Indexes\PrimitiveComparer.cs" />
@@ -150,8 +153,6 @@
     <Compile Include="Modularity\ILoggingPort.cs" />
     <Compile Include="Diagnostics\MessageBuffer.cs" />
     <Compile Include="Diagnostics\Messages\IndexFoundMessage.cs" />
-    <Compile Include="Diagnostics\Messages\JoinArgumentsOrderSwappedMessage.cs" />
-    <Compile Include="Diagnostics\Messages\JoinOperatorsSwappedMessage.cs" />
     <Compile Include="Diagnostics\Messages\Message.cs" />
     <Compile Include="Diagnostics\Messages\PreferredIndexMessage.cs" />
     <Compile Include="Diagnostics\Messages\StandardMessage.cs" />
@@ -198,7 +199,14 @@
     <Compile Include="Modularity\DefaultDatabaseComponentFactory.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="Properties\AssemblyVisibility.cs" />
+    <Compile Include="Services\AnonymousTypeKeyInfoFactoryService.cs" />
+    <Compile Include="Services\DefaultKeyInfoFactoryService.cs" />
     <Compile Include="Services\DefaultServiceProvider.cs" />
+    <Compile Include="Services\PrimitiveKeyInfoFactoryService.cs" />
+    <Compile Include="Services\TupleKeyInfoFactoryService.cs" />
+    <Compile Include="Services\KeyInfoFactoryServiceBase.cs" />
+    <Compile Include="Services\ServiceProviderBase.cs" />
+    <Compile Include="Services\IKeyInfoFactoryService.cs" />
     <Compile Include="StoredProcedures\StoredProcedureBase.cs" />
     <Compile Include="Tables\DefaultTableFactory.cs" />
     <Compile Include="Modularity\IConcurrencyManager.cs" />

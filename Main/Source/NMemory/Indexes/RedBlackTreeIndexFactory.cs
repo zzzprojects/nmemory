@@ -29,15 +29,6 @@ namespace NMemory.Indexes
 
     public class RedBlackTreeIndexFactory : IndexFactoryBase
     {
-        public RedBlackTreeIndexFactory(IKeyInfoFactory keyInfoFactory)
-            : base(keyInfoFactory)
-        {
-        }
-
-        public RedBlackTreeIndexFactory()
-        {
-        }
-
         public override IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
         {
             RedBlackTree<TKey, TEntity> tree = new RedBlackTree<TKey, TEntity>(keyInfo.KeyComparer);

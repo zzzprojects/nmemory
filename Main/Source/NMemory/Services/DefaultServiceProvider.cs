@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="DefaultServiceProvider.cs" company="NMemory Team">
+// <copyright file="DefaultServiceProvider" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,57 +24,11 @@
 
 namespace NMemory.Services
 {
-    using System;
-    using System.Collections.Generic;
-    using NMemory.Modularity;
-
-    public class DefaultServiceProvider : 
-        NMemory.Modularity.IServiceProvider,
-        IDatabaseComponent
+    public class DefaultServiceProvider : ServiceProviderBase
     {
-        private readonly Dictionary<Type, object> services;
-        private IDatabase database;
-
         public DefaultServiceProvider()
         {
-            this.services = new Dictionary<Type, object>();
-        }
-
-        public T GetService<T>() where T : class
-        {
-            object result;
-
-            if (!this.services.TryGetValue(typeof(T), out result))
-            {
-                return null;
-            }
-
-            return (T)result;
-        }
-
-        public void Initialize(IDatabase database)
-        {
-            this.database = database;
-            this.RegisterServices();
-        }
-
-        protected virtual void RegisterServices()
-        {
-        }
-
-        protected void Replace<T>(T service)
-        {
-            this.services[typeof(T)] = service;
-        }
-
-        protected void Add<T>(T service)
-        {
-            this.services.Add(typeof(T), service);
-        }
-
-        protected bool Remove<T>()
-        {
-            return this.services.Remove(typeof(T));
+            this.Add<IKeyInfoFactoryService>(new DefaultKeyInfoFactoryService());
         }
     }
 }

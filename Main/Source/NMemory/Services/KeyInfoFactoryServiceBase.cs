@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IndexFactoryBase.cs" company="NMemory Team">
+// <copyright file="KeyInfoFactoryServiceBase" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,18 +22,44 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Indexes
+namespace NMemory.Services
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
-    using NMemory.Tables;
+    using NMemory.Indexes;
 
-    public abstract class IndexFactoryBase : IIndexFactory
+    public abstract class KeyInfoFactoryServiceBase : IKeyInfoFactoryService
     {
-        public abstract IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
-            where TEntity : class;
+        private readonly List<IKeyInfoFactoryService> factories;
 
-        public abstract IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo)
-            where TEntity : class;
+        public KeyInfoFactoryServiceBase()
+        {
+            this.factories = new List<IKeyInfoFactoryService>();
+        }
+
+        public bool TryCreateKeyInfo<TEntity, TKey>(
+            Expression<Func<TEntity, TKey>> keySelector, 
+            out IKeyInfo<TEntity, TKey> result) where TEntity : class
+        {
+            result = null;
+            bool success = false;
+
+            foreach (IKeyInfoFactoryService factory in this.factories)
+            {
+                if (factory.TryCreateKeyInfo(keySelector, out result))
+                {
+                    success = true;
+                    break;
+                }
+            }
+
+            return success;
+        }
+
+        protected void Register(IKeyInfoFactoryService service)
+        {
+            this.factories.Add(service);
+        }
     }
 }

@@ -29,15 +29,6 @@ namespace NMemory.Indexes
 
     public class DictionaryIndexFactory : IndexFactoryBase
     {
-        public DictionaryIndexFactory(IKeyInfoFactory keyInfoFactory)
-            : base(keyInfoFactory)
-        {
-        }
-
-        public DictionaryIndexFactory()
-        {
-        }
-
         public override IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
         {
             Hashtable<TKey, TEntity> hashTable = new Hashtable<TKey, TEntity>();

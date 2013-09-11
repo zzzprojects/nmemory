@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IndexFactoryBase.cs" company="NMemory Team">
+// <copyright file="DefaultKeyInfoFactoryService" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,18 +22,15 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Indexes
+namespace NMemory.Services
 {
-    using System;
-    using System.Linq.Expressions;
-    using NMemory.Tables;
-
-    public abstract class IndexFactoryBase : IIndexFactory
+    public class DefaultKeyInfoFactoryService : KeyInfoFactoryServiceBase
     {
-        public abstract IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
-            where TEntity : class;
-
-        public abstract IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo)
-            where TEntity : class;
+        public DefaultKeyInfoFactoryService()
+        {
+            this.Register(new PrimitiveKeyInfoFactoryService());
+            this.Register(new AnonymousTypeKeyInfoFactoryService());
+            this.Register(new TupleKeyInfoFactoryService());
+        }
     }
 }

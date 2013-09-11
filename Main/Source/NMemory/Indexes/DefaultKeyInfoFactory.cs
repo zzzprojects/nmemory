@@ -24,32 +24,12 @@
 
 namespace NMemory.Indexes
 {
-    using System;
-    using System.Linq.Expressions;
-    using NMemory.Common;
-    using NMemory.Exceptions;
+    using NMemory.Services;
 
-    public class DefaultKeyInfoFactory : IKeyInfoFactory
+    public class DefaultKeyInfoFactory : ModularKeyInfoFactory
     {
-        public IKeyInfo<TEntity, TKey> Create<TEntity, TKey>(Expression<Func<TEntity, TKey>> keySelector)
-            where TEntity : class
+        public DefaultKeyInfoFactory() : base(new DefaultKeyInfoFactoryService())
         {
-            if (typeof(TKey).IsValueType || (typeof(TKey) == typeof(string)))
-            {
-                return PrimitiveKeyInfo.Create(keySelector);
-            }
-            else if (ReflectionHelper.IsAnonymousType(typeof(TKey)))
-            {
-                return AnonymousTypeKeyInfo.Create(keySelector);
-            }
-            else if (ReflectionHelper.IsTuple(typeof(TKey)))
-            {
-                return TupleKeyInfo.Create(keySelector);
-            }
-            else
-            {
-                throw new ArgumentException(ExceptionMessages.Missing, "keySelector");
-            }
         }
     }
 }

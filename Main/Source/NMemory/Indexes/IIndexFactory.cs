@@ -31,18 +31,8 @@ namespace NMemory.Indexes
     public interface IIndexFactory
     {
         IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(
-            ITable<TEntity> table,
-            Expression<Func<TEntity, TKey>> keySelector)
-            where TEntity : class;
-
-        IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(
             ITable<TEntity> table, 
             IKeyInfo<TEntity, TKey> keyInfo)
-            where TEntity : class;
-
-        IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(
-            ITable<TEntity> table,
-            Expression<Func<TEntity, TUniqueKey>> keySelector)
             where TEntity : class;
 
         IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(

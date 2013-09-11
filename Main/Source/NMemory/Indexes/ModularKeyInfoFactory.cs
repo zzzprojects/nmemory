@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IndexFactoryBase.cs" company="NMemory Team">
+// <copyright file="ModularKeyInfoFactory" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,14 +26,46 @@ namespace NMemory.Indexes
 {
     using System;
     using System.Linq.Expressions;
-    using NMemory.Tables;
+    using NMemory.Exceptions;
+    using NMemory.Modularity;
+    using NMemory.Services;
 
-    public abstract class IndexFactoryBase : IIndexFactory
+    public class ModularKeyInfoFactory : IKeyInfoFactory
     {
-        public abstract IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
-            where TEntity : class;
+        private readonly IKeyInfoFactoryService service;
 
-        public abstract IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo)
-            where TEntity : class;
+        protected ModularKeyInfoFactory(IKeyInfoFactoryService service)
+        {
+            this.service = service;
+        }
+
+        public ModularKeyInfoFactory(IDatabase database) 
+        {
+            this.service = database
+                .DatabaseEngine
+                .ServiceProvider
+                .GetService<IKeyInfoFactoryService>();
+
+            if (this.service == null)
+            {
+                // Failback
+                this.service = new DefaultKeyInfoFactoryService();
+            }
+        }
+
+        public IKeyInfo<TEntity, TKey> Create<TEntity, TKey>(
+            Expression<Func<TEntity, TKey>> keySelector) where TEntity : class
+        {
+            IKeyInfo<TEntity, TKey> result;
+
+            if (!this.service.TryCreateKeyInfo<TEntity, TKey>(keySelector, out result))
+            {
+                throw new NMemoryException(
+                    ErrorCode.GenericError, 
+                    ExceptionMessages.CannotCreateKeyInfo);
+            }
+
+            return result;
+        }
     }
 }

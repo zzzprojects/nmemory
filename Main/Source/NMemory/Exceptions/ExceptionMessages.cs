@@ -27,5 +27,8 @@ namespace NMemory.Exceptions
     public static class ExceptionMessages
     {
         public static readonly string Missing = string.Empty;
+
+        public static readonly string CannotCreateKeyInfo =
+            "Cannot create keyinfo";
     }
 }

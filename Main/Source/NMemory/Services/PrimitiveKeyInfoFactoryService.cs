@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IndexFactoryBase.cs" company="NMemory Team">
+// <copyright file="PrimitiveKeyInfoFactoryService" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,18 +22,26 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Indexes
+namespace NMemory.Services
 {
     using System;
     using System.Linq.Expressions;
-    using NMemory.Tables;
+    using NMemory.Indexes;
 
-    public abstract class IndexFactoryBase : IIndexFactory
+    public class PrimitiveKeyInfoFactoryService : IKeyInfoFactoryService
     {
-        public abstract IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
-            where TEntity : class;
+        public bool TryCreateKeyInfo<TEntity, TKey>(
+            Expression<Func<TEntity, TKey>> keySelector, 
+            out IKeyInfo<TEntity, TKey> result) where TEntity : class
+        {
+            if (!typeof(TKey).IsValueType && typeof(TKey) != typeof(string))
+            {
+                result = null;
+                return false;
+            }
 
-        public abstract IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo)
-            where TEntity : class;
+            result = PrimitiveKeyInfo.Create(keySelector);
+            return true;
+        }
     }
 }

@@ -102,7 +102,7 @@ namespace NMemory.Tables
 
             where TEntity : class
         {
-            IKeyInfoFactory keyInfoFactory = new DefaultKeyInfoFactory();
+            IKeyInfoFactory keyInfoFactory = new ModularKeyInfoFactory(this.database);
 
             return this.Create(keyInfoFactory.Create(primaryKey), identitySpecification);
         }

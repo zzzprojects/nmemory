@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IndexFactoryBase.cs" company="NMemory Team">
+// <copyright file="ServiceProviderBase.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,18 +22,54 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Indexes
+namespace NMemory.Services
 {
     using System;
-    using System.Linq.Expressions;
-    using NMemory.Tables;
+    using System.Collections.Generic;
+    using NMemory.Modularity;
 
-    public abstract class IndexFactoryBase : IIndexFactory
+    public abstract class ServiceProviderBase : 
+        NMemory.Modularity.IServiceProvider,
+        IDatabaseComponent
     {
-        public abstract IIndex<TEntity, TKey> CreateIndex<TEntity, TKey>(ITable<TEntity> table, IKeyInfo<TEntity, TKey> keyInfo)
-            where TEntity : class;
+        private readonly Dictionary<Type, object> services;
+        private IDatabase database;
 
-        public abstract IUniqueIndex<TEntity, TUniqueKey> CreateUniqueIndex<TEntity, TUniqueKey>(ITable<TEntity> table, IKeyInfo<TEntity, TUniqueKey> keyInfo)
-            where TEntity : class;
+        public ServiceProviderBase()
+        {
+            this.services = new Dictionary<Type, object>();
+        }
+
+        public T GetService<T>() where T : class
+        {
+            object result;
+
+            if (!this.services.TryGetValue(typeof(T), out result))
+            {
+                return null;
+            }
+
+            return (T)result;
+        }
+
+        public void Initialize(IDatabase database)
+        {
+            this.database = database;
+        }
+
+        protected void Replace<T>(T service)
+        {
+            this.services[typeof(T)] = service;
+        }
+
+        protected void Add<T>(T service)
+        {
+            this.services.Add(typeof(T), service);
+        }
+
+        protected bool Remove<T>()
+        {
+            return this.services.Remove(typeof(T));
+        }
     }
 }
