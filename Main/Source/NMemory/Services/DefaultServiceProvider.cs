@@ -40,9 +40,16 @@ namespace NMemory.Services
             this.services = new Dictionary<Type, object>();
         }
 
-        public T GetService<T>()
+        public T GetService<T>() where T : class
         {
-            return (T)this.services[typeof(T)];
+            object result;
+
+            if (!this.services.TryGetValue(typeof(T), out result))
+            {
+                return null;
+            }
+
+            return (T)result;
         }
 
         public void Initialize(IDatabase database)
