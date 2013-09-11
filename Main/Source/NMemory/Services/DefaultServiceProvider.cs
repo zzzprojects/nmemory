@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IDatabaseEngine.cs" company="NMemory Team">
+// <copyright file="DefaultServiceProvider.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,50 +22,52 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Modularity
+namespace NMemory.Services
 {
-    using System.Collections;
+    using System;
+    using System.Collections.Generic;
+    using NMemory.Modularity;
 
-    public interface IDatabaseEngine
+    public class DefaultServiceProvider : 
+        NMemory.Modularity.IServiceProvider,
+        IDatabaseComponent
     {
-        ITableFactory TableFactory
+        private readonly Dictionary<Type, object> services;
+        private IDatabase database;
+
+        public DefaultServiceProvider()
         {
-            get;
+            this.services = new Dictionary<Type, object>();
         }
 
-        IConcurrencyManager ConcurrencyManager
+        public T GetService<T>()
         {
-            get;
+            return (T)this.services[typeof(T)];
         }
 
-        IQueryCompiler Compiler
+        public void Initialize(IDatabase database)
         {
-            get;
+            this.database = database;
+            this.RegisterServices();
         }
 
-        IQueryExecutor Executor
+        protected virtual void RegisterServices()
         {
-            get;
         }
 
-        ITransactionHandler TransactionHandler
+        protected void Replace<T>(T service)
         {
-            get;
+            this.services[typeof(T)] = service;
         }
 
-        ILoggingPort LoggingPort
+        protected void Add<T>(T service)
         {
-            get;
+            this.services.Add(typeof(T), service);
         }
 
-        IServiceProvider ServiceProvider
+        protected bool Remove<T>()
         {
-            get;
-        }
-
-        IEnumerable Components
-        {
-            get;
+            return this.services.Remove(typeof(T));
         }
     }
 }

@@ -144,6 +144,7 @@
     <Compile Include="Indexes\TupleKeyInfo`2.cs" />
     <Compile Include="Linq\EnumerableEx.cs" />
     <Compile Include="Linq\TableQueryWrapper`1.cs" />
+    <Compile Include="Modularity\IServiceProvider.cs" />
     <Compile Include="Modularity\DefaultDatabaseEngine.cs" />
     <Compile Include="Modularity\IDatabase.cs" />
     <Compile Include="Modularity\ILoggingPort.cs" />
@@ -197,6 +198,7 @@
     <Compile Include="Modularity\DefaultDatabaseComponentFactory.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="Properties\AssemblyVisibility.cs" />
+    <Compile Include="Services\DefaultServiceProvider.cs" />
     <Compile Include="StoredProcedures\StoredProcedureBase.cs" />
     <Compile Include="Tables\DefaultTableFactory.cs" />
     <Compile Include="Modularity\IConcurrencyManager.cs" />

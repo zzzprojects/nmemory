@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IDatabaseEngine.cs" company="NMemory Team">
+// <copyright file="IServiceProvider.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,48 +24,8 @@
 
 namespace NMemory.Modularity
 {
-    using System.Collections;
-
-    public interface IDatabaseEngine
+    public interface IServiceProvider
     {
-        ITableFactory TableFactory
-        {
-            get;
-        }
-
-        IConcurrencyManager ConcurrencyManager
-        {
-            get;
-        }
-
-        IQueryCompiler Compiler
-        {
-            get;
-        }
-
-        IQueryExecutor Executor
-        {
-            get;
-        }
-
-        ITransactionHandler TransactionHandler
-        {
-            get;
-        }
-
-        ILoggingPort LoggingPort
-        {
-            get;
-        }
-
-        IServiceProvider ServiceProvider
-        {
-            get;
-        }
-
-        IEnumerable Components
-        {
-            get;
-        }
+        T GetService<T>();
     }
 }

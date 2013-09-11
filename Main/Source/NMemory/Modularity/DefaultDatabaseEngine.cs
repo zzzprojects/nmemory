@@ -35,7 +35,7 @@ namespace NMemory.Modularity
         private ITableFactory tableFactory;
         private ITransactionHandler transactionHandler;
         private ILoggingPort loggingPort;
-        private object[] customComponents;
+        private IServiceProvider serviceProvider;
 
         public DefaultDatabaseEngine(
             IDatabaseComponentFactory databaseEngineFactory, 
@@ -47,17 +47,7 @@ namespace NMemory.Modularity
             this.tableFactory = databaseEngineFactory.CreateTableFactory();
             this.transactionHandler = databaseEngineFactory.CreateTransactionHandler();
             this.loggingPort = databaseEngineFactory.CreateLoggingPort();
-
-            IEnumerable customComponents = databaseEngineFactory.CreateCustomComponents();
-
-            if (customComponents != null)
-            {
-                this.customComponents = customComponents
-                    .Cast<object>()
-                    .Where(c => c != null)
-                    .Distinct()
-                    .ToArray();
-            }
+            this.serviceProvider = databaseEngineFactory.CreateServiceProvider();
 
             foreach (IDatabaseComponent component in 
                 this.Components.OfType<IDatabaseComponent>())
@@ -96,6 +86,10 @@ namespace NMemory.Modularity
             get { return this.loggingPort; }
         }
 
+        public IServiceProvider ServiceProvider
+        {
+            get { return this.serviceProvider; }
+        }
 
         public IEnumerable Components
         {
@@ -131,12 +125,9 @@ namespace NMemory.Modularity
                     yield return this.loggingPort;
                 }
 
-                if (customComponents != null)
+                if (this.serviceProvider != null)
                 {
-                    for (int i = 0; i < customComponents.Length; i++)
-                    {
-                        yield return customComponents[i];
-                    }
+                    yield return this.serviceProvider;
                 }
             }
         }

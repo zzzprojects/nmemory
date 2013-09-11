@@ -67,9 +67,9 @@ namespace NMemory.Modularity
         ILoggingPort CreateLoggingPort();
 
         /// <summary>
-        /// Creates the custom components.
+        /// 
         /// </summary>
         /// <returns></returns>
-        IEnumerable CreateCustomComponents();
+        IServiceProvider CreateServiceProvider();
     }
 }
