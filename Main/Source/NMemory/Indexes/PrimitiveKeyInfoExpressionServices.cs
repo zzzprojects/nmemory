@@ -73,25 +73,6 @@ namespace NMemory.Indexes
             return source;
         }
 
-        public MemberInfo[] ParseKeySelectorExpression(
-            Expression keySelector, 
-            bool strict)
-        {
-            if (keySelector == null)
-            {
-                throw new ArgumentNullException("keySelector");
-            }
-
-            MemberInfo[] result;
-
-            if (ParseKeySelectorExpressionCore(keySelector, strict, true, out result))
-            {
-                return result;
-            }
-
-            throw new ArgumentException("", "keySelector");
-        }
-
         public bool TryParseKeySelectorExpression(
             Expression keySelector,
             bool strict,
@@ -102,27 +83,11 @@ namespace NMemory.Indexes
                 throw new ArgumentNullException("keySelector");
             }
 
-            return ParseKeySelectorExpressionCore(keySelector, strict, false, out result);
-        }
-
-        private bool ParseKeySelectorExpressionCore(
-            Expression keySelector,
-            bool strict,
-            bool throwException,
-            out MemberInfo[] result)
-        {
             result = null;
 
             if (keySelector.Type != this.primitiveType)
             {
-                if (throwException)
-                {
-                    throw new ArgumentException("Invalid expression", "keySelector");
-                }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
 
             Expression expr = keySelector;
@@ -136,14 +101,7 @@ namespace NMemory.Indexes
 
             if (member == null)
             {
-                if (throwException)
-                {
-                    throw new ArgumentException("Invalid expression", "keySelector");
-                }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
 
             //if (member.Expression.NodeType != ExpressionType.Parameter)

@@ -37,10 +37,6 @@ namespace NMemory.Indexes
             Expression source, 
             int index);
 
-        MemberInfo[] ParseKeySelectorExpression(
-            Expression keySelector, 
-            bool strict);
-
         bool TryParseKeySelectorExpression(
             Expression keySelector,
             bool strict,

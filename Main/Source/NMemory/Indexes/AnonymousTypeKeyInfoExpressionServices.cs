@@ -25,11 +25,11 @@
 namespace NMemory.Indexes
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using System.Reflection;
     using NMemory.Common;
     using NMemory.Exceptions;
-    using System.Collections.Generic;
 
     internal class AnonymousTypeKeyInfoExpressionServices : IKeyInfoExpressionServices
     {
@@ -137,25 +137,6 @@ namespace NMemory.Indexes
             }
         }
 
-        public MemberInfo[] ParseKeySelectorExpression(
-            Expression keySelector, 
-            bool strict)
-        {
-            if (keySelector == null)
-            {
-                throw new ArgumentNullException("keySelector");
-            }
-
-            MemberInfo[] result;
-
-            if (ParseKeySelectorExpressionCore(keySelector, strict, true, out result))
-            {
-                return result;
-            }
-
-            throw new ArgumentException("", "keySelector");
-        }
-
         public bool TryParseKeySelectorExpression(
             Expression keySelector,
             bool strict,
@@ -166,53 +147,23 @@ namespace NMemory.Indexes
                 throw new ArgumentNullException("keySelector");
             }
 
-            return ParseKeySelectorExpressionCore(keySelector, strict, false, out result);
-        }
-
-        private bool ParseKeySelectorExpressionCore(
-            Expression keySelector,
-            bool strict,
-            bool throwException,
-            out MemberInfo[] result)
-        {
             result = null;
 
             if (keySelector.Type != this.anonymousType)
             {
-                if (throwException)
-                {
-                    throw new ArgumentException("Invalid expression", "keySelector");
-                }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
 
             NewExpression resultCreator = keySelector as NewExpression;
 
             if (resultCreator == null)
             {
-                if (throwException)
-                {
-                    throw new ArgumentException("Invalid expression", "keySelector");
-                }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
 
             if (resultCreator.Type != this.anonymousType)
             {
-                if (throwException)
-                {
-                    throw new ArgumentException("Invalid expression", "keySelector");
-                }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
 
             List<MemberInfo> resultList = new List<MemberInfo>();
@@ -230,14 +181,7 @@ namespace NMemory.Indexes
 
                 if (member == null)
                 {
-                    if (throwException)
-                    {
-                        throw new ArgumentException("Invalid expression", "keySelector");
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    return false;
                 }
 
                 //if (member.Expression.NodeType != ExpressionType.Parameter)

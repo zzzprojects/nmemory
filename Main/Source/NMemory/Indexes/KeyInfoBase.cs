@@ -48,10 +48,13 @@ namespace NMemory.Indexes
             IComparer<TKey> keyComparer,
             IKeyInfoExpressionServices services)
         {
-            this.entityKeyMembers =
-                services.ParseKeySelectorExpression(
-                    keySelector.Body,
-                    true);
+            if (!services.TryParseKeySelectorExpression(
+                keySelector.Body,
+                true, 
+                out this.entityKeyMembers))
+            {
+                throw new ArgumentException("", "keySelector");
+            }
 
             if (sortOrders == null)
             {
