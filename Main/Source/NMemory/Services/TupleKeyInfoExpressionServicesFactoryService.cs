@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="DefaultServiceProvider" company="NMemory Team">
+// <copyright file="TupleKeyInfoExpressionServicesFactoryService.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,15 +24,25 @@
 
 namespace NMemory.Services
 {
-    public class DefaultServiceProvider : ServiceProviderBase
-    {
-        public DefaultServiceProvider()
-        {
-            this.Add<IKeyInfoFactoryService>(
-                new DefaultKeyInfoFactoryService());
+    using System;
+    using NMemory.Common;
+    using NMemory.Indexes;
 
-            this.Add<IKeyInfoExpressionServicesFactoryService>(
-                new DefaultKeyInfoExpressionServicesFactoryService());
+    public class TupleKeyInfoExpressionServicesFactoryService : 
+        IKeyInfoExpressionServicesFactoryService
+    {
+        public bool TryCreateExpressionServices(
+            Type keyType, 
+            out IKeyInfoExpressionServices result)
+        {
+            if (!ReflectionHelper.IsTuple(keyType))
+            {
+                result = null;
+                return false;
+            }
+
+            result = new TupleKeyInfoExpressionServices(keyType);
+            return true;
         }
     }
 }

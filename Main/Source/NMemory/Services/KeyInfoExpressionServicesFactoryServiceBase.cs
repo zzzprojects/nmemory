@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="DefaultServiceProvider" company="NMemory Team">
+// <copyright file="KeyInfoExpressionServicesFactoryServiceBase" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,15 +24,43 @@
 
 namespace NMemory.Services
 {
-    public class DefaultServiceProvider : ServiceProviderBase
-    {
-        public DefaultServiceProvider()
-        {
-            this.Add<IKeyInfoFactoryService>(
-                new DefaultKeyInfoFactoryService());
+    using System;
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
+    using NMemory.Indexes;
 
-            this.Add<IKeyInfoExpressionServicesFactoryService>(
-                new DefaultKeyInfoExpressionServicesFactoryService());
+    public abstract class KeyInfoExpressionServicesFactoryServiceBase : 
+        IKeyInfoExpressionServicesFactoryService
+    {
+        private readonly List<IKeyInfoExpressionServicesFactoryService> factories;
+
+        public KeyInfoExpressionServicesFactoryServiceBase()
+        {
+            this.factories = new List<IKeyInfoExpressionServicesFactoryService>();
+        }
+
+        public bool TryCreateExpressionServices(
+            Type keyType,
+            out IKeyInfoExpressionServices result)
+        {
+            result = null;
+            bool success = false;
+
+            foreach (IKeyInfoExpressionServicesFactoryService factory in this.factories)
+            {
+                if (factory.TryCreateExpressionServices(keyType, out result))
+                {
+                    success = true;
+                    break;
+                }
+            }
+
+            return success;
+        }
+
+        protected void Register(IKeyInfoExpressionServicesFactoryService service)
+        {
+            this.factories.Add(service);
         }
     }
 }

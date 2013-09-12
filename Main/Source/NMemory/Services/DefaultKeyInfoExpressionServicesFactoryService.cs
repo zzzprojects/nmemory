@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="DefaultServiceProvider" company="NMemory Team">
+// <copyright file="DefaultKeyInfoExpressionServicesFactoryService" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,15 +24,14 @@
 
 namespace NMemory.Services
 {
-    public class DefaultServiceProvider : ServiceProviderBase
+    public class DefaultKeyInfoExpressionServicesFactoryService : 
+        KeyInfoExpressionServicesFactoryServiceBase
     {
-        public DefaultServiceProvider()
+        public DefaultKeyInfoExpressionServicesFactoryService()
         {
-            this.Add<IKeyInfoFactoryService>(
-                new DefaultKeyInfoFactoryService());
-
-            this.Add<IKeyInfoExpressionServicesFactoryService>(
-                new DefaultKeyInfoExpressionServicesFactoryService());
+            this.Register(new PrimitiveKeyInfoExpressionServicesFactoryService());
+            this.Register(new AnonymousTypeKeyInfoExpressionServicesFactoryService());
+            this.Register(new TupleKeyInfoExpressionServicesFactoryService());
         }
     }
 }
