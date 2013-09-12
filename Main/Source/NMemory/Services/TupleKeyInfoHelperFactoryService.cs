@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IKeyInfoExpressionBuilderProvider.cs" company="NMemory Team">
+// <copyright file="TupleKeyInfoHelperFactoryService.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,10 +22,26 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Indexes
+namespace NMemory.Services
 {
-    public interface IKeyInfoExpressionServicesProvider
+    using System;
+    using NMemory.Common;
+    using NMemory.Indexes;
+
+    public class TupleKeyInfoHelperFactoryService : IKeyInfoHelperFactoryService
     {
-        IKeyInfoExpressionServices KeyInfoExpressionServices { get; }
+        public bool TryCreateKeyInfoHelper(
+            Type keyType, 
+            out IKeyInfoHelper result)
+        {
+            if (!ReflectionHelper.IsTuple(keyType))
+            {
+                result = null;
+                return false;
+            }
+
+            result = new TupleKeyInfoHelper(keyType);
+            return true;
+        }
     }
 }

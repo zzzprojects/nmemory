@@ -25,15 +25,11 @@
 namespace NMemory.Indexes
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
-    using NMemory.Common;
 
     public class AnonymousTypeKeyInfo<TEntity, TKey> : 
         KeyInfoBase<TEntity, TKey>, 
-        IKeyInfoExpressionServicesProvider
+        IKeyInfoHelperProvider
         where TEntity : class
     {
         public AnonymousTypeKeyInfo(
@@ -43,7 +39,7 @@ namespace NMemory.Indexes
                 keySelector,
                 sortOrders,
                 new AnonymousTypeKeyComparer<TKey>(sortOrders),
-                new AnonymousTypeKeyInfoExpressionServices(typeof(TKey)))
+                new AnonymousTypeKeyInfoHelper(typeof(TKey)))
         {
         }
 
@@ -53,11 +49,11 @@ namespace NMemory.Indexes
         {
         }
 
-        IKeyInfoExpressionServices IKeyInfoExpressionServicesProvider.KeyInfoExpressionServices
+        IKeyInfoHelper IKeyInfoHelperProvider.KeyInfoHelper
         {
             get
             {
-                return new AnonymousTypeKeyInfoExpressionServices(typeof(TKey));
+                return new AnonymousTypeKeyInfoHelper(typeof(TKey));
             }
         }
     }

@@ -59,8 +59,8 @@ namespace NMemory.Tables
             IKeyInfo<TTo> toKeyInfo,
             int[] mapping)
         {
-            IKeyInfoExpressionServices from = GetExpressionServices(fromKeyInfo);
-            IKeyInfoExpressionServices to = GetExpressionServices(toKeyInfo);
+            IKeyInfoHelper from = GetKeyInfoHelper(fromKeyInfo);
+            IKeyInfoHelper to = GetKeyInfoHelper(toKeyInfo);
 
             ParameterExpression keyParam = Expression.Parameter(fromKeyInfo.KeyType);
 
@@ -136,25 +136,23 @@ namespace NMemory.Tables
             return mapping.ToArray();
         }
 
-        private static IKeyInfoExpressionServices GetExpressionServices(IKeyInfo keyInfo)
+        private static IKeyInfoHelper GetKeyInfoHelper(IKeyInfo keyInfo)
         {
-            IKeyInfoExpressionServicesProvider builderProvider = null;
+            IKeyInfoHelperProvider helperProvider = keyInfo as IKeyInfoHelperProvider;
 
-            builderProvider = keyInfo as IKeyInfoExpressionServicesProvider;
-
-            if (builderProvider == null)
+            if (helperProvider == null)
             {
                 throw new ArgumentException("", "keyInfo");
             }
 
-            var expressionServices = builderProvider.KeyInfoExpressionServices;
+            var helper = helperProvider.KeyInfoHelper;
 
-            if (expressionServices == null)
+            if (helper == null)
             {
                 throw new ArgumentException("", "keyInfo");
             }
 
-            return expressionServices;
+            return helper;
         }
     }
 }

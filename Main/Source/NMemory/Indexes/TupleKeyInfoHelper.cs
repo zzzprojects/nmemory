@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="TupleKeyInfoExpressionBuilder.cs" company="NMemory Team">
+// <copyright file="TupleKeyInfoHelper.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,11 +31,11 @@ namespace NMemory.Indexes
     using System.Reflection;
     using NMemory.Common;
 
-    internal class TupleKeyInfoExpressionServices : IKeyInfoExpressionServices
+    internal class TupleKeyInfoHelper : IKeyInfoHelper
     {
         private Type tupleType;
 
-        public TupleKeyInfoExpressionServices(Type tupleType)
+        public TupleKeyInfoHelper(Type tupleType)
         {
             if (!ReflectionHelper.IsTuple(tupleType))
             {

@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="KeyInfoExpressionServicesFactoryServiceBase" company="NMemory Team">
+// <copyright file="AnonymousTypeKeyInfoHelperFactoryService.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,42 +25,24 @@
 namespace NMemory.Services
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq.Expressions;
+    using NMemory.Common;
     using NMemory.Indexes;
 
-    public abstract class KeyInfoExpressionServicesFactoryServiceBase : 
-        IKeyInfoExpressionServicesFactoryService
+    public class AnonymousTypeKeyInfoHelperFactoryService : 
+        IKeyInfoHelperFactoryService
     {
-        private readonly List<IKeyInfoExpressionServicesFactoryService> factories;
-
-        public KeyInfoExpressionServicesFactoryServiceBase()
+        public bool TryCreateKeyInfoHelper(
+            Type keyType, 
+            out IKeyInfoHelper result)
         {
-            this.factories = new List<IKeyInfoExpressionServicesFactoryService>();
-        }
-
-        public bool TryCreateExpressionServices(
-            Type keyType,
-            out IKeyInfoExpressionServices result)
-        {
-            result = null;
-            bool success = false;
-
-            foreach (IKeyInfoExpressionServicesFactoryService factory in this.factories)
+            if (!ReflectionHelper.IsAnonymousType(keyType))
             {
-                if (factory.TryCreateExpressionServices(keyType, out result))
-                {
-                    success = true;
-                    break;
-                }
+                result = null;
+                return false;
             }
 
-            return success;
-        }
-
-        protected void Register(IKeyInfoExpressionServicesFactoryService service)
-        {
-            this.factories.Add(service);
+            result = new AnonymousTypeKeyInfoHelper(keyType);
+            return true;
         }
     }
 }

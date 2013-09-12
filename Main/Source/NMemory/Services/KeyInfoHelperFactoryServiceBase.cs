@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="TupleKeyInfoExpressionServicesFactoryService.cs" company="NMemory Team">
+// <copyright file="KeyInfoHelperFactoryServiceBase" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,24 +25,42 @@
 namespace NMemory.Services
 {
     using System;
-    using NMemory.Common;
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
     using NMemory.Indexes;
 
-    public class TupleKeyInfoExpressionServicesFactoryService : 
-        IKeyInfoExpressionServicesFactoryService
+    public abstract class KeyInfoHelperFactoryServiceBase : 
+        IKeyInfoHelperFactoryService
     {
-        public bool TryCreateExpressionServices(
-            Type keyType, 
-            out IKeyInfoExpressionServices result)
+        private readonly List<IKeyInfoHelperFactoryService> factories;
+
+        public KeyInfoHelperFactoryServiceBase()
         {
-            if (!ReflectionHelper.IsTuple(keyType))
+            this.factories = new List<IKeyInfoHelperFactoryService>();
+        }
+
+        public bool TryCreateKeyInfoHelper(
+            Type keyType,
+            out IKeyInfoHelper result)
+        {
+            result = null;
+            bool success = false;
+
+            foreach (IKeyInfoHelperFactoryService factory in this.factories)
             {
-                result = null;
-                return false;
+                if (factory.TryCreateKeyInfoHelper(keyType, out result))
+                {
+                    success = true;
+                    break;
+                }
             }
 
-            result = new TupleKeyInfoExpressionServices(keyType);
-            return true;
+            return success;
+        }
+
+        protected void Register(IKeyInfoHelperFactoryService service)
+        {
+            this.factories.Add(service);
         }
     }
 }

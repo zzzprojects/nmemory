@@ -32,25 +32,25 @@ namespace NMemory.Common
     internal static class KeyExpressionHelper
     {
         public static Expression<Func<TKey, bool>> CreateKeyEmptinessDetector<TEntity,TKey>(     
-            IKeyInfoExpressionServices services)
+            IKeyInfoHelper helper)
         {
             ParameterExpression param = Expression.Parameter(typeof(TKey));
 
-            Expression body = CreateKeyEmptinessDetector(param, services);
+            Expression body = CreateKeyEmptinessDetector(param, helper);
 
             return Expression.Lambda<Func<TKey, bool>>(body, param);
         }
 
         public static Expression CreateKeyEmptinessDetector(
             Expression source,
-            IKeyInfoExpressionServices services)
+            IKeyInfoHelper helper)
         {
             Expression body = null;
-            int memberCount = services.GetMemberCount();
+            int memberCount = helper.GetMemberCount();
 
             for (int i = 0; i < memberCount; i++)
             {
-                Expression member = services.CreateKeyMemberSelectorExpression(source, i);
+                Expression member = helper.CreateKeyMemberSelectorExpression(source, i);
                 Type memberType = member.Type;
 
                 if (ReflectionHelper.IsNullable(memberType))
@@ -123,8 +123,8 @@ namespace NMemory.Common
             Expression source, 
             MemberInfo[] toMembers, 
             int[] mapping, 
-            IKeyInfoExpressionServices from, 
-            IKeyInfoExpressionServices to)
+            IKeyInfoHelper from, 
+            IKeyInfoHelper to)
         {
             int memberCount = mapping.Length;
 

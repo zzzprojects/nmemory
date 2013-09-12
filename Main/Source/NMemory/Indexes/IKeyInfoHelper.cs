@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="AnonymousTypeKeyInfoExpressionServicesFactoryService.cs" company="NMemory Team">
+// <copyright file="IKeyInfoHelper.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,27 +22,24 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Services
+namespace NMemory.Indexes
 {
-    using System;
-    using NMemory.Common;
-    using NMemory.Indexes;
+    using System.Linq.Expressions;
+    using System.Reflection;
 
-    public class AnonymousTypeKeyInfoExpressionServicesFactoryService : 
-        IKeyInfoExpressionServicesFactoryService
+    public interface IKeyInfoHelper
     {
-        public bool TryCreateExpressionServices(
-            Type keyType, 
-            out IKeyInfoExpressionServices result)
-        {
-            if (!ReflectionHelper.IsAnonymousType(keyType))
-            {
-                result = null;
-                return false;
-            }
+        int GetMemberCount();
 
-            result = new AnonymousTypeKeyInfoExpressionServices(keyType);
-            return true;
-        }
+        Expression CreateKeyFactoryExpression(params Expression[] arguments);
+
+        Expression CreateKeyMemberSelectorExpression(
+            Expression source, 
+            int index);
+
+        bool TryParseKeySelectorExpression(
+            Expression keySelector,
+            bool strict,
+            out MemberInfo[] result);
     }
 }

@@ -46,9 +46,9 @@ namespace NMemory.Indexes
             Expression<Func<TEntity, TKey>> keySelector,
             SortOrder[] sortOrders,
             IComparer<TKey> keyComparer,
-            IKeyInfoExpressionServices services)
+            IKeyInfoHelper helper)
         {
-            if (!services.TryParseKeySelectorExpression(
+            if (!helper.TryParseKeySelectorExpression(
                 keySelector.Body,
                 true, 
                 out this.entityKeyMembers))
@@ -59,7 +59,7 @@ namespace NMemory.Indexes
             if (sortOrders == null)
             {
                 sortOrders = Enumerable
-                    .Repeat(SortOrder.Ascending, services.GetMemberCount())
+                    .Repeat(SortOrder.Ascending, helper.GetMemberCount())
                     .ToArray();
             }
 
@@ -68,7 +68,7 @@ namespace NMemory.Indexes
             this.keyComparer = keyComparer;
             this.keySelector = keySelector.Compile();
             this.keyEmptinessDetector = KeyExpressionHelper
-                .CreateKeyEmptinessDetector<TEntity, TKey>(services)
+                .CreateKeyEmptinessDetector<TEntity, TKey>(helper)
                 .Compile();
         }
 

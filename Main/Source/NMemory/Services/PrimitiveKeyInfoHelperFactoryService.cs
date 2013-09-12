@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="PrimitiveKeyInfoExpressionServicesFactoryService.cs" company="NMemory Team">
+// <copyright file="PrimitiveKeyInfoHelperFactoryService.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,12 +27,11 @@ namespace NMemory.Services
     using System;
     using NMemory.Indexes;
 
-    public class PrimitiveKeyInfoExpressionServicesFactoryService : 
-        IKeyInfoExpressionServicesFactoryService
+    public class PrimitiveKeyInfoHelperFactoryService : IKeyInfoHelperFactoryService
     {
-        public bool TryCreateExpressionServices(
+        public bool TryCreateKeyInfoHelper(
             Type keyType, 
-            out IKeyInfoExpressionServices result)
+            out IKeyInfoHelper result)
         {
             if (!keyType.IsValueType && keyType != typeof(string))
             {
@@ -40,7 +39,7 @@ namespace NMemory.Services
                 return false;
             }
 
-            result = new PrimitiveKeyInfoExpressionServices(keyType);
+            result = new PrimitiveKeyInfoHelper(keyType);
             return true;
         }
     }

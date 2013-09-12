@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IKeyInfoExpressionServicesFactoryService" company="NMemory Team">
+// <copyright file="IKeyInfoHelperProvider.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,15 +20,12 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //     THE SOFTWARE.
 // </copyright>
-// --------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 
-namespace NMemory.Services
+namespace NMemory.Indexes
 {
-    using System;
-    using NMemory.Indexes; 
-    
-    public interface IKeyInfoExpressionServicesFactoryService
+    public interface IKeyInfoHelperProvider
     {
-        bool TryCreateExpressionServices(Type keyType, out IKeyInfoExpressionServices result);
+        IKeyInfoHelper KeyInfoHelper { get; }
     }
 }

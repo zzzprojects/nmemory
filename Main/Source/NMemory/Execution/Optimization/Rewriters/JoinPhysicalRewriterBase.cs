@@ -73,9 +73,9 @@ namespace NMemory.Execution.Optimization.Rewriters
                 ExpressionHelper.SkipQuoteNode(node.Arguments[3]) as LambdaExpression;
 
             Type keyType = secondKeySelector.Body.Type;
-            IKeyInfoExpressionServices services = this.GetKeyInfoExpressionServices(keyType);
+            IKeyInfoHelper helper = this.GetKeyInfoHelper(keyType);
 
-            if (services == null)
+            if (helper == null)
             {
                 // Cannot detect key type
                 return base.VisitMethodCall(node);
@@ -84,7 +84,7 @@ namespace NMemory.Execution.Optimization.Rewriters
             // Try to parse expression
             MemberInfo[] keyMembers;
 
-            if (!services.TryParseKeySelectorExpression(
+            if (!helper.TryParseKeySelectorExpression(
                 secondKeySelector.Body, 
                 false, 
                 out keyMembers))
@@ -114,7 +114,7 @@ namespace NMemory.Execution.Optimization.Rewriters
                 return base.VisitMethodCall(node);
             }
 
-            var indexServices = GetKeyInfoExpressionServices(matchedIndex.KeyInfo);
+            var indexServices = GetKeyInfoHelper(matchedIndex.KeyInfo);
 
             if (indexServices == null)
             {
@@ -126,7 +126,7 @@ namespace NMemory.Execution.Optimization.Rewriters
 
             LambdaExpression keyConverter = 
                 Expression.Lambda(
-                    KeyExpressionHelper.CreateKeyConversionExpression(keyConverterParam, matchedIndex.KeyInfo.EntityKeyMembers, mapping, services, indexServices),
+                    KeyExpressionHelper.CreateKeyConversionExpression(keyConverterParam, matchedIndex.KeyInfo.EntityKeyMembers, mapping, helper, indexServices),
                     keyConverterParam);
 
             // Create key emptyness detector
@@ -136,7 +136,7 @@ namespace NMemory.Execution.Optimization.Rewriters
                 Expression.Lambda(
                     KeyExpressionHelper.CreateKeyEmptinessDetector(
                         keyEmptinessDetectorParam, 
-                        services),
+                        helper),
                     keyEmptinessDetectorParam);
 
             Type[] generics = node.Method.GetGenericArguments();
@@ -170,21 +170,21 @@ namespace NMemory.Execution.Optimization.Rewriters
                 indexedCall);
         }
 
-        private static IKeyInfoExpressionServices GetKeyInfoExpressionServices(IKeyInfo keyInfo)
+        private static IKeyInfoHelper GetKeyInfoHelper(IKeyInfo keyInfo)
         {
-            var provider = keyInfo as IKeyInfoExpressionServicesProvider;
+            var provider = keyInfo as IKeyInfoHelperProvider;
 
             if (provider == null)
             {
                 return null;
             }
 
-            return provider.KeyInfoExpressionServices;
+            return provider.KeyInfoHelper;
         }
 
-        private IKeyInfoExpressionServices GetKeyInfoExpressionServices(Type keyType)
+        private IKeyInfoHelper GetKeyInfoHelper(Type keyType)
         {
-            IKeyInfoExpressionServicesFactoryService factory = null;
+            IKeyInfoHelperFactoryService factory = null;
 
             if (this.Database != null)
             {
@@ -192,18 +192,18 @@ namespace NMemory.Execution.Optimization.Rewriters
                     .Database
                     .DatabaseEngine
                     .ServiceProvider
-                    .GetService<IKeyInfoExpressionServicesFactoryService>();
+                    .GetService<IKeyInfoHelperFactoryService>();
             }
 
             if (factory == null)
             {
                 // Should we really fall back?
                 // Tests would fail without this, add injection?
-                factory = new DefaultKeyInfoExpressionServicesFactoryService();
+                factory = new DefaultKeyInfoHelperFactoryService();
             }
 
-            IKeyInfoExpressionServices result;
-            factory.TryCreateExpressionServices(keyType, out result);
+            IKeyInfoHelper result;
+            factory.TryCreateKeyInfoHelper(keyType, out result);
 
             return result;
         }

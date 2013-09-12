@@ -31,8 +31,8 @@ namespace NMemory.Services
             this.Add<IKeyInfoFactoryService>(
                 new DefaultKeyInfoFactoryService());
 
-            this.Add<IKeyInfoExpressionServicesFactoryService>(
-                new DefaultKeyInfoExpressionServicesFactoryService());
+            this.Add<IKeyInfoHelperFactoryService>(
+                new DefaultKeyInfoHelperFactoryService());
         }
     }
 }

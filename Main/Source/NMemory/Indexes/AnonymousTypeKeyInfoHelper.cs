@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="AnonymousTypeKeyInfoExpressionBuilder.cs" company="NMemory Team">
+// <copyright file="AnonymousTypeKeyInfoHelper.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,12 +31,12 @@ namespace NMemory.Indexes
     using NMemory.Common;
     using NMemory.Exceptions;
 
-    internal class AnonymousTypeKeyInfoExpressionServices : IKeyInfoExpressionServices
+    internal class AnonymousTypeKeyInfoHelper : IKeyInfoHelper
     {
         private Type anonymousType;
         private PropertyInfo[] orderedProperties;
 
-        public AnonymousTypeKeyInfoExpressionServices(Type anonymousType)
+        public AnonymousTypeKeyInfoHelper(Type anonymousType)
         {
             if (!ReflectionHelper.IsAnonymousType(anonymousType))
             {
