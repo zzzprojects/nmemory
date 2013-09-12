@@ -28,6 +28,6 @@ namespace NMemory.Constraints
 
     public interface IConstraintFactory<TEntity>
     {
-        IConstraint<TEntity> Create<TMember>(IEntityMemberInfo<TEntity, TMember> member);
+        IConstraint<TEntity> Create();
     }
 }
