@@ -29,6 +29,7 @@ namespace NMemory.Execution.Optimization.Rewriters
     using System.Reflection;
     using NMemory.Common;
     using NMemory.Indexes;
+    using NMemory.Services;
     using NMemory.Tables;
 
     public abstract class JoinPhysicalRewriterBase : ExpressionRewriterBase
@@ -72,16 +73,13 @@ namespace NMemory.Execution.Optimization.Rewriters
                 ExpressionHelper.SkipQuoteNode(node.Arguments[3]) as LambdaExpression;
 
             Type keyType = secondKeySelector.Body.Type;
-    
-            DefaultKeyInfoExpressionServicesProvider provider;
+            IKeyInfoExpressionServices services = this.GetKeyInfoExpressionServices(keyType);
 
-            if (!DefaultKeyInfoExpressionServicesProvider.TryCreate(keyType, out provider))
+            if (services == null)
             {
                 // Cannot detect key type
                 return base.VisitMethodCall(node);
             }
-
-            IKeyInfoExpressionServices services = provider.KeyInfoExpressionServices;
 
             // Try to parse expression
             MemberInfo[] keyMembers;
@@ -182,6 +180,32 @@ namespace NMemory.Execution.Optimization.Rewriters
             }
 
             return provider.KeyInfoExpressionServices;
+        }
+
+        private IKeyInfoExpressionServices GetKeyInfoExpressionServices(Type keyType)
+        {
+            IKeyInfoExpressionServicesFactoryService factory = null;
+
+            if (this.Database != null)
+            {
+                factory = this
+                    .Database
+                    .DatabaseEngine
+                    .ServiceProvider
+                    .GetService<IKeyInfoExpressionServicesFactoryService>();
+            }
+
+            if (factory == null)
+            {
+                // Should we really fall back?
+                // Tests would fail without this, add injection?
+                factory = new DefaultKeyInfoExpressionServicesFactoryService();
+            }
+
+            IKeyInfoExpressionServices result;
+            factory.TryCreateExpressionServices(keyType, out result);
+
+            return result;
         }
     }
 }

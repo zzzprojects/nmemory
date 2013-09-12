@@ -93,7 +93,6 @@
     <Compile Include="Indexes\DefaultKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfo`1.cs" />
-    <Compile Include="Indexes\DefaultKeyInfoExpressionServicesProvider.cs" />
     <Compile Include="Indexes\ModularKeyInfoFactory.cs" />
     <Compile Include="Indexes\PrimitiveKeyInfoExpressionServices.cs" />
     <Compile Include="Indexes\TupleKeyComparer.cs" />
