@@ -39,11 +39,6 @@ namespace NMemory.Modularity
             return new TableLockConcurrencyManager();
         }
 
-        public virtual ITableFactory CreateTableFactory()
-        {
-            return new DefaultTableFactory();
-        }
-
         public virtual IQueryCompiler CreateQueryCompiler()
         {
             return new QueryCompiler() 

@@ -200,6 +200,7 @@
     <Compile Include="Properties\AssemblyVisibility.cs" />
     <Compile Include="Services\AnonymousTypeKeyInfoHelperFactoryService.cs" />
     <Compile Include="Services\DefaultKeyInfoHelperFactoryService.cs" />
+    <Compile Include="Services\ITableFactoryService.cs" />
     <Compile Include="Services\KeyInfoHelperFactoryServiceBase.cs" />
     <Compile Include="Services\TupleKeyInfoHelperFactoryService.cs" />
     <Compile Include="Services\PrimitiveKeyInfoHelperFactoryService.cs" />
@@ -213,13 +214,12 @@
     <Compile Include="Services\ServiceProviderBase.cs" />
     <Compile Include="Services\IKeyInfoFactoryService.cs" />
     <Compile Include="StoredProcedures\StoredProcedureBase.cs" />
-    <Compile Include="Tables\DefaultTableFactory.cs" />
+    <Compile Include="Services\DefaultTableFactoryService.cs" />
     <Compile Include="Modularity\IConcurrencyManager.cs" />
     <Compile Include="Modularity\IDatabaseEngine.cs" />
     <Compile Include="Modularity\IDatabaseComponent.cs" />
     <Compile Include="Modularity\IDatabaseComponentFactory.cs" />
     <Compile Include="Modularity\ITableCatalog.cs" />
-    <Compile Include="Modularity\ITableFactory.cs" />
     <Compile Include="Modularity\IExtensible.cs" />
     <Compile Include="Modularity\IQueryCompiler.cs" />
     <Compile Include="Modularity\IQueryExecutor.cs" />

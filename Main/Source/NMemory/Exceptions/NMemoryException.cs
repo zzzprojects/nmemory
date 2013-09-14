@@ -36,10 +36,21 @@ namespace NMemory.Exceptions
             this.errorCode = ErrorCode.GenericError;
         }
 
-        public NMemoryException(ErrorCode errorCode, string message) : base(message, null)
+        public NMemoryException(ErrorCode errorCode, string message) 
+            : base(message, null)
         {
             this.errorCode = errorCode;
             this.message = message;
+        }
+
+        public NMemoryException(ErrorCode errorCode, string message, params object[] args)
+            : this(errorCode, string.Format(message, args))
+        {
+        }
+
+        public NMemoryException(string message, params object[] args)
+            : this(ErrorCode.GenericError, string.Format(message, args))
+        {
         }
 
         public NMemoryException(ErrorCode errorCode, Exception innerException)

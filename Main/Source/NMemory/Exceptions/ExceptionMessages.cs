@@ -30,5 +30,11 @@ namespace NMemory.Exceptions
 
         public static readonly string CannotCreateKeyInfo =
             "Cannot create keyinfo";
+
+        public static readonly string ServiceNotFound =
+            "'{0}' service was not found";
+
+        public static readonly string TableNotCreated =
+            "Table was not created by the TableFactoryService";
     }
 }

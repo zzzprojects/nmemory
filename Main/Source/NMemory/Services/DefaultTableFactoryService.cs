@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="DefaultTableFactory.cs" company="NMemory Team">
+// <copyright file="DefaultTableFactoryService.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,28 +22,23 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Tables
+namespace NMemory.Services
 {
     using NMemory.Indexes;
     using NMemory.Modularity;
+    using NMemory.Tables;
 
-    internal class DefaultTableFactory : ITableFactory
+    internal class DefaultTableFactoryService : ITableFactoryService
     {
-        private IDatabase database;
-
-        public void Initialize(IDatabase database)
-        {
-            this.database = database;
-        }
-
         public Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
-            IdentitySpecification<TEntity> identitySpecification)
+            IdentitySpecification<TEntity> identitySpecification,
+            IDatabase database)
             where TEntity : class
         {
             Table<TEntity, TPrimaryKey> table = 
                 new DefaultTable<TEntity, TPrimaryKey>(
-                    this.database, 
+                    database, 
                     primaryKey, 
                     identitySpecification);
             
