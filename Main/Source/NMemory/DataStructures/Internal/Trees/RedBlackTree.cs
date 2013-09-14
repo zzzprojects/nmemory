@@ -419,7 +419,7 @@ namespace NMemory.DataStructures.Internal.Trees
             if (fromCompare < 0 && node.Left != null)
             {
                 // Node is greater than 'from'
-                foreach (RedBlackTreeNode<TKey, TValue> leftNode in this.InOrderTraversal(node, from, to, fromOpen, toOpen))
+                foreach (RedBlackTreeNode<TKey, TValue> leftNode in this.InOrderTraversal(node.Left, from, to, fromOpen, toOpen))
                 { 
                     yield return leftNode;
                 }
@@ -450,7 +450,7 @@ namespace NMemory.DataStructures.Internal.Trees
             if (fromCompare < 0 && node.Left != null)
             {
                 // Node is greater than 'from'
-                foreach (RedBlackTreeNode<TKey, TValue> leftNode in this.InOrderTraversalFrom(node, from, fromOpen))
+                foreach (RedBlackTreeNode<TKey, TValue> leftNode in this.InOrderTraversalFrom(node.Left, from, fromOpen))
                 {
                     yield return leftNode;
                 }
@@ -479,7 +479,7 @@ namespace NMemory.DataStructures.Internal.Trees
             if (node.Left != null)
             {
                 // Node is always greater than 'from'
-                foreach (RedBlackTreeNode<TKey, TValue> leftNode in this.InOrderTraversalTo(node, to, toOpen))
+                foreach (RedBlackTreeNode<TKey, TValue> leftNode in this.InOrderTraversalTo(node.Left, to, toOpen))
                 {
                     yield return leftNode;
                 }
