@@ -26,6 +26,7 @@ namespace NMemory.Services
 {
     using System;
     using System.Collections.Generic;
+    using NMemory.Exceptions;
     using NMemory.Modularity;
 
     public abstract class ServiceProviderBase : 
@@ -57,19 +58,95 @@ namespace NMemory.Services
             this.database = database;
         }
 
-        protected void Replace<T>(T service)
+        protected void Replace<T>(T service) where T : class
         {
             this.services[typeof(T)] = service;
         }
 
-        protected void Add<T>(T service)
+        protected void Add<T>(T service) where T : class
         {
             this.services.Add(typeof(T), service);
         }
 
-        protected bool Remove<T>()
+        protected bool Remove<T>() where T : class
         {
             return this.services.Remove(typeof(T));
+        }
+
+        protected void Combine<T>(T service) where T : class
+        {
+            if (service == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            T existing = this.GetService<T>();
+
+            if (existing == null)
+            {
+                this.Add<T>(service);
+            }
+            else
+            {
+                T combined = Combine(existing, service);
+                this.Replace<T>(combined);
+            }
+        }
+
+        protected void Combine<T>(params T[] services) where T : class
+        {
+            foreach (T service in services)
+            {
+                this.Combine(service);
+            }
+        }
+
+        private T Combine<T>(T existing, T addition) where T : class
+        {
+            Type serviceType = typeof(T);
+
+            if (serviceType == typeof(IKeyInfoFactoryService))
+            {
+                return Combine(
+                    existing as IKeyInfoFactoryService, 
+                    addition as IKeyInfoFactoryService) as T;
+            }
+            else if (serviceType == typeof(IKeyInfoHelperFactoryService))
+            {
+                return Combine(
+                    existing as IKeyInfoHelperFactoryService, 
+                    addition as IKeyInfoHelperFactoryService) as T;
+            }
+
+            throw new NMemoryException(ExceptionMessages.ServiceCannotBeCombined, typeof(T).Name);
+        }
+
+        private IKeyInfoFactoryService Combine(
+            IKeyInfoFactoryService existing, 
+            IKeyInfoFactoryService addition)
+        {
+            var combined = existing as CombinedKeyInfoFactoryService;
+
+            if (combined == null)
+            {
+                combined = CombinedKeyInfoFactoryService.Empty.Add(existing);
+            }
+
+            return combined.Add(addition);
+        }
+
+        private IKeyInfoHelperFactoryService Combine(
+            IKeyInfoHelperFactoryService existing,
+            IKeyInfoHelperFactoryService addition)
+        {
+            var combined = existing as CombinedKeyInfoHelperFactoryService;
+
+            if (combined == null)
+            {
+                combined = CombinedKeyInfoHelperFactoryService.Empty.Add(existing);
+            }
+
+            return combined.Add(addition);
         }
     }
 }

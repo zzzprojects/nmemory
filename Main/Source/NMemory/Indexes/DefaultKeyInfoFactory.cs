@@ -28,7 +28,8 @@ namespace NMemory.Indexes
 
     public class DefaultKeyInfoFactory : ModularKeyInfoFactory
     {
-        public DefaultKeyInfoFactory() : base(new DefaultKeyInfoFactoryService())
+        public DefaultKeyInfoFactory()
+            : base(DefaultServiceConfigurations.CreateDefaultKeyInfoFactoryService())
         {
         }
     }

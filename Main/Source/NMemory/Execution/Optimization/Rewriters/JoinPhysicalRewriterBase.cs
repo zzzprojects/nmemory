@@ -199,7 +199,7 @@ namespace NMemory.Execution.Optimization.Rewriters
             {
                 // Should we really fall back?
                 // Tests would fail without this, add injection?
-                factory = new DefaultKeyInfoHelperFactoryService();
+                factory = DefaultServiceConfigurations.CreateDefaultKeyInfoHelperFactoryService();
             }
 
             IKeyInfoHelper result;

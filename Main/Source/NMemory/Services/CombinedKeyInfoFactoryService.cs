@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="KeyInfoFactoryServiceBase" company="NMemory Team">
+// <copyright file="CombinedKeyInfoFactoryService" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,13 +29,33 @@ namespace NMemory.Services
     using System.Linq.Expressions;
     using NMemory.Indexes;
 
-    public abstract class KeyInfoFactoryServiceBase : IKeyInfoFactoryService
+    internal sealed class CombinedKeyInfoFactoryService : IKeyInfoFactoryService
     {
-        private readonly List<IKeyInfoFactoryService> factories;
+        private readonly IKeyInfoFactoryService[] factories;
 
-        public KeyInfoFactoryServiceBase()
+        private CombinedKeyInfoFactoryService()
         {
-            this.factories = new List<IKeyInfoFactoryService>();
+            this.factories = new IKeyInfoFactoryService[0];
+        }
+
+        private CombinedKeyInfoFactoryService(
+            CombinedKeyInfoFactoryService existing,
+            IKeyInfoFactoryService addition)
+        {
+            int length = existing.factories.Length;
+
+            this.factories = new IKeyInfoFactoryService[length + 1];
+
+            Array.Copy(existing.factories, this.factories, length);
+            this.factories[length] = addition;
+        }
+
+        public static CombinedKeyInfoFactoryService Empty
+        {
+            get 
+            { 
+                return new CombinedKeyInfoFactoryService(); 
+            }
         }
 
         public bool TryCreateKeyInfo<TEntity, TKey>(
@@ -57,9 +77,9 @@ namespace NMemory.Services
             return success;
         }
 
-        protected void Register(IKeyInfoFactoryService service)
+        public CombinedKeyInfoFactoryService Add(IKeyInfoFactoryService factory)
         {
-            this.factories.Add(service);
+            return new CombinedKeyInfoFactoryService(this, factory);
         }
     }
 }

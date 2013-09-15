@@ -53,6 +53,11 @@ namespace NMemory.Exceptions
         {
         }
 
+        public NMemoryException(string message)
+            : this(ErrorCode.GenericError, message)
+        {
+        }
+
         public NMemoryException(ErrorCode errorCode, Exception innerException)
             : base(null, innerException)
         {
