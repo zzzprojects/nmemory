@@ -26,6 +26,7 @@ namespace NMemory.Services
 {
     using System;
     using System.Linq.Expressions;
+    using System.Reflection;
     using NMemory.Common;
     using NMemory.Indexes;
 
@@ -41,7 +42,17 @@ namespace NMemory.Services
                 return false;
             }
 
-            result = TupleKeyInfo.Create(keySelector);
+            IKeyInfoHelper helper = TupleKeyInfo<TEntity, TKey>.KeyInfoHelper;
+
+            MemberInfo[] members;
+
+            if (!helper.TryParseKeySelectorExpression(keySelector.Body, false, out members))
+            {
+                result = null;
+                return false;
+            }
+
+            result = new TupleKeyInfo<TEntity, TKey>(members);
             return true;
         }
     }

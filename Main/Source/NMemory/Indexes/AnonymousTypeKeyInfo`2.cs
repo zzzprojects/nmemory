@@ -26,13 +26,14 @@ namespace NMemory.Indexes
 {
     using System;
     using System.Linq.Expressions;
+    using System.Reflection;
 
     public class AnonymousTypeKeyInfo<TEntity, TKey> : 
         KeyInfoBase<TEntity, TKey>, 
         IKeyInfoHelperProvider
         where TEntity : class
     {
-        private static readonly IKeyInfoHelper KeyInfoHelper = 
+        internal static readonly IKeyInfoHelper KeyInfoHelper = 
             new AnonymousTypeKeyInfoHelper(typeof(TKey));
 
         public AnonymousTypeKeyInfo(
@@ -49,6 +50,16 @@ namespace NMemory.Indexes
         public AnonymousTypeKeyInfo(
             Expression<Func<TEntity, TKey>> keySelector) :
             this(keySelector, null)
+        {
+        }
+
+        internal AnonymousTypeKeyInfo(
+            MemberInfo[] entityKeyMembers)
+            : base(
+                entityKeyMembers, 
+                null,
+                new GenericKeyComparer<TKey>(null, KeyInfoHelper),
+                new AnonymousTypeKeyInfoHelper(typeof(TKey)))
         {
         }
 

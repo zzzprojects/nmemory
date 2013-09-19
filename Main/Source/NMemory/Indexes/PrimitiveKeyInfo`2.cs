@@ -27,11 +27,12 @@ namespace NMemory.Indexes
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+using System.Reflection;
 
     public class PrimitiveKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>, IKeyInfoHelperProvider
         where TEntity : class
     {
-        private static readonly IKeyInfoHelper KeyInfoHelper =
+        internal static readonly IKeyInfoHelper KeyInfoHelper =
             new PrimitiveKeyInfoHelper(typeof(TKey));
 
         public PrimitiveKeyInfo(Expression<Func<TEntity, TKey>> keySelector, SortOrder sortOrder) : 
@@ -39,12 +40,21 @@ namespace NMemory.Indexes
                 keySelector,
                 new SortOrder[1] { sortOrder },
                 Comparer<TKey>.Default,
-                new PrimitiveKeyInfoHelper(typeof(TKey)))
+                KeyInfoHelper)
         {
         }
 
         public PrimitiveKeyInfo(Expression<Func<TEntity, TKey>> keySelector) :
             this(keySelector, SortOrder.Ascending)
+        {
+        }
+
+        internal PrimitiveKeyInfo(MemberInfo member) :
+            base(
+                new MemberInfo[] { member },
+                null,
+                Comparer<TKey>.Default,
+                KeyInfoHelper)
         {
         }
 

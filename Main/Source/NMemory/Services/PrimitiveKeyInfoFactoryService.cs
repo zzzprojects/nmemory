@@ -26,6 +26,7 @@ namespace NMemory.Services
 {
     using System;
     using System.Linq.Expressions;
+    using System.Reflection;
     using NMemory.Indexes;
 
     public class PrimitiveKeyInfoFactoryService : IKeyInfoFactoryService
@@ -40,7 +41,17 @@ namespace NMemory.Services
                 return false;
             }
 
-            result = PrimitiveKeyInfo.Create(keySelector);
+            IKeyInfoHelper helper = PrimitiveKeyInfo<TEntity, TKey>.KeyInfoHelper;
+
+            MemberInfo[] members;
+
+            if (!helper.TryParseKeySelectorExpression(keySelector.Body, false, out members))
+            {
+                result = null;
+                return false;
+            }
+
+            result = new PrimitiveKeyInfo<TEntity, TKey>(members[0]);
             return true;
         }
     }
