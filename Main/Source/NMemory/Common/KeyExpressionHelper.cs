@@ -41,6 +41,23 @@ namespace NMemory.Common
             return Expression.Lambda<Func<TKey, bool>>(body, param);
         }
 
+        public static Expression<Func<TEntity, TKey>> CreateKeySelector<TEntity, TKey>(
+            MemberInfo[] entityMembers, 
+            IKeyInfoHelper helper)
+        {
+            ParameterExpression param = Expression.Parameter(typeof(TEntity));
+            Expression[] memberAccess = new Expression[entityMembers.Length];
+
+            for (int i = 0; i < entityMembers.Length; i++)
+            {
+                memberAccess[i] = Expression.MakeMemberAccess(param, entityMembers[i]);
+            }
+
+            Expression body = helper.CreateKeyFactoryExpression(memberAccess);
+
+            return Expression.Lambda<Func<TEntity, TKey>>(body, param);
+        }
+
         public static Expression CreateKeyEmptinessDetector(
             Expression source,
             IKeyInfoHelper helper)

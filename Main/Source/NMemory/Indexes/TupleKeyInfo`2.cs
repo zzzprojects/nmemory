@@ -25,20 +25,19 @@
 namespace NMemory.Indexes
 {
     using System;
-    using System.Collections.ObjectModel;
-    using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
-    using NMemory.Common;
 
     public class TupleKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>, IKeyInfoHelperProvider
         where TEntity : class
     {
+        private static readonly IKeyInfoHelper KeyInfoHelper =
+            new TupleKeyInfoHelper(typeof(TKey));
+
         public TupleKeyInfo(Expression<Func<TEntity, TKey>> keySelector, SortOrder[] sortOrders) : 
             base(
                 keySelector,
                 sortOrders,
-                new TupleKeyComparer<TKey>(sortOrders),
+                new GenericKeyComparer<TKey>(sortOrders, KeyInfoHelper),
                 new TupleKeyInfoHelper(typeof(TKey)))
         {
         }
@@ -52,7 +51,7 @@ namespace NMemory.Indexes
         {
             get 
             {
-                return new TupleKeyInfoHelper(typeof(TKey));
+                return KeyInfoHelper;
             }
         }
     }

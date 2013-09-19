@@ -31,7 +31,7 @@ namespace NMemory.Indexes
 
     internal class PrimitiveKeyInfoHelper : IKeyInfoHelper
     {
-        private Type primitiveType;
+        private readonly Type primitiveType;
 
         public PrimitiveKeyInfoHelper(Type primitiveType)
         {

@@ -30,6 +30,7 @@ namespace NMemory.Indexes
     using System.Linq.Expressions;
     using System.Reflection;
     using NMemory.Common;
+    using NMemory.Exceptions;
 
     public abstract class KeyInfoBase<TEntity, TKey> : 
         IKeyInfo<TEntity, TKey>
@@ -43,18 +44,13 @@ namespace NMemory.Indexes
         private Func<TKey, bool> keyEmptinessDetector;
 
         public KeyInfoBase(
-            Expression<Func<TEntity, TKey>> keySelector,
+            MemberInfo[] entityKeyMembers,
             SortOrder[] sortOrders,
             IComparer<TKey> keyComparer,
             IKeyInfoHelper helper)
         {
-            if (!helper.TryParseKeySelectorExpression(
-                keySelector.Body,
-                true, 
-                out this.entityKeyMembers))
-            {
-                throw new ArgumentException("", "keySelector");
-            }
+           
+            this.entityKeyMembers = entityKeyMembers;
 
             if (sortOrders == null)
             {
@@ -66,10 +62,22 @@ namespace NMemory.Indexes
             this.sortOrders = sortOrders;
 
             this.keyComparer = keyComparer;
-            this.keySelector = keySelector.Compile();
+            this.keySelector = KeyExpressionHelper
+                .CreateKeySelector<TEntity, TKey>(entityKeyMembers, helper)
+                .Compile();
             this.keyEmptinessDetector = KeyExpressionHelper
                 .CreateKeyEmptinessDetector<TEntity, TKey>(helper)
                 .Compile();
+        }
+
+        public KeyInfoBase(
+            Expression<Func<TEntity, TKey>> keySelector,
+            SortOrder[] sortOrders,
+            IComparer<TKey> keyComparer,
+            IKeyInfoHelper helper)
+            : this(ParseSelector(keySelector, helper), sortOrders, keyComparer, helper)
+        {
+
         }
 
         public TKey SelectKey(TEntity entity)
@@ -105,6 +113,25 @@ namespace NMemory.Indexes
         private static SortOrder[] GetDefaultSortOrders(int count)
         {
             return Enumerable.Repeat(SortOrder.Ascending, count).ToArray();
+        }
+
+        private static MemberInfo[] ParseSelector(
+            Expression<Func<TEntity, TKey>> selector,
+            IKeyInfoHelper helper)
+        {
+            MemberInfo[] result = null;
+
+            if (!helper.TryParseKeySelectorExpression(
+                selector.Body,
+                true, 
+                out result))
+            {
+                throw new ArgumentException(
+                    ExceptionMessages.InvalidKeySelector, 
+                    "keySelector");
+            }
+
+            return result;
         }
     }
 }

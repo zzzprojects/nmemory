@@ -32,13 +32,16 @@ namespace NMemory.Indexes
         IKeyInfoHelperProvider
         where TEntity : class
     {
+        private static readonly IKeyInfoHelper KeyInfoHelper = 
+            new AnonymousTypeKeyInfoHelper(typeof(TKey));
+
         public AnonymousTypeKeyInfo(
             Expression<Func<TEntity, TKey>> keySelector, 
             SortOrder[] sortOrders) : 
             base(
                 keySelector,
                 sortOrders,
-                new AnonymousTypeKeyComparer<TKey>(sortOrders),
+                new GenericKeyComparer<TKey>(sortOrders, KeyInfoHelper),
                 new AnonymousTypeKeyInfoHelper(typeof(TKey)))
         {
         }
@@ -53,7 +56,7 @@ namespace NMemory.Indexes
         {
             get
             {
-                return new AnonymousTypeKeyInfoHelper(typeof(TKey));
+                return KeyInfoHelper;
             }
         }
     }

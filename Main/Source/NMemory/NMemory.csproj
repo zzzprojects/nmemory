@@ -93,9 +93,9 @@
     <Compile Include="Indexes\DefaultKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfoFactory.cs" />
     <Compile Include="Indexes\IKeyInfo`1.cs" />
+    <Compile Include="Indexes\GenericKeyComparer`1.cs" />
     <Compile Include="Indexes\ModularKeyInfoFactory.cs" />
     <Compile Include="Indexes\PrimitiveKeyInfoHelper.cs" />
-    <Compile Include="Indexes\TupleKeyComparer.cs" />
     <Compile Include="Indexes\PrimitiveComparer.cs" />
     <Compile Include="Indexes\PrimitiveKeyComparer`1.cs" />
     <Compile Include="Common\QueryMethods.cs" />
@@ -117,7 +117,6 @@
     <Compile Include="Constraints\NVarCharConstraint.cs" />
     <Compile Include="Constraints\TimestampConstraint.cs" />
     <Compile Include="Database.cs" />
-    <Compile Include="Indexes\AnonymousTypeKeyComparer.cs" />
     <Compile Include="DataStructures\Hashtable.cs" />
     <Compile Include="DataStructures\IDataStructure.cs" />
     <Compile Include="DataStructures\IIntervalSearchable.cs" />

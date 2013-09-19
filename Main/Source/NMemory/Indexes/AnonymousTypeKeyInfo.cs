@@ -29,13 +29,15 @@ namespace NMemory.Indexes
 
     public static class AnonymousTypeKeyInfo
     {
-        public static AnonymousTypeKeyInfo<TEntity, TKey> Create<TEntity, TKey>(Expression<Func<TEntity, TKey>> keySelector)
+        public static AnonymousTypeKeyInfo<TEntity, TKey> Create<TEntity, TKey>(
+            Expression<Func<TEntity, TKey>> keySelector)
             where TEntity : class
         {
             return new AnonymousTypeKeyInfo<TEntity, TKey>(keySelector);
         }
 
-        public static AnonymousTypeKeyInfo<TEntity, TKey> Create<TEntity, TKey>(Expression<Func<TEntity, TKey>> keySelector, params SortOrder[] sortOrders)
+        public static AnonymousTypeKeyInfo<TEntity, TKey> Create<TEntity, TKey>(
+            Expression<Func<TEntity, TKey>> keySelector, params SortOrder[] sortOrders)
             where TEntity : class
         {
             return new AnonymousTypeKeyInfo<TEntity, TKey>(keySelector, sortOrders);

@@ -27,11 +27,13 @@ namespace NMemory.Indexes
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using System.Reflection;
 
     public class PrimitiveKeyInfo<TEntity, TKey> : KeyInfoBase<TEntity, TKey>, IKeyInfoHelperProvider
         where TEntity : class
     {
+        private static readonly IKeyInfoHelper KeyInfoHelper =
+            new PrimitiveKeyInfoHelper(typeof(TKey));
+
         public PrimitiveKeyInfo(Expression<Func<TEntity, TKey>> keySelector, SortOrder sortOrder) : 
             base(
                 keySelector,
@@ -49,8 +51,8 @@ namespace NMemory.Indexes
         IKeyInfoHelper IKeyInfoHelperProvider.KeyInfoHelper
         {
             get 
-            { 
-                return new PrimitiveKeyInfoHelper(typeof(TKey)); 
+            {
+                return KeyInfoHelper; 
             }
         }
     }

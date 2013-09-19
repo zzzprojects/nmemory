@@ -33,8 +33,8 @@ namespace NMemory.Indexes
 
     internal class AnonymousTypeKeyInfoHelper : IKeyInfoHelper
     {
-        private Type anonymousType;
-        private PropertyInfo[] orderedProperties;
+        private readonly Type anonymousType;
+        private readonly PropertyInfo[] orderedProperties;
 
         public AnonymousTypeKeyInfoHelper(Type anonymousType)
         {
@@ -44,6 +44,35 @@ namespace NMemory.Indexes
             }
 
             this.anonymousType = anonymousType;
+
+            // Does GetPropeties really ensure appropriately ordered property list?
+
+            // This code ensures an ordered property list based on the order of generic 
+            // arguments
+
+            // Anonymous types are generic
+            Type genericAnonType = this.anonymousType.GetGenericTypeDefinition();
+            Type[] genericArgs = genericAnonType.GetGenericArguments();
+
+            // The type of the properties are generic
+            int propCount = genericArgs.Length;
+            this.orderedProperties = new PropertyInfo[propCount];
+
+            PropertyInfo[] genericProps = genericAnonType.GetProperties();
+
+            for (int i = 0; i < propCount; i++)
+            {
+                for (int j = 0; j < propCount; j++)
+                {
+                    if (genericProps[j].PropertyType == genericArgs[i])
+                    {
+                        this.orderedProperties[i] =
+                            this.anonymousType.GetProperty(genericProps[j].Name);
+
+                        break;
+                    }
+                }
+            }
         }
 
         public int GetMemberCount()
@@ -53,8 +82,6 @@ namespace NMemory.Indexes
 
         public Expression CreateKeyFactoryExpression(params Expression[] arguments)
         {
-            this.EnsureOrderedPropeties();
-
             if (arguments == null)
             {
                 throw new ArgumentNullException("arguments");
@@ -88,8 +115,6 @@ namespace NMemory.Indexes
                 throw new ArgumentException(ExceptionMessages.Missing, "arguments");
             }
 
-            this.EnsureOrderedPropeties();
-
             if (this.orderedProperties.Length <= index)
             {
                 throw new ArgumentException(ExceptionMessages.Missing, "arguments");
@@ -98,43 +123,6 @@ namespace NMemory.Indexes
             PropertyInfo property = this.orderedProperties[index];
 
             return Expression.Property(source, property);
-        }
-
-        private void EnsureOrderedPropeties()
-        {
-            if (this.orderedProperties != null)
-            {
-                return;
-            }
-
-            // Does GetPropeties really ensure appropriately ordered property list?
-
-            // This code ensures an ordered property list based on the order of generic 
-            // arguments
-
-            // Anonymous types are generic
-            Type genericAnonType = this.anonymousType.GetGenericTypeDefinition();
-            Type[] genericArgs = genericAnonType.GetGenericArguments();
-
-            // The type of the properties are generic
-            int propCount = genericArgs.Length;
-            this.orderedProperties = new PropertyInfo[propCount];
-
-            PropertyInfo[] genericProps = genericAnonType.GetProperties();
-
-            for (int i = 0; i < propCount; i++)
-            {
-                for (int j = 0; j < propCount; j++)
-                {
-                    if (genericProps[j].PropertyType == genericArgs[i])
-                    {
-                        this.orderedProperties[i] = 
-                            this.anonymousType.GetProperty(genericProps[j].Name);
-
-                        break;
-                    }
-                }
-            }
         }
 
         public bool TryParseKeySelectorExpression(

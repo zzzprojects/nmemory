@@ -24,11 +24,23 @@
 
 namespace NMemory.Exceptions
 {
-    public static class ExceptionMessages
+    internal static class ExceptionMessages
     {
         public static readonly string Missing = string.Empty;
 
         public static readonly string CannotCreateKeyInfo =
-            "Cannot create keyinfo";
+            "Cannot create keyinfo.";
+
+        public static readonly string MemberAndSortOrderCountMismatch =
+            "The amount of sort ordering values does not match the amount of members.";
+
+        public static readonly string InvalidKeyInfoHelper =
+            "Invalid key info helper.";
+
+        public static readonly string GenericKeyInfoCannotBeNull =
+            "Generic KeyInfo objects cannot be null.";
+
+        public static readonly string InvalidKeySelector =
+            "Invalid key selector.";
     }
 }

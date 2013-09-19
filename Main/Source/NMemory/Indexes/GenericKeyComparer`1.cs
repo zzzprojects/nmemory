@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="AnonymousTypeKeyComparer.cs" company="NMemory Team">
+// <copyright file="GenericKeyComparer`1.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,7 +20,7 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //     THE SOFTWARE.
 // </copyright>
-// ----------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------
 
 namespace NMemory.Indexes
 {
@@ -30,33 +30,39 @@ namespace NMemory.Indexes
     using System.Linq.Expressions;
     using System.Reflection;
     using NMemory.Common;
+    using NMemory.Exceptions;
 
-    internal class AnonymousTypeKeyComparer<T> : IComparer<T>
+    public class GenericKeyComparer<T> 
+        : IComparer<T>
     {
         private Func<T, T, int> comparer;
 
-        public AnonymousTypeKeyComparer(SortOrder[] sortOrders)
+        public GenericKeyComparer(SortOrder[] sortOrders, IKeyInfoHelper helper)
         {
-            if (!ReflectionHelper.IsAnonymousType(typeof(T)))
+            if (helper == null)
             {
-                throw new InvalidOperationException("The specified generic type is not an anonymous type");
+                throw new ArgumentNullException("helper");
             }
 
-            PropertyInfo[] properties = typeof(T).GetProperties();
+            int memberCount = helper.GetMemberCount();
 
-            if (properties.Length == 0)
+            if (memberCount <= 0)
             {
-                throw new InvalidOperationException("No properties");
+                throw new ArgumentException(
+                    ExceptionMessages.InvalidKeyInfoHelper,
+                    "helper");
             }
 
             if (sortOrders == null)
             {
-                sortOrders = Enumerable.Repeat(SortOrder.Ascending, properties.Length).ToArray();
+                sortOrders = Enumerable.Repeat(SortOrder.Ascending, memberCount).ToArray();
             }
 
-            if (sortOrders.Length != properties.Length)
+            if (sortOrders.Length != memberCount)
             {
-                throw new ArgumentException("The count of sort ordering values does not match the count of anonymous type propeties", "sortOrders");
+                throw new ArgumentException(
+                    ExceptionMessages.MemberAndSortOrderCountMismatch,
+                    "sortOrders");
             }
 
             ParameterExpression x = Expression.Parameter(typeof(T), "x");
@@ -66,24 +72,25 @@ namespace NMemory.Indexes
 
             List<Expression> blockBody = new List<Expression>();
 
-            for (int i = 0; i < properties.Length; i++)
+            for (int i = 0; i < memberCount; i++)
             {
-                PropertyInfo p = properties[i];
+                Expression xMember = helper.CreateKeyMemberSelectorExpression(x, i);
+                Expression yMember = helper.CreateKeyMemberSelectorExpression(y, i);
 
-                if (i == 0)
+                Expression expr =
+                    Expression.Assign(
+                            variable,
+                            this.CreateComparsion(xMember, yMember, sortOrders[i]));
+
+                if (0 < i)
                 {
-                    blockBody.Add(
-                        Expression.Assign(
-                            variable, 
-                            this.CreateComparsion(p, x, y, sortOrders[i])));
-                }
-                else
-                {
-                    blockBody.Add(
-                        Expression.IfThen(
+                     expr = 
+                         Expression.IfThen(
                             Expression.Equal(variable, Expression.Constant(0)),
-                            Expression.Assign(variable, this.CreateComparsion(p, x, y, sortOrders[i]))));
+                            expr);
                 }
+
+                blockBody.Add(expr);
             }
 
             // Eval the last variable
@@ -103,12 +110,12 @@ namespace NMemory.Indexes
         {
             if (x == null)
             {
-                throw new ArgumentException("Anonymous type key cannot be null", "x");
+                throw new ArgumentException(ExceptionMessages.GenericKeyInfoCannotBeNull, "x");
             }
 
             if (y == null)
             {
-                throw new ArgumentException("Anonymous type key cannot be null", "y");
+                throw new ArgumentException(ExceptionMessages.GenericKeyInfoCannotBeNull, "y");
             }
 
             int result = this.comparer(x, y);
@@ -116,18 +123,20 @@ namespace NMemory.Indexes
             return result;
         }
 
-        private Expression CreateComparsion(PropertyInfo p, ParameterExpression x, ParameterExpression y, SortOrder ordering)
+        private Expression CreateComparsion(Expression x, Expression y, SortOrder ordering)
         {
             MethodInfo compareMethod =
                 ReflectionHelper.GetStaticMethodInfo(() =>
                     PrimitiveKeyComparer.Compare<object>(null, null, SortOrder.Ascending));
 
-            compareMethod = compareMethod.GetGenericMethodDefinition().MakeGenericMethod(p.PropertyType);
+            compareMethod = compareMethod
+                .GetGenericMethodDefinition()
+                .MakeGenericMethod(x.Type);
 
             return Expression.Call(
                 compareMethod,
-                Expression.Property(x, p),
-                Expression.Property(y, p),
+                x,
+                y,
                 Expression.Constant(ordering, typeof(SortOrder)));
         }
     }
