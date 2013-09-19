@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="DefaultKeyInfoHelperFactoryService" company="NMemory Team">
+// <copyright file="DefaultServiceConfigurations.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,18 +20,26 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //     THE SOFTWARE.
 // </copyright>
-// ----------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 
 namespace NMemory.Services
 {
-    public class DefaultKeyInfoHelperFactoryService : 
-        KeyInfoHelperFactoryServiceBase
+    internal static class DefaultServiceConfigurations
     {
-        public DefaultKeyInfoHelperFactoryService()
+        public static IKeyInfoFactoryService CreateDefaultKeyInfoFactoryService()
         {
-            this.Register(new PrimitiveKeyInfoHelperFactoryService());
-            this.Register(new AnonymousTypeKeyInfoHelperFactoryService());
-            this.Register(new TupleKeyInfoHelperFactoryService());
+            return CombinedKeyInfoFactoryService.Empty
+                .Add(new PrimitiveKeyInfoFactoryService())
+                .Add(new AnonymousTypeKeyInfoFactoryService())
+                .Add(new TupleKeyInfoFactoryService());
+        }
+
+        public static IKeyInfoHelperFactoryService CreateDefaultKeyInfoHelperFactoryService()
+        {
+            return CombinedKeyInfoHelperFactoryService.Empty
+                .Add(new PrimitiveKeyInfoHelperFactoryService())
+                .Add(new AnonymousTypeKeyInfoHelperFactoryService())
+                .Add(new TupleKeyInfoHelperFactoryService());
         }
     }
 }

@@ -49,7 +49,7 @@ namespace NMemory.Indexes
             if (this.service == null)
             {
                 // Failback
-                this.service = new DefaultKeyInfoFactoryService();
+                this.service = DefaultServiceConfigurations.CreateDefaultKeyInfoFactoryService();
             }
         }
 

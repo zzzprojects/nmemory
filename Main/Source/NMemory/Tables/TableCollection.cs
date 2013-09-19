@@ -31,6 +31,8 @@ namespace NMemory.Tables
     using System.Linq.Expressions;
     using NMemory.Indexes;
     using NMemory.Modularity;
+    using NMemory.Services;
+    using NMemory.Exceptions;
 
     /// <summary>
     ///     Represents a collection of the tables of the database.
@@ -131,9 +133,26 @@ namespace NMemory.Tables
 
             where TEntity : class
         {
-            Table<TEntity, TPrimaryKey> table = this.database.DatabaseEngine.TableFactory.CreateTable<TEntity, TPrimaryKey>(
-                primaryKey,
-                identitySpecification);
+            ITableFactoryService factory = this.database
+                .DatabaseEngine
+                .ServiceProvider
+                .GetService<ITableFactoryService>();
+
+            if (factory == null)
+            {
+                throw new NMemoryException(ExceptionMessages.ServiceNotFound, "TableFactoryService");
+            }
+
+            Table<TEntity, TPrimaryKey> table = 
+                factory.CreateTable<TEntity, TPrimaryKey>(
+                    primaryKey,
+                    identitySpecification,
+                    this.database);
+
+            if (table == null)
+            {
+                throw new NMemoryException(ExceptionMessages.TableNotCreated);  
+            }
 
             this.RegisterTable(table);
 

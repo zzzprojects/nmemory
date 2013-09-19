@@ -28,11 +28,6 @@ namespace NMemory.Modularity
 
     public interface IDatabaseEngine
     {
-        ITableFactory TableFactory
-        {
-            get;
-        }
-
         IConcurrencyManager ConcurrencyManager
         {
             get;

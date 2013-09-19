@@ -22,9 +22,10 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-using System.Collections;
 namespace NMemory.Modularity
 {
+    using System.Collections;
+
     /// <summary>
     /// Provides functionality to instantiate the components of a database engine.
     /// </summary>
@@ -35,12 +36,6 @@ namespace NMemory.Modularity
         /// </summary>
         /// <returns>A concurrency manager.</returns>
         IConcurrencyManager CreateConcurrencyManager();
-
-        /// <summary>
-        /// Creates a table factory module that initializes database tables.
-        /// </summary>
-        /// <returns>A table factory module.</returns>
-        ITableFactory CreateTableFactory();
 
         /// <summary>
         /// Creates a query compiler that optimizes and compiles database queries.

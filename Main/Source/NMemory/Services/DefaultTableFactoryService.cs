@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="DefaultKeyInfoFactoryService" company="NMemory Team">
+// <copyright file="DefaultTableFactoryService.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,13 +24,25 @@
 
 namespace NMemory.Services
 {
-    public class DefaultKeyInfoFactoryService : KeyInfoFactoryServiceBase
+    using NMemory.Indexes;
+    using NMemory.Modularity;
+    using NMemory.Tables;
+
+    internal class DefaultTableFactoryService : ITableFactoryService
     {
-        public DefaultKeyInfoFactoryService()
+        public Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
+            IKeyInfo<TEntity, TPrimaryKey> primaryKey,
+            IdentitySpecification<TEntity> identitySpecification,
+            IDatabase database)
+            where TEntity : class
         {
-            this.Register(new PrimitiveKeyInfoFactoryService());
-            this.Register(new AnonymousTypeKeyInfoFactoryService());
-            this.Register(new TupleKeyInfoFactoryService());
+            Table<TEntity, TPrimaryKey> table = 
+                new DefaultTable<TEntity, TPrimaryKey>(
+                    database, 
+                    primaryKey, 
+                    identitySpecification);
+            
+            return table;
         }
     }
 }

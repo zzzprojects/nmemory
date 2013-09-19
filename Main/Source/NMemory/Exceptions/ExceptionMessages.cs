@@ -40,6 +40,18 @@ namespace NMemory.Exceptions
         public static readonly string GenericKeyInfoCannotBeNull =
             "Generic KeyInfo objects cannot be null.";
 
+
+        public static readonly string ServiceNotFound =
+            "'{0}' service was not found";
+
+        public static readonly string ServiceCannotBeCombined =
+            "'{0}' service cannot be combined";
+
+        public static readonly string TableNotCreated =
+            "Table was not created by the TableFactoryService";
+
+
+
         public static readonly string InvalidKeySelector =
             "Invalid key selector.";
     }

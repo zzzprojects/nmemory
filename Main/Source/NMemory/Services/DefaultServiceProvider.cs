@@ -28,11 +28,20 @@ namespace NMemory.Services
     {
         public DefaultServiceProvider()
         {
-            this.Add<IKeyInfoFactoryService>(
-                new DefaultKeyInfoFactoryService());
+            this.Combine<IKeyInfoFactoryService>(
+                new PrimitiveKeyInfoFactoryService(),
+                new AnonymousTypeKeyInfoFactoryService(),
+                new TupleKeyInfoFactoryService());
 
-            this.Add<IKeyInfoHelperFactoryService>(
-                new DefaultKeyInfoHelperFactoryService());
+
+            this.Combine<IKeyInfoHelperFactoryService>(
+                new PrimitiveKeyInfoHelperFactoryService(),
+                new AnonymousTypeKeyInfoHelperFactoryService(),
+                new TupleKeyInfoHelperFactoryService());
+
+
+            this.Add<ITableFactoryService>(
+                new DefaultTableFactoryService());
         }
     }
 }

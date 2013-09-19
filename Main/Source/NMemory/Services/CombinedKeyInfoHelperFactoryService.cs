@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="KeyInfoHelperFactoryServiceBase" company="NMemory Team">
+// <copyright file="CombinedKeyInfoHelperFactoryService" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,14 +29,34 @@ namespace NMemory.Services
     using System.Linq.Expressions;
     using NMemory.Indexes;
 
-    public abstract class KeyInfoHelperFactoryServiceBase : 
+    internal sealed class CombinedKeyInfoHelperFactoryService : 
         IKeyInfoHelperFactoryService
     {
-        private readonly List<IKeyInfoHelperFactoryService> factories;
+        private readonly IKeyInfoHelperFactoryService[] factories;
 
-        public KeyInfoHelperFactoryServiceBase()
+        private CombinedKeyInfoHelperFactoryService()
         {
-            this.factories = new List<IKeyInfoHelperFactoryService>();
+            this.factories = new IKeyInfoHelperFactoryService[0];
+        }
+
+        private CombinedKeyInfoHelperFactoryService(
+            CombinedKeyInfoHelperFactoryService existing,
+            IKeyInfoHelperFactoryService addition)
+        {
+            int length = existing.factories.Length;
+
+            this.factories = new IKeyInfoHelperFactoryService[length + 1];
+
+            Array.Copy(existing.factories, this.factories, length);
+            this.factories[length] = addition;
+        }
+
+        public static CombinedKeyInfoHelperFactoryService Empty
+        {
+            get 
+            {
+                return new CombinedKeyInfoHelperFactoryService(); 
+            }
         }
 
         public bool TryCreateKeyInfoHelper(
@@ -58,9 +78,9 @@ namespace NMemory.Services
             return success;
         }
 
-        protected void Register(IKeyInfoHelperFactoryService service)
+        public CombinedKeyInfoHelperFactoryService Add(IKeyInfoHelperFactoryService factory)
         {
-            this.factories.Add(service);
-        }
+            return new CombinedKeyInfoHelperFactoryService(this, factory);
+        }   
     }
 }

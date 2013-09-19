@@ -32,7 +32,6 @@ namespace NMemory.Modularity
         private IQueryCompiler compiler;
         private IQueryExecutor executor;
         private IConcurrencyManager concurrencyManager;
-        private ITableFactory tableFactory;
         private ITransactionHandler transactionHandler;
         private ILoggingPort loggingPort;
         private IServiceProvider serviceProvider;
@@ -44,7 +43,6 @@ namespace NMemory.Modularity
             this.compiler = databaseEngineFactory.CreateQueryCompiler();
             this.executor = databaseEngineFactory.CreateQueryExecutor();     
             this.concurrencyManager = databaseEngineFactory.CreateConcurrencyManager();
-            this.tableFactory = databaseEngineFactory.CreateTableFactory();
             this.transactionHandler = databaseEngineFactory.CreateTransactionHandler();
             this.loggingPort = databaseEngineFactory.CreateLoggingPort();
             this.serviceProvider = databaseEngineFactory.CreateServiceProvider();
@@ -54,11 +52,6 @@ namespace NMemory.Modularity
             {
                 component.Initialize(database);
             }
-        }
-
-        public ITableFactory TableFactory
-        {
-            get { return this.tableFactory; }
         }
 
         public IConcurrencyManager ConcurrencyManager
@@ -95,11 +88,6 @@ namespace NMemory.Modularity
         {
             get 
             {
-                if (this.tableFactory != null)
-                {
-                    yield return this.tableFactory;
-                }
-
                 if (this.concurrencyManager != null)
                 {
                     yield return this.concurrencyManager;
