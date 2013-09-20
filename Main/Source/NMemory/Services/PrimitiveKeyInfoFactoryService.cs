@@ -45,7 +45,7 @@ namespace NMemory.Services
 
             MemberInfo[] members;
 
-            if (!helper.TryParseKeySelectorExpression(keySelector.Body, false, out members))
+            if (!helper.TryParseKeySelectorExpression(keySelector.Body, true, out members))
             {
                 result = null;
                 return false;
