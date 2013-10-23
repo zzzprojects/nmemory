@@ -26,6 +26,7 @@ namespace NMemory.Tables
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -520,6 +521,7 @@ namespace NMemory.Tables
         /// <summary>
         /// Gets the number of entities contained by the table.
         /// </summary>
+        [DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
         public long Count
         {
             get
