@@ -28,6 +28,7 @@ namespace NMemory.Common.Visitors
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using NMemory.Indexes;
     using NMemory.Tables;
 
     internal class EntityTypeSearchVisitor : ExpressionVisitor
@@ -53,6 +54,13 @@ namespace NMemory.Common.Visitors
                 this.entityTypes.Add(table.EntityType);
             }
 
+            IIndex index = node.Value as IIndex;
+
+            if (index != null)
+            {
+                this.entityTypes.Add(index.Table.EntityType);
+            }
+
             return base.VisitConstant(node);
         }
 
@@ -70,7 +78,9 @@ namespace NMemory.Common.Visitors
                 return null;
             }
 
-            if (node.Method.IsGenericMethod && node.Method.GetGenericMethodDefinition() == DatabaseMembers.TableCollectionExtensions_FindTable)
+            if (node.Method.IsGenericMethod && 
+                node.Method.GetGenericMethodDefinition() == 
+                    DatabaseMembers.TableCollectionExtensions_FindTable)
             {
                 this.entityTypes.Add(node.Method.GetGenericArguments()[0]);
             }

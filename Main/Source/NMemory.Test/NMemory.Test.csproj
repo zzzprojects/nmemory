@@ -86,6 +86,7 @@
     <Compile Include="StoredProcedureFixture.cs" />
     <Compile Include="TimestampFixture.cs" />
     <Compile Include="TransactionFixture.cs" />
+    <Compile Include="Visitors\EntityTypeSearchVisitorFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NMemory\NMemory.csproj">
