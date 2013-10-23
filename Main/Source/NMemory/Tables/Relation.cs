@@ -201,8 +201,10 @@ namespace NMemory.Tables
 
             if (!this.primaryIndex.Contains(primaryKey))
             {
-                // TODO: Proper exception message
-                throw new ForeignKeyViolationException();
+                throw new ForeignKeyViolationException(
+                    this.primaryIndex, 
+                    this.foreignIndex, 
+                    primaryKey);
             }
         }
     }

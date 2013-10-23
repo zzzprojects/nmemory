@@ -24,16 +24,46 @@
 
 namespace NMemory.Exceptions
 {
+    using System.Linq;
+    using NMemory.Indexes;
+
     public class ForeignKeyViolationException : NMemoryException
     {
-        public ForeignKeyViolationException(string message)
-            : base(ErrorCode.RelationError, message)
+        public ForeignKeyViolationException(
+            IIndex primaryIndex, 
+            IIndex foreignIndex, 
+            object primaryKey)
+            : base(
+                ErrorCode.RelationError, 
+                GetMessage(primaryIndex, foreignIndex, primaryKey))
         {
         }
 
-        public ForeignKeyViolationException()
-            : this(null)
+        private static string GetMessage(
+            IIndex primaryIndex, 
+            IIndex foreignIndex,
+            object primaryKey)
         {
+            string foreignTable = 
+                foreignIndex.Table.EntityType.Name;
+
+            string foreignColumns = 
+                string.Join(", ", foreignIndex.KeyInfo.EntityKeyMembers.Select(m => m.Name));
+
+            string primaryTable = 
+                primaryIndex.Table.EntityType.Name;
+
+            string primaryColumns =
+                string.Join(", ", primaryIndex.KeyInfo.EntityKeyMembers.Select(m => m.Name));
+
+            return string.Format(
+                ExceptionMessages.ForeignKeyViolation,
+                foreignTable,
+                foreignColumns,
+                primaryKey,
+                primaryTable,
+                primaryColumns);
+
         }
     }
 }
