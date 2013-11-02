@@ -54,6 +54,6 @@ namespace NMemory.Exceptions
 
         public static readonly string ForeignKeyViolation =
             "Foreign key violation [{0} :: {1}]. " +
-            "The key value [{2}] does exists in the referenced table [{3} :: {4}].";
+            "The key value [{2}] does not exists in the referenced table [{3} :: {4}].";
     }
 }
