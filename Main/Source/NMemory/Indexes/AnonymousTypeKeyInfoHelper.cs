@@ -31,7 +31,7 @@ namespace NMemory.Indexes
     using NMemory.Common;
     using NMemory.Exceptions;
 
-    internal class AnonymousTypeKeyInfoHelper : IKeyInfoHelper
+    public class AnonymousTypeKeyInfoHelper : IKeyInfoHelper
     {
         private readonly Type anonymousType;
         private readonly PropertyInfo[] orderedProperties;

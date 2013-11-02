@@ -32,7 +32,7 @@ namespace NMemory.Indexes
     using NMemory.Common;
     using NMemory.Exceptions;
 
-    internal class TupleKeyInfoHelper : IKeyInfoHelper
+    public class TupleKeyInfoHelper : IKeyInfoHelper
     {
         private static readonly int largeTupleSize = 8;
         private readonly Type tupleType;

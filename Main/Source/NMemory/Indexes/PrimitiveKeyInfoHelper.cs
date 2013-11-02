@@ -29,7 +29,7 @@ namespace NMemory.Indexes
     using System.Linq.Expressions;
     using System.Reflection;
 
-    internal class PrimitiveKeyInfoHelper : IKeyInfoHelper
+    public class PrimitiveKeyInfoHelper : IKeyInfoHelper
     {
         private readonly Type primitiveType;
 
