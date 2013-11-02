@@ -51,7 +51,7 @@ namespace NMemory.Services
                 result = null;
                 return false;
             }
-
+            
             result = new TupleKeyInfo<TEntity, TKey>(members);
             return true;
         }

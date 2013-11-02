@@ -25,6 +25,7 @@
 namespace NMemory.Test.Indexes
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using NMemory.Indexes;
@@ -32,6 +33,16 @@ namespace NMemory.Test.Indexes
     [TestClass]
     public class KeyInfoExpressionServicesFixture
     {
+        [TestMethod]
+        public void TupleKeyInfoExpressionServices_MemberCount()
+        {
+            TupleKeyInfoHelper builder = new TupleKeyInfoHelper(typeof(Tuple<int, string>));
+
+            int memberCount = builder.GetMemberCount();
+
+            Assert.AreEqual(2, memberCount);
+        }
+
         [TestMethod]
         public void TupleKeyInfoExpressionServices_KeyFactory()
         {
@@ -41,7 +52,7 @@ namespace NMemory.Test.Indexes
                 Expression.Constant(1, typeof(int)), 
                 Expression.Constant("2", typeof(string)));
 
-            Tuple<int, string> result = Expression.Lambda(factory).Compile().DynamicInvoke() as Tuple<int, string>;
+            var result = Expression.Lambda(factory).Compile().DynamicInvoke() as Tuple<int, string>;
 
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.Item1);
@@ -62,6 +73,77 @@ namespace NMemory.Test.Indexes
 
             Assert.AreEqual(1, result1);
             Assert.AreEqual("2", result2);
+        }
+
+        [TestMethod]
+        public void TupleKeyInfoExpressionServices_MemberCountLarge()
+        {
+            TupleKeyInfoHelper builder = 
+                new TupleKeyInfoHelper(typeof(Tuple<int, int, int, int, int, int, int, Tuple<int, int>>));
+
+            int memberCount = builder.GetMemberCount();
+
+            Assert.AreEqual(9, memberCount);
+        }
+
+        [TestMethod]
+        public void TupleKeyInfoExpressionServices_KeyFactoryLarge()
+        {
+            TupleKeyInfoHelper builder =
+                new TupleKeyInfoHelper(typeof(Tuple<int, int, int, int, int, int, int, Tuple<int, int>>));
+
+            Expression factory = builder.CreateKeyFactoryExpression(
+                Enumerable
+                    .Range(1, 9)
+                    .Select(x => Expression.Constant(x, typeof(int)))
+                    .ToArray());
+
+            var result = Expression.Lambda(factory).Compile().DynamicInvoke()
+                as Tuple<int, int, int, int, int, int, int, Tuple<int, int>>;
+
+            Assert.IsNotNull(result);
+
+            Assert.AreEqual(1, result.Item1);
+            Assert.AreEqual(2, result.Item2);
+            Assert.AreEqual(8, result.Rest.Item1);
+            Assert.AreEqual(9, result.Rest.Item2);
+        }
+
+        [TestMethod]
+        public void TupleKeyInfoExpressionServices_KeyMemberSelectorLarge()
+        {
+            var tuple = new Tuple<int, int, int, int, int, int, int, Tuple<int, int>>(
+                1, 2, 3, 4, 5, 6, 7, new Tuple<int, int>(8, 9));
+
+            TupleKeyInfoHelper builder = new TupleKeyInfoHelper(tuple.GetType());
+
+            Expression source = Expression.Constant(tuple);
+            Expression selector = builder.CreateKeyMemberSelectorExpression(source, 7);
+
+            int result = (int)Expression.Lambda(selector).Compile().DynamicInvoke();
+
+            Assert.AreEqual(8, result);
+        }
+
+        [TestMethod]
+        public void TupleKeyInfoExpressionServices_KeyMemberSelectorLarge2()
+        {
+            var tuple = 
+                new Tuple<int, int, int, int, int, int, int, 
+                    Tuple<int, int, int, int, int, int, int, 
+                        Tuple<int, int>>>(
+                1, 2, 3, 4, 5, 6, 7, 
+                    new Tuple<int, int, int, int, int, int, int, Tuple<int, int>>(
+                        8, 9, 10, 11, 12, 13, 14, Tuple.Create(15, 16)));
+
+            TupleKeyInfoHelper builder = new TupleKeyInfoHelper(tuple.GetType());
+
+            Expression source = Expression.Constant(tuple);
+            Expression selector = builder.CreateKeyMemberSelectorExpression(source, 15);
+
+            int result = (int)Expression.Lambda(selector).Compile().DynamicInvoke();
+
+            Assert.AreEqual(16, result);
         }
 
         [TestMethod]

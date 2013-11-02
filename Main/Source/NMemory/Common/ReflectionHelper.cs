@@ -161,7 +161,8 @@ namespace NMemory.Common
                 t == typeof(Tuple<,,,>) ||
                 t == typeof(Tuple<,,,,>) ||
                 t == typeof(Tuple<,,,,,>) ||
-                t == typeof(Tuple<,,,,,,>);
+                t == typeof(Tuple<,,,,,,>) ||
+                t == typeof(Tuple<,,,,,,,>);
         }
 
         public static Type GetTupleType(int count)

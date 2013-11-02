@@ -30,16 +30,18 @@ namespace NMemory.Indexes
     using System.Linq.Expressions;
     using System.Reflection;
     using NMemory.Common;
+    using NMemory.Exceptions;
 
     internal class TupleKeyInfoHelper : IKeyInfoHelper
     {
-        private Type tupleType;
+        private static readonly int largeTupleSize = 8;
+        private readonly Type tupleType;
 
         public TupleKeyInfoHelper(Type tupleType)
         {
             if (!ReflectionHelper.IsTuple(tupleType))
             {
-                throw new ArgumentException("", "tupleType");
+                throw new ArgumentException(ExceptionMessages.Missing, "tupleType");
             }
 
             this.tupleType = tupleType;
@@ -47,10 +49,26 @@ namespace NMemory.Indexes
 
         public int GetMemberCount()
         {
-            return this.tupleType
-                .GetProperties()
-                .Count(p => 
-                    p.Name.StartsWith("Item", StringComparison.InvariantCulture));
+            int result = 0;
+            Type tuple = this.tupleType;
+
+            while (tuple != null)
+            {
+                Type[] members = tuple.GetGenericArguments();
+                tuple = null;
+
+                result += members.Length;
+
+                if (members.Length == largeTupleSize)
+                {
+                    // The last member of a large tuple is a tuple that contains additional
+                    // members
+                    result--;
+                    tuple = members[members.Length - 1];
+                }
+            }
+
+            return result;
         }
 
         public Expression CreateKeyFactoryExpression(params Expression[] arguments)
@@ -60,22 +78,22 @@ namespace NMemory.Indexes
                 throw new ArgumentNullException("arguments");
             }
 
-            var genericArguments = this.tupleType.GetGenericArguments();
+            int tupleSize = this.GetMemberCount();
 
-            if (arguments.Length != genericArguments.Length)
+            if (arguments.Length != tupleSize)
             {
-                throw new ArgumentException("", "arguments");
+                throw new ArgumentException(ExceptionMessages.Missing, "arguments");
             }
 
-            for (int i = 0; i < genericArguments.Length; i++)
+            int memberIndex = 0;
+            var res = CreateKeyFactoryExpression(this.tupleType, ref memberIndex, arguments);
+
+            if (memberIndex != tupleSize)
             {
-                if (genericArguments[i] != arguments[i].Type)
-                {
-                    throw new ArgumentException("", "arguments");
-                }
+                throw new InvalidOperationException(ExceptionMessages.Missing);
             }
 
-            return Expression.New(this.tupleType.GetConstructors()[0], arguments);
+            return res;
         }
 
         public Expression CreateKeyMemberSelectorExpression(Expression source, int index)
@@ -87,18 +105,27 @@ namespace NMemory.Indexes
 
             if (source.Type != this.tupleType)
             {
-                throw new ArgumentException("", "source");
+                throw new ArgumentException(ExceptionMessages.Missing, "source");
             }
 
-            string propertyName = string.Format("Item{0}", index + 1);
-            PropertyInfo property = this.tupleType.GetProperty(propertyName);
-
-            if (property == null)
+            if (this.GetMemberCount() <= index)
             {
-                throw new ArgumentException("", "index");
+                throw new ArgumentException(ExceptionMessages.Missing, "index");
             }
 
-            return Expression.Property(source, property);
+            int mod = largeTupleSize - 1;
+
+            int restCount = index / mod;
+            int item = index % mod;
+
+            Expression expr = source;
+
+            for (int i = 0; i < restCount; i++)
+            {
+                expr = Expression.Property(expr, "Rest");
+            }
+
+            return Expression.Property(expr, string.Format("Item{0}", item + 1));
         }
 
         public bool TryParseKeySelectorExpression(
@@ -111,53 +138,120 @@ namespace NMemory.Indexes
                 throw new ArgumentNullException("keySelector");
             }
 
-            result = null;
-
             if (keySelector.Type != this.tupleType)
             {
+                result = null;
                 return false;
             }
 
-            NewExpression newTupleExpression = keySelector as NewExpression;
+            var res = TryParseSelectorCore(keySelector, strict);
 
-            if (newTupleExpression != null)
+            if (res == null)
             {
-                return GetMemberInfoFromArguments(
-                    newTupleExpression.Arguments,
-                    strict,
-                    out result);
+                result = null;
+                return false;
             }
 
-            MethodCallExpression createTupleExpression = keySelector as MethodCallExpression;
+            result = res.ToArray();
+            return true;
+        }
 
-            if (createTupleExpression != null)
+        private static Expression CreateKeyFactoryExpression(
+            Type tuple,
+            ref int memberIndex,
+            Expression[] arguments)
+        {
+            Type[] memberTypes = tuple.GetGenericArguments();
+            List<Expression> ctorArgs = new List<Expression>();
+
+            for (int i = 0; i < memberTypes.Length; i++)
             {
+                Type memberType = memberTypes[i];
+                Expression expr;
+
+                if (i == (largeTupleSize - 1))
+                {
+                    // The last member of a large tuple is tuple containing additional members
+                    expr = CreateKeyFactoryExpression(memberType, ref memberIndex, arguments);
+                }
+                else
+                {
+                    expr = arguments[memberIndex];
+                    memberIndex++;
+                }
+
+                ctorArgs.Add(expr);
+            }
+
+            return Expression.New(tuple.GetConstructors()[0], ctorArgs);
+        }
+
+        private static List<MemberInfo> TryParseSelectorCore(
+            Expression expression,
+            bool strict)
+        {
+            if (expression is NewExpression)
+            {
+                var newTupleExpression = (NewExpression)expression;
+
+                return GetMemberInfoFromArguments(
+                    newTupleExpression.Arguments,
+                    true,
+                    strict);
+            }
+
+            if (expression is MethodCallExpression)
+            {
+                var createTupleExpression = (MethodCallExpression)expression;
+
                 MethodInfo createMethod = createTupleExpression.Method;
 
                 if (createMethod.DeclaringType != typeof(Tuple) ||
                     createMethod.Name != "Create")
                 {
-                    return false;
+                    return null;
                 }
 
                 return GetMemberInfoFromArguments(
                     createTupleExpression.Arguments,
-                    strict,
-                    out result);
+                    false,
+                    strict);
             }
 
-            return false;
+            return null;
         }
 
-        private static bool GetMemberInfoFromArguments(
+        private static List<MemberInfo> GetMemberInfoFromArguments(
             IList<Expression> arguments, 
-            bool strict,
-            out MemberInfo[] result)
+            bool ctorArgs,
+            bool strict)
         {
-            MemberInfo[] resultList = new MemberInfo[arguments.Count];
-            result = null;
+            int argCount = arguments.Count;
+            bool isLargeTuple = false;
+            List<MemberInfo> result = new List<MemberInfo>();
 
-            for (int i = 0; i < arguments.Count; i++)
+            if (ctorArgs)
+            {
+                // The Tuple constructor supports extended tuple
+                // The Tuple.Create method does not, however the 8-arg overload creates an
+                // extended tuble
+
+                if (largeTupleSize < argCount)
+                {
+                    // Too many arguments
+                    return null;
+                }
+
+                if (largeTupleSize == argCount)
+                {
+                    // The last argument is a tuple extension
+                    isLargeTuple = true;
+                    argCount--;
+                }
+            }
+
+            // Beware: argCount is not always equals to arguments.Count, see above
+            for (int i = 0; i < argCount; i++)
             {
                 Expression expr = arguments[i];
 
@@ -170,19 +264,33 @@ namespace NMemory.Indexes
 
                 if (member == null)
                 {
-                    return false;
+                    return null;
                 }
 
                 if (member.Expression.NodeType != ExpressionType.Parameter)
                 {
-                    return false;
+                    return null;
                 }
 
-                resultList[i] = member.Member;
+                result.Add(member.Member);
             }
 
-            result = resultList.ToArray();
-            return true;
+            if (isLargeTuple)
+            {
+                Expression tupleExtension = arguments[argCount + 1];
+
+                if (ReflectionHelper.IsTuple(tupleExtension.Type))
+                {
+                    // This should not happen
+                    return null;
+                }
+
+                var additionalMembers = TryParseSelectorCore(tupleExtension, strict);
+
+                result.AddRange(additionalMembers);
+            }
+
+            return result;
         }
     }
 }
