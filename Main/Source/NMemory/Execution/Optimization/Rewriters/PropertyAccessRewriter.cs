@@ -37,6 +37,12 @@ namespace NMemory.Execution.Optimization.Rewriters
                 return base.VisitMember(node);
             }
 
+            if (node.Expression == null)
+            {
+                // Static member access cannot be rewritten
+                return base.VisitMember(node);
+            }
+
             return this.CreateSafeMemberAccessExpression(node, node.Type);
         }
 
@@ -54,6 +60,14 @@ namespace NMemory.Execution.Optimization.Rewriters
 
             if (!ReflectionHelper.IsNullable(node.Type))
             {
+                return base.VisitUnary(node);
+            }
+
+            MemberExpression memberNode = node.Operand as MemberExpression;
+
+            if (memberNode.Expression == null)
+            {
+                // Static member access cannot be rewritten
                 return base.VisitUnary(node);
             }
 

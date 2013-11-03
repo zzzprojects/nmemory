@@ -35,6 +35,8 @@ namespace NMemory.Test.ExpressionRewriters
     [TestClass]
     public class PropertyAccessModifierFixture
     {
+        public static readonly string Static = "Static";
+
         [TestMethod]
         public void PropertyAccessModiferOnNullableMember()
         {
@@ -102,6 +104,34 @@ namespace NMemory.Test.ExpressionRewriters
             int? result = expression.Compile().Invoke(null);
 
             Assert.IsNull(result);
+        }
+
+        [TestMethod]
+        public void PropertyAccessModiferOnStaticMember()
+        {
+            IExpressionRewriter modifier = new PropertyAccessRewriter();
+            Expression<Func<string>> expression = () => PropertyAccessModifierFixture.Static;
+
+            Expression newBody = modifier.Rewrite(expression.Body);
+            expression = ExpressionUtils.ChangeBody(expression, newBody);
+
+            string result = expression.Compile().Invoke();
+
+            Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public void PropertyAccessModiferOnConvertedStaticMember()
+        {
+            IExpressionRewriter modifier = new PropertyAccessRewriter();
+            Expression<Func<DateTime?>> expression = () => (DateTime?)DateTime.Now;
+
+            Expression newBody = modifier.Rewrite(expression.Body);
+            expression = ExpressionUtils.ChangeBody(expression, newBody);
+
+            DateTime? result = expression.Compile().Invoke();
+
+            Assert.IsNotNull(result);
         }
     }
 }
