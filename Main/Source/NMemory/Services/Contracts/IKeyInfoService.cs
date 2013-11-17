@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="DefaultTableFactoryService.cs" company="NMemory Team">
+// <copyright file="IKeyInfoService.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,29 +20,22 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //     THE SOFTWARE.
 // </copyright>
-// ----------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 
-namespace NMemory.Services
+namespace NMemory.Services.Contracts
 {
+    using System;
+    using System.Linq.Expressions;
     using NMemory.Indexes;
-    using NMemory.Modularity;
-    using NMemory.Tables;
 
-    internal class DefaultTableFactoryService : ITableFactoryService
+    public interface IKeyInfoService
     {
-        public Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
-            IKeyInfo<TEntity, TPrimaryKey> primaryKey,
-            IdentitySpecification<TEntity> identitySpecification,
-            IDatabase database)
-            where TEntity : class
-        {
-            Table<TEntity, TPrimaryKey> table = 
-                new DefaultTable<TEntity, TPrimaryKey>(
-                    database, 
-                    primaryKey, 
-                    identitySpecification);
-            
-            return table;
-        }
+        bool TryCreateKeyInfo<TEntity, TKey>(
+            Expression<Func<TEntity, TKey>> keySelector,
+            out IKeyInfo<TEntity, TKey> result) where TEntity : class;
+
+        bool TryCreateKeyInfoHelper(
+            Type keyType, 
+            out IKeyInfoHelper result);
     }
 }

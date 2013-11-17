@@ -24,24 +24,19 @@
 
 namespace NMemory.Services
 {
+    using NMemory.Services.Contracts;
+
     public class DefaultServiceProvider : ServiceProviderBase
     {
         public DefaultServiceProvider()
         {
-            this.Combine<IKeyInfoFactoryService>(
-                new PrimitiveKeyInfoFactoryService(),
-                new AnonymousTypeKeyInfoFactoryService(),
-                new TupleKeyInfoFactoryService());
+            this.Combine<IKeyInfoService>(
+                new PrimitiveKeyInfoService(),
+                new AnonymousTypeKeyInfoService(),
+                new TupleKeyInfoService());
 
-
-            this.Combine<IKeyInfoHelperFactoryService>(
-                new PrimitiveKeyInfoHelperFactoryService(),
-                new AnonymousTypeKeyInfoHelperFactoryService(),
-                new TupleKeyInfoHelperFactoryService());
-
-
-            this.Add<ITableFactoryService>(
-                new DefaultTableFactoryService());
+            this.Add<ITableService>(
+                new DefaultTableService());
         }
     }
 }

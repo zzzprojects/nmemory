@@ -28,33 +28,34 @@ namespace NMemory.Services
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using NMemory.Indexes;
+    using NMemory.Services.Contracts;
 
-    internal sealed class CombinedKeyInfoFactoryService : IKeyInfoFactoryService
+    internal sealed class CombinedKeyInfoService : IKeyInfoService
     {
-        private readonly IKeyInfoFactoryService[] factories;
+        private readonly IKeyInfoService[] factories;
 
-        private CombinedKeyInfoFactoryService()
+        private CombinedKeyInfoService()
         {
-            this.factories = new IKeyInfoFactoryService[0];
+            this.factories = new IKeyInfoService[0];
         }
 
-        private CombinedKeyInfoFactoryService(
-            CombinedKeyInfoFactoryService existing,
-            IKeyInfoFactoryService addition)
+        private CombinedKeyInfoService(
+            CombinedKeyInfoService existing,
+            IKeyInfoService addition)
         {
             int length = existing.factories.Length;
 
-            this.factories = new IKeyInfoFactoryService[length + 1];
+            this.factories = new IKeyInfoService[length + 1];
 
             Array.Copy(existing.factories, this.factories, length);
             this.factories[length] = addition;
         }
 
-        public static CombinedKeyInfoFactoryService Empty
+        public static CombinedKeyInfoService Empty
         {
             get 
             { 
-                return new CombinedKeyInfoFactoryService(); 
+                return new CombinedKeyInfoService(); 
             }
         }
 
@@ -65,7 +66,7 @@ namespace NMemory.Services
             result = null;
             bool success = false;
 
-            foreach (IKeyInfoFactoryService factory in this.factories)
+            foreach (IKeyInfoService factory in this.factories)
             {
                 if (factory.TryCreateKeyInfo(keySelector, out result))
                 {
@@ -77,9 +78,28 @@ namespace NMemory.Services
             return success;
         }
 
-        public CombinedKeyInfoFactoryService Add(IKeyInfoFactoryService factory)
+        public bool TryCreateKeyInfoHelper(
+            Type keyType,
+            out IKeyInfoHelper result)
         {
-            return new CombinedKeyInfoFactoryService(this, factory);
+            result = null;
+            bool success = false;
+
+            foreach (IKeyInfoService factory in this.factories)
+            {
+                if (factory.TryCreateKeyInfoHelper(keyType, out result))
+                {
+                    success = true;
+                    break;
+                }
+            }
+
+            return success;
+        }
+
+        public CombinedKeyInfoService Add(IKeyInfoService factory)
+        {
+            return new CombinedKeyInfoService(this, factory);
         }
     }
 }

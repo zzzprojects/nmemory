@@ -28,6 +28,7 @@ namespace NMemory.Services
     using System.Collections.Generic;
     using NMemory.Exceptions;
     using NMemory.Modularity;
+    using NMemory.Services.Contracts;
 
     public abstract class ServiceProviderBase : 
         NMemory.Modularity.IServiceProvider,
@@ -105,45 +106,25 @@ namespace NMemory.Services
         {
             Type serviceType = typeof(T);
 
-            if (serviceType == typeof(IKeyInfoFactoryService))
+            if (serviceType == typeof(IKeyInfoService))
             {
                 return Combine(
-                    existing as IKeyInfoFactoryService, 
-                    addition as IKeyInfoFactoryService) as T;
-            }
-            else if (serviceType == typeof(IKeyInfoHelperFactoryService))
-            {
-                return Combine(
-                    existing as IKeyInfoHelperFactoryService, 
-                    addition as IKeyInfoHelperFactoryService) as T;
+                    existing as IKeyInfoService, 
+                    addition as IKeyInfoService) as T;
             }
 
             throw new NMemoryException(ExceptionMessages.ServiceCannotBeCombined, typeof(T).Name);
         }
 
-        private IKeyInfoFactoryService Combine(
-            IKeyInfoFactoryService existing, 
-            IKeyInfoFactoryService addition)
+        private IKeyInfoService Combine(
+            IKeyInfoService existing, 
+            IKeyInfoService addition)
         {
-            var combined = existing as CombinedKeyInfoFactoryService;
+            var combined = existing as CombinedKeyInfoService;
 
             if (combined == null)
             {
-                combined = CombinedKeyInfoFactoryService.Empty.Add(existing);
-            }
-
-            return combined.Add(addition);
-        }
-
-        private IKeyInfoHelperFactoryService Combine(
-            IKeyInfoHelperFactoryService existing,
-            IKeyInfoHelperFactoryService addition)
-        {
-            var combined = existing as CombinedKeyInfoHelperFactoryService;
-
-            if (combined == null)
-            {
-                combined = CombinedKeyInfoHelperFactoryService.Empty.Add(existing);
+                combined = CombinedKeyInfoService.Empty.Add(existing);
             }
 
             return combined.Add(addition);

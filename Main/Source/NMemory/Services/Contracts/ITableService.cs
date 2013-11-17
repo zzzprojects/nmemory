@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="ITableFactoryService.cs" company="NMemory Team">
+// <copyright file="ITableService.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,13 +22,13 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Services
+namespace NMemory.Services.Contracts
 {
     using NMemory.Indexes;
     using NMemory.Modularity;
     using NMemory.Tables;
 
-    public interface ITableFactoryService
+    public interface ITableService
     {
         Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,

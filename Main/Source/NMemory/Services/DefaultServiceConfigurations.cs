@@ -24,22 +24,16 @@
 
 namespace NMemory.Services
 {
+    using NMemory.Services.Contracts;
+
     internal static class DefaultServiceConfigurations
     {
-        public static IKeyInfoFactoryService CreateDefaultKeyInfoFactoryService()
+        public static IKeyInfoService CreateDefaultKeyInfoService()
         {
-            return CombinedKeyInfoFactoryService.Empty
-                .Add(new PrimitiveKeyInfoFactoryService())
-                .Add(new AnonymousTypeKeyInfoFactoryService())
-                .Add(new TupleKeyInfoFactoryService());
-        }
-
-        public static IKeyInfoHelperFactoryService CreateDefaultKeyInfoHelperFactoryService()
-        {
-            return CombinedKeyInfoHelperFactoryService.Empty
-                .Add(new PrimitiveKeyInfoHelperFactoryService())
-                .Add(new AnonymousTypeKeyInfoHelperFactoryService())
-                .Add(new TupleKeyInfoHelperFactoryService());
+            return CombinedKeyInfoService.Empty
+                .Add(new PrimitiveKeyInfoService())
+                .Add(new AnonymousTypeKeyInfoService())
+                .Add(new TupleKeyInfoService());
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="PrimitiveKeyInfoHelperFactoryService.cs" company="NMemory Team">
+// <copyright file="AnonymousTypeKeyInfoFactoryService.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,21 +25,49 @@
 namespace NMemory.Services
 {
     using System;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using NMemory.Common;
     using NMemory.Indexes;
+    using NMemory.Services.Contracts;
 
-    public class PrimitiveKeyInfoHelperFactoryService : IKeyInfoHelperFactoryService
+    public class AnonymousTypeKeyInfoService : IKeyInfoService
     {
-        public bool TryCreateKeyInfoHelper(
-            Type keyType, 
-            out IKeyInfoHelper result)
+        public bool TryCreateKeyInfo<TEntity, TKey>(
+            Expression<Func<TEntity, TKey>> keySelector, 
+            out IKeyInfo<TEntity, TKey> result) where TEntity : class
         {
-            if (!keyType.IsValueType && keyType != typeof(string))
+            if (!ReflectionHelper.IsAnonymousType(typeof(TKey)))
             {
                 result = null;
                 return false;
             }
 
-            result = new PrimitiveKeyInfoHelper(keyType);
+            IKeyInfoHelper helper = AnonymousTypeKeyInfo<TEntity, TKey>.KeyInfoHelper;
+
+            MemberInfo[] members;
+
+            if (!helper.TryParseKeySelectorExpression(keySelector.Body, true, out members))
+            {
+                result = null;
+                return false;
+            }
+
+            result = new AnonymousTypeKeyInfo<TEntity, TKey>(members);
+            return true;
+        }
+
+        public bool TryCreateKeyInfoHelper(
+            Type keyType,
+            out IKeyInfoHelper result)
+        {
+            if (!ReflectionHelper.IsAnonymousType(keyType))
+            {
+                result = null;
+                return false;
+            }
+
+            result = new AnonymousTypeKeyInfoHelper(keyType);
             return true;
         }
     }

@@ -30,6 +30,7 @@ namespace NMemory.Execution.Optimization.Rewriters
     using NMemory.Common;
     using NMemory.Indexes;
     using NMemory.Services;
+    using NMemory.Services.Contracts;
     using NMemory.Tables;
 
     public abstract class JoinPhysicalRewriterBase : ExpressionRewriterBase
@@ -184,26 +185,26 @@ namespace NMemory.Execution.Optimization.Rewriters
 
         private IKeyInfoHelper GetKeyInfoHelper(Type keyType)
         {
-            IKeyInfoHelperFactoryService factory = null;
+            IKeyInfoService service = null;
 
             if (this.Database != null)
             {
-                factory = this
+                service = this
                     .Database
                     .DatabaseEngine
                     .ServiceProvider
-                    .GetService<IKeyInfoHelperFactoryService>();
+                    .GetService<IKeyInfoService>();
             }
 
-            if (factory == null)
+            if (service == null)
             {
                 // Should we really fall back?
                 // Tests would fail without this, add injection?
-                factory = DefaultServiceConfigurations.CreateDefaultKeyInfoHelperFactoryService();
+                service = DefaultServiceConfigurations.CreateDefaultKeyInfoService();
             }
 
             IKeyInfoHelper result;
-            factory.TryCreateKeyInfoHelper(keyType, out result);
+            service.TryCreateKeyInfoHelper(keyType, out result);
 
             return result;
         }

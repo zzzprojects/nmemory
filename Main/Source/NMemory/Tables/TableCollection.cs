@@ -29,10 +29,10 @@ namespace NMemory.Tables
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Linq.Expressions;
+    using NMemory.Exceptions;
     using NMemory.Indexes;
     using NMemory.Modularity;
-    using NMemory.Services;
-    using NMemory.Exceptions;
+    using NMemory.Services.Contracts;
 
     /// <summary>
     ///     Represents a collection of the tables of the database.
@@ -133,18 +133,18 @@ namespace NMemory.Tables
 
             where TEntity : class
         {
-            ITableFactoryService factory = this.database
+            ITableService service = this.database
                 .DatabaseEngine
                 .ServiceProvider
-                .GetService<ITableFactoryService>();
+                .GetService<ITableService>();
 
-            if (factory == null)
+            if (service == null)
             {
-                throw new NMemoryException(ExceptionMessages.ServiceNotFound, "TableFactoryService");
+                throw new NMemoryException(ExceptionMessages.ServiceNotFound, "TableService");
             }
 
             Table<TEntity, TPrimaryKey> table = 
-                factory.CreateTable<TEntity, TPrimaryKey>(
+                service.CreateTable<TEntity, TPrimaryKey>(
                     primaryKey,
                     identitySpecification,
                     this.database);

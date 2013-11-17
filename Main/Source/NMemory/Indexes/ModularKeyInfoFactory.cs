@@ -29,12 +29,13 @@ namespace NMemory.Indexes
     using NMemory.Exceptions;
     using NMemory.Modularity;
     using NMemory.Services;
+    using NMemory.Services.Contracts;
 
     public class ModularKeyInfoFactory : IKeyInfoFactory
     {
-        private readonly IKeyInfoFactoryService service;
+        private readonly IKeyInfoService service;
 
-        protected ModularKeyInfoFactory(IKeyInfoFactoryService service)
+        protected ModularKeyInfoFactory(IKeyInfoService service)
         {
             this.service = service;
         }
@@ -44,12 +45,12 @@ namespace NMemory.Indexes
             this.service = database
                 .DatabaseEngine
                 .ServiceProvider
-                .GetService<IKeyInfoFactoryService>();
+                .GetService<IKeyInfoService>();
 
             if (this.service == null)
             {
-                // Failback
-                this.service = DefaultServiceConfigurations.CreateDefaultKeyInfoFactoryService();
+                // Fallback
+                this.service = DefaultServiceConfigurations.CreateDefaultKeyInfoService();
             }
         }
 

@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="TupleKeyInfoHelperFactoryService.cs" company="NMemory Team">
+// <copyright file="TupleKeyInfoFactoryService" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,13 +25,40 @@
 namespace NMemory.Services
 {
     using System;
+    using System.Linq.Expressions;
+    using System.Reflection;
     using NMemory.Common;
     using NMemory.Indexes;
+    using NMemory.Services.Contracts;
 
-    public class TupleKeyInfoHelperFactoryService : IKeyInfoHelperFactoryService
+    public class TupleKeyInfoService : IKeyInfoService
     {
+        public bool TryCreateKeyInfo<TEntity, TKey>(
+            Expression<Func<TEntity, TKey>> keySelector, 
+            out IKeyInfo<TEntity, TKey> result) where TEntity : class
+        {
+            if (!ReflectionHelper.IsTuple(typeof(TKey)))
+            {
+                result = null;
+                return false;
+            }
+
+            IKeyInfoHelper helper = TupleKeyInfo<TEntity, TKey>.KeyInfoHelper;
+
+            MemberInfo[] members;
+
+            if (!helper.TryParseKeySelectorExpression(keySelector.Body, true, out members))
+            {
+                result = null;
+                return false;
+            }
+            
+            result = new TupleKeyInfo<TEntity, TKey>(members);
+            return true;
+        }
+
         public bool TryCreateKeyInfoHelper(
-            Type keyType, 
+            Type keyType,
             out IKeyInfoHelper result)
         {
             if (!ReflectionHelper.IsTuple(keyType))

@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="AnonymousTypeKeyInfoHelperFactoryService.cs" company="NMemory Team">
+// <copyright file="PrimitiveKeyInfoFactoryService" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,23 +25,48 @@
 namespace NMemory.Services
 {
     using System;
-    using NMemory.Common;
+    using System.Linq.Expressions;
+    using System.Reflection;
     using NMemory.Indexes;
+    using NMemory.Services.Contracts;
 
-    public class AnonymousTypeKeyInfoHelperFactoryService : 
-        IKeyInfoHelperFactoryService
+    public class PrimitiveKeyInfoService : IKeyInfoService
     {
-        public bool TryCreateKeyInfoHelper(
-            Type keyType, 
-            out IKeyInfoHelper result)
+        public bool TryCreateKeyInfo<TEntity, TKey>(
+            Expression<Func<TEntity, TKey>> keySelector, 
+            out IKeyInfo<TEntity, TKey> result) where TEntity : class
         {
-            if (!ReflectionHelper.IsAnonymousType(keyType))
+            if (!typeof(TKey).IsValueType && typeof(TKey) != typeof(string))
             {
                 result = null;
                 return false;
             }
 
-            result = new AnonymousTypeKeyInfoHelper(keyType);
+            IKeyInfoHelper helper = PrimitiveKeyInfo<TEntity, TKey>.KeyInfoHelper;
+
+            MemberInfo[] members;
+
+            if (!helper.TryParseKeySelectorExpression(keySelector.Body, true, out members))
+            {
+                result = null;
+                return false;
+            }
+
+            result = new PrimitiveKeyInfo<TEntity, TKey>(members[0]);
+            return true;
+        }
+
+        public bool TryCreateKeyInfoHelper(
+            Type keyType,
+            out IKeyInfoHelper result)
+        {
+            if (!keyType.IsValueType && keyType != typeof(string))
+            {
+                result = null;
+                return false;
+            }
+
+            result = new PrimitiveKeyInfoHelper(keyType);
             return true;
         }
     }
