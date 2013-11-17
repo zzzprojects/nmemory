@@ -277,9 +277,10 @@ namespace NMemory.Indexes
 
             if (isLargeTuple)
             {
-                Expression tupleExtension = arguments[argCount + 1];
+                // Last argument is the extension
+                Expression tupleExtension = arguments[arguments.Count - 1];
 
-                if (ReflectionHelper.IsTuple(tupleExtension.Type))
+                if (!ReflectionHelper.IsTuple(tupleExtension.Type))
                 {
                     // This should not happen
                     return null;

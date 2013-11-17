@@ -76,7 +76,7 @@
     <Compile Include="ExpressionRewriters\QueryableRewriterFixture.cs" />
     <Compile Include="GeneratedFieldFixture.cs" />
     <Compile Include="IdentityFixture.cs" />
-    <Compile Include="Indexes\KeyInfoExpressionServicesFixture.cs" />
+    <Compile Include="Indexes\KeyInfoHelperFixture.cs" />
     <Compile Include="Indexes\KeyInfoFixture.cs" />
     <Compile Include="Indexes\RelationKeyConverterFactoryFixture.cs" />
     <Compile Include="JoinFixture.cs" />
