@@ -29,14 +29,15 @@ namespace NMemory.Common
     using System.Linq;
     using System.Text;
     using System.Linq.Expressions;
+    using NMemory.Common.Expressions;
 
     internal class LinqJoinKeyHelper
     {
         public static void CreateKeySelectors(
             Type outerType,
             Type innerType,
-            MemberChain[] outerKeyMembers,
-            MemberChain[] innerKeyMembers,
+            IExpressionBuilder[] outerKeyCreator,
+            IExpressionBuilder[] innerKeyCreator,
             out LambdaExpression outerKey,
             out LambdaExpression innerKey)
         {
@@ -50,12 +51,10 @@ namespace NMemory.Common
             List<Expression> outerKeyMemberAccess = new List<Expression>();
             List<Expression> innerKeyMemberAccess = new List<Expression>();
 
-            for (int i = 0; i < outerKeyMembers.Length; i++)
+            for (int i = 0; i < outerKeyCreator.Length; i++)
             {
-                Expression outerAccess = 
-                    outerKeyMembers[i].CreateExpression(outerKeyParam);
-                Expression innerAccess = 
-                    innerKeyMembers[i].CreateExpression(innerKeyParam);
+                Expression outerAccess = outerKeyCreator[i].Build(outerKeyParam);
+                Expression innerAccess = innerKeyCreator[i].Build(innerKeyParam);
 
                 // KEY PART: try to unify the type of the expressions
                 ExpressionHelper.TryUnifyValueTypes(ref outerAccess, ref innerAccess);

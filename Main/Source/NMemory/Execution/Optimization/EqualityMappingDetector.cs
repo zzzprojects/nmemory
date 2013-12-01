@@ -30,11 +30,12 @@ namespace NMemory.Execution.Optimization
     using System.Linq.Expressions;
     using System.Reflection;
     using NMemory.Common;
+    using NMemory.Common.Expressions;
 
     public class EqualityMappingDetector : ExpressionVisitor
     {
-        private IList<MemberChain> leftMembers;
-        private IList<MemberChain> rightMembers;
+        private IList<IExpressionBuilder> leftMembers;
+        private IList<IExpressionBuilder> rightMembers;
 
         private Expression leftSource;
         private Expression rightSource;
@@ -43,11 +44,11 @@ namespace NMemory.Execution.Optimization
         {
             this.leftSource = left;
             this.rightSource = right;
-            this.leftMembers = new List<MemberChain>();
-            this.rightMembers = new List<MemberChain>();
+            this.leftMembers = new List<IExpressionBuilder>();
+            this.rightMembers = new List<IExpressionBuilder>();
         }
 
-        public MemberChain[] LeftMembers
+        public IExpressionBuilder[] LeftMembers
         {
             get
             {
@@ -55,7 +56,7 @@ namespace NMemory.Execution.Optimization
             }
         }
 
-        public MemberChain[] RightMembers
+        public IExpressionBuilder[] RightMembers
         {
             get
             {
@@ -69,12 +70,10 @@ namespace NMemory.Execution.Optimization
             {
                 BinaryExpression equal = expression as BinaryExpression;
 
-                // Detect the operands of the AND operation
-                // Check if the sides referred to members of different sources
+                // Detect the operands of the EQUAL operation
                 return 
-                    this.DetectAndOperand(equal.Left) && 
-                    this.DetectAndOperand(equal.Right) &&
-                    this.leftMembers.Count == this.rightMembers.Count;
+                    this.DetectEqualOperand(equal.Left) && 
+                    this.DetectEqualOperand(equal.Right);
             }
 
             if (expression.NodeType != ExpressionType.AndAlso)
@@ -82,50 +81,33 @@ namespace NMemory.Execution.Optimization
                 return false;
             }
 
+            // 'expression' is an AndAlso expression
             BinaryExpression binary = expression as BinaryExpression;
 
             return this.Detect(binary.Left) && this.Detect(binary.Right);
         }
 
-        private bool DetectAndOperand(Expression expression)
+        private bool DetectEqualOperand(Expression expression)
         {
-            expression = ExpressionHelper.SkipConversionNodes(expression);
+            return 
+                DetectEqualOperand(expression, this.leftSource, this.leftMembers) ||
+                DetectEqualOperand(expression, this.rightSource, this.rightMembers);
+        }
 
-            MemberExpression member = expression as MemberExpression;
+        private bool DetectEqualOperand(
+            Expression expression, 
+            Expression source,
+            IList<IExpressionBuilder> collector)
+        {
+            UnaryExpressionCloner expander = null;
 
-            if (member == null)
+            if (!UnaryExpressionCloner.TryCreate(expression, source, out expander))
             {
                 return false;
             }
 
-            return
-                this.DetectMember(member, this.leftSource, this.leftMembers) ||
-                this.DetectMember(member, this.rightSource, this.rightMembers);
-
-        }
-
-        private bool DetectMember(
-            MemberExpression member, 
-            Expression source,
-            IList<MemberChain> memberChainCollector)
-        {
-            List<MemberInfo> memberChain = new List<MemberInfo>();
-
-            do
-            {
-                memberChain.Add(member.Member);
-
-                if (member.Expression == source)
-                {
-                    memberChainCollector.Add(new MemberChain(memberChain));
-                    return true;
-                }
-
-                member = member.Expression as MemberExpression;
-            }
-            while (member != null);
-
-            return false;
+            collector.Add(expander);
+            return true;
         }
     }
 }

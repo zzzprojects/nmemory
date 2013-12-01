@@ -42,6 +42,8 @@
     <Compile Include="Common\CollectionExtensions.cs" />
     <Compile Include="Common\DefaultEntityMemberInfo`2.cs" />
     <Compile Include="Common\DefaultEntityMemberInfoServices`2.cs" />
+    <Compile Include="Common\Expressions\IExpressionBuilder.cs" />
+    <Compile Include="Common\Expressions\UnaryExpressionCloner.cs" />
     <Compile Include="Common\IEntityMemberInfoServicesProvider`2.cs" />
     <Compile Include="Common\IEntityMemberInfoServices`2.cs" />
     <Compile Include="Common\IEntityMemberInfo`2.cs" />
