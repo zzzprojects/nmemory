@@ -29,6 +29,7 @@ namespace NMemory.Common
     using System.Linq.Expressions;
     using System.Reflection;
     using NMemory.Common.Visitors;
+    using NMemory.Indexes;
     using NMemory.StoredProcedures;
 
     internal static class ExpressionHelper
@@ -191,12 +192,12 @@ namespace NMemory.Common
             else
             {
                 Type[] tupleTypes = members.Select(m => m.Type).ToArray();
-                Type tuple = ReflectionHelper.GetTupleType(tupleTypes);
+                Type tuple = TupleTypeHelper.CreateTupleType(tupleTypes);
+
+                var helper = new TupleKeyInfoHelper(tuple);
 
                 return Expression.Lambda(
-                    Expression.New(
-                        tuple.GetConstructors()[0],
-                        members),
+                    helper.CreateKeyFactoryExpression(members),
                     parameters);
             }
         }

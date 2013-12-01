@@ -57,6 +57,7 @@
     <Compile Include="Common\MemberChain.cs" />
     <Compile Include="Common\QueryExpressionHelper.cs" />
     <Compile Include="Common\TableLocator.cs" />
+    <Compile Include="Common\TupleTypeHelper.cs" />
     <Compile Include="Common\Visitors\EntityTypeSearchVisitor.cs" />
     <Compile Include="Common\Visitors\ExpressionSearchVisitor.cs" />
     <Compile Include="Constraints\IConstraint.cs" />
