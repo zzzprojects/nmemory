@@ -87,60 +87,95 @@ namespace NMemory.Test.Environment.Data
         public IRelation AddMemberGroupRelation(
             bool createMultiField = false, 
             bool useExpressionFactory = false,
-            bool useTuple = false)
+            bool useTuple = false,
+            bool cascadedDeletion = false)
         {
+            RelationOptions options = new RelationOptions(
+                cascadedDeletion: cascadedDeletion);
+
             if (createMultiField)
             {
                 if (useTuple)
                 {
-                    var uniqueIndex = this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory(), g => new Tuple<int, int>(g.Id, g.Id2));
-                    var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory(), m => new Tuple<int?, int>(m.GroupId, m.GroupId2));
+                    var uniqueIndex = this.groups.CreateUniqueIndex(
+                        new RedBlackTreeIndexFactory(), 
+                        g => new Tuple<int, int>(g.Id, g.Id2));
+
+                    var foreignIndex = this.members.CreateIndex(
+                        new RedBlackTreeIndexFactory(),
+                        m => new Tuple<int?, int>(m.GroupId, m.GroupId2));
 
                     if (useExpressionFactory)
                     {
-                        return this.Tables.CreateRelation(uniqueIndex, foreignIndex,
+                        return this.Tables.CreateRelation(
+                            uniqueIndex, 
+                            foreignIndex,
                             g => g.Id, m => m.GroupId,
-                            g => g.Id2, m => m.GroupId2);
+                            g => g.Id2, m => m.GroupId2,
+                            options);
                     }
                     else
                     {
-                        return this.Tables.CreateRelation(uniqueIndex, foreignIndex,
+                        return this.Tables.CreateRelation(
+                            uniqueIndex, 
+                            foreignIndex,
                             x => new Tuple<int, int>(x.Item1.Value, x.Item2),
-                            x => new Tuple<int?, int>((int?)x.Item1, x.Item2));
+                            x => new Tuple<int?, int>((int?)x.Item1, x.Item2),
+                            options);
                     }
                 }
                 else
                 {
-                    var uniqueIndex = this.groups.CreateUniqueIndex(new RedBlackTreeIndexFactory(), g => new { g.Id, g.Id2 });
-                    var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory(), m => new { m.GroupId, m.GroupId2 });
+                    var uniqueIndex = this.groups.CreateUniqueIndex(
+                        new RedBlackTreeIndexFactory(), 
+                        g => new { g.Id, g.Id2 });
+
+                    var foreignIndex = this.members.CreateIndex(
+                        new RedBlackTreeIndexFactory(), 
+                        m => new { m.GroupId, m.GroupId2 });
 
                     if (useExpressionFactory)
                     {
-                        return this.Tables.CreateRelation(uniqueIndex, foreignIndex,
+                        return this.Tables.CreateRelation(
+                            uniqueIndex, 
+                            foreignIndex,
                             g => g.Id, m => m.GroupId,
-                            g => g.Id2, m => m.GroupId2);
+                            g => g.Id2, m => m.GroupId2,
+                            options);
                     }
                     else
                     {
-                        return this.Tables.CreateRelation(uniqueIndex, foreignIndex,
+                        return this.Tables.CreateRelation(
+                            uniqueIndex, 
+                            foreignIndex,
                             x => new { Id = x.GroupId.Value, Id2 = x.GroupId2 },
-                            x => new { GroupId = (int?)x.Id, GroupId2 = x.Id2 });
+                            x => new { GroupId = (int?)x.Id, GroupId2 = x.Id2 }, 
+                            options);
                     }
                 }
             }
             else
             {
-                var foreignIndex = this.members.CreateIndex(new RedBlackTreeIndexFactory(), m => m.GroupId);
-
+                var foreignIndex = this.members.CreateIndex(
+                    new RedBlackTreeIndexFactory(),
+                    m => m.GroupId);
 
                 if (useExpressionFactory)
                 {
-                    return this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex,
-                       new RelationConstraint<Group, Member, int?>(g => g.Id, m => m.GroupId));
+                    return this.Tables.CreateRelation(
+                        this.groups.PrimaryKeyIndex, 
+                        foreignIndex, 
+                        options,
+                        new RelationConstraint<Group, Member, int?>(g => g.Id, m => m.GroupId));
                 }
                 else
                 {
-                    return this.Tables.CreateRelation(this.groups.PrimaryKeyIndex, foreignIndex, x => x.Value, x => x);
+                    return this.Tables.CreateRelation(
+                        this.groups.PrimaryKeyIndex,
+                        foreignIndex,
+                        x => x.Value,
+                        x => x, 
+                        options);
                 }
             }
 

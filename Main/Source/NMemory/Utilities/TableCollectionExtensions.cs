@@ -34,7 +34,8 @@ namespace NMemory.Utilities
         public static Relation<TPrimary, TPrimaryKey, TForeign, TForeignKey> CreateRelation<TPrimary, TPrimaryKey, TForeign, TForeignKey>(
             this TableCollection tableCollection, 
             IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex, 
-            IIndex<TForeign, TForeignKey> foreignIndex, 
+            IIndex<TForeign, TForeignKey> foreignIndex,
+            RelationOptions options,
             params IRelationContraint[] constraints)
 
             where TPrimary : class
@@ -52,19 +53,40 @@ namespace NMemory.Utilities
                     foreignIndex.KeyInfo,
                     constraints);
 
-            return tableCollection.CreateRelation(primaryIndex, foreignIndex, convertForeignToPrimary, convertPrimaryToForeign);
+            return tableCollection.CreateRelation(primaryIndex, foreignIndex, convertForeignToPrimary, convertPrimaryToForeign, options);
+        }
+
+        public static Relation<TPrimary, TPrimaryKey, TForeign, TForeignKey> CreateRelation<TPrimary, TPrimaryKey, TForeign, TForeignKey>(
+            this TableCollection tableCollection,
+            IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex,
+            IIndex<TForeign, TForeignKey> foreignIndex,
+            params IRelationContraint[] constraints)
+
+            where TPrimary : class
+            where TForeign : class
+        {
+            return tableCollection.CreateRelation(
+                primaryIndex, 
+                foreignIndex,
+                new RelationOptions(),
+                constraints);
         }
 
         public static Relation<TPrimary, TPrimaryKey, TForeign, TForeignKey> CreateRelation<TPrimary, TPrimaryKey, TForeign, TForeignKey, TConstraint1>(
           this TableCollection tableCollection,
           IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex,
           IIndex<TForeign, TForeignKey> foreignIndex,
-          Expression<Func<TPrimary, TConstraint1>> constraint1P, Expression<Func<TForeign, TConstraint1>> constraint1F)
+          Expression<Func<TPrimary, TConstraint1>> constraint1P, Expression<Func<TForeign, TConstraint1>> constraint1F,
+          RelationOptions options = null)
 
             where TPrimary : class
             where TForeign : class
         {
-            return CreateRelation(tableCollection, primaryIndex, foreignIndex,
+            return CreateRelation(
+                tableCollection, 
+                primaryIndex, 
+                foreignIndex,
+                options,
                 new RelationConstraint<TPrimary, TForeign, TConstraint1>(constraint1P, constraint1F));
         }
 
@@ -73,12 +95,17 @@ namespace NMemory.Utilities
            IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex,
            IIndex<TForeign, TForeignKey> foreignIndex,
            Expression<Func<TPrimary, TConstraint1>> constraint1P, Expression<Func<TForeign, TConstraint1>> constraint1F,
-           Expression<Func<TPrimary, TConstraint2>> constraint2P, Expression<Func<TForeign, TConstraint2>> constraint2F)
+           Expression<Func<TPrimary, TConstraint2>> constraint2P, Expression<Func<TForeign, TConstraint2>> constraint2F,
+           RelationOptions options = null)
 
             where TPrimary : class
             where TForeign : class
         {
-            return CreateRelation(tableCollection, primaryIndex, foreignIndex,
+            return CreateRelation(
+                tableCollection, 
+                primaryIndex, 
+                foreignIndex,
+                options,
                 new RelationConstraint<TPrimary, TForeign, TConstraint1>(constraint1P, constraint1F),
                 new RelationConstraint<TPrimary, TForeign, TConstraint2>(constraint2P, constraint2F));
         }
@@ -89,12 +116,17 @@ namespace NMemory.Utilities
            IIndex<TForeign, TForeignKey> foreignIndex,
            Expression<Func<TPrimary, TConstraint1>> constraint1P, Expression<Func<TForeign, TConstraint1>> constraint1F,
            Expression<Func<TPrimary, TConstraint2>> constraint2P, Expression<Func<TForeign, TConstraint2>> constraint2F,
-           Expression<Func<TPrimary, TConstraint2>> constraint3P, Expression<Func<TForeign, TConstraint2>> constraint3F)
+           Expression<Func<TPrimary, TConstraint2>> constraint3P, Expression<Func<TForeign, TConstraint2>> constraint3F,
+           RelationOptions options = null)
 
             where TPrimary : class
             where TForeign : class
         {
-            return CreateRelation(tableCollection, primaryIndex, foreignIndex,
+            return CreateRelation(
+                tableCollection, 
+                primaryIndex, 
+                foreignIndex,
+                options,
                 new RelationConstraint<TPrimary, TForeign, TConstraint1>(constraint1P, constraint1F),
                 new RelationConstraint<TPrimary, TForeign, TConstraint2>(constraint2P, constraint2F),
                 new RelationConstraint<TPrimary, TForeign, TConstraint2>(constraint3P, constraint3F));

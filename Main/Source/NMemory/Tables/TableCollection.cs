@@ -104,6 +104,11 @@ namespace NMemory.Tables
 
             where TEntity : class
         {
+            if (primaryKey == null)
+            {
+                throw new ArgumentNullException("primaryKey");
+            }
+
             IKeyInfoFactory keyInfoFactory = new ModularKeyInfoFactory(this.database);
 
             return this.Create(keyInfoFactory.Create(primaryKey), identitySpecification);
@@ -133,6 +138,11 @@ namespace NMemory.Tables
 
             where TEntity : class
         {
+            if (primaryKey == null)
+            {
+                throw new ArgumentNullException("primaryKey");
+            }
+
             ITableService service = this.database
                 .DatabaseEngine
                 .ServiceProvider
@@ -193,17 +203,44 @@ namespace NMemory.Tables
                 IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex,
                 IIndex<TForeign, TForeignKey> foreignIndex,
                 Func<TForeignKey, TPrimaryKey> convertForeignToPrimary,
-                Func<TPrimaryKey, TForeignKey> convertPrimaryToForeign
+                Func<TPrimaryKey, TForeignKey> convertPrimaryToForeign,
+                RelationOptions relationOptions
             )
             where TPrimary : class
             where TForeign : class
         {
-            
+            if (primaryIndex == null)
+            {
+                throw new ArgumentNullException("primaryIndex");
+            }
+
+            if (foreignIndex == null)
+            {
+                throw new ArgumentNullException("foreignIndex");
+            }
+
+            if (convertForeignToPrimary == null)
+            {
+                throw new ArgumentNullException("convertForeignToPrimary");
+            }
+
+            if (convertPrimaryToForeign == null)
+            {
+                throw new ArgumentNullException("convertPrimaryToForeign");
+            }
+
+            if (relationOptions == null)
+            {
+                // Use default relation options
+                relationOptions = new RelationOptions();
+            }
+
             var result = new Relation<TPrimary, TPrimaryKey, TForeign, TForeignKey>(
                 primaryIndex,
                 foreignIndex,
                 convertForeignToPrimary,
-                convertPrimaryToForeign);
+                convertPrimaryToForeign,
+                relationOptions);
 
             IRelationInternal relation = result;
 
@@ -213,6 +250,11 @@ namespace NMemory.Tables
             this.relationMapping[relation.ForeignTable].Referred.Add(relation);
 
             return result;
+        }
+
+        public ITable FindTable(Type entityType)
+        {
+            return this.tables.SingleOrDefault(t => t.EntityType == entityType);
         }
 
         internal IList<IRelationInternal> GetReferringRelations(ITable primaryTable)
@@ -242,11 +284,6 @@ namespace NMemory.Tables
         internal bool IsEntityType<T>()
         {
             return this.entityTypes.Contains(typeof(T));
-        }
-
-        public ITable FindTable(Type entityType)
-        {
-            return this.tables.SingleOrDefault(t => t.EntityType == entityType);
         }
 
         private void RegisterTable(ITable table)

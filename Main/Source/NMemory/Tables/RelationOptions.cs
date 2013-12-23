@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------------
-// <copyright file="IRelation.cs" company="NMemory Team">
+// <copyright file="RelationOptions.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,23 +22,40 @@
 // </copyright>
 // -----------------------------------------------------------------------------------
 
+
 namespace NMemory.Tables
 {
-    using System.Collections.Generic;
-    using NMemory.Indexes;
-
-    public interface IRelation
+    /// <summary>
+    ///     Represents options of a relation.
+    /// </summary>
+    public class RelationOptions
     {
-        ITable PrimaryTable { get; }
+        private readonly bool cascadedDeletion;
 
-        ITable ForeignTable { get; }
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RelationOptions"/> class.
+        /// </summary>
+        /// <param name="cascadedDeletion">
+        ///     if set to <c>true</c> cascaded deletion will be enabled
+        /// </param>
+        public RelationOptions(bool cascadedDeletion = false)
+        {
+            this.cascadedDeletion = cascadedDeletion;
+        }
 
-        IIndex PrimaryIndex { get; }
-
-        IIndex ForeignIndex { get; }
-
-        bool IsEnabled { get; set; }
-
-        RelationOptions Options { get; }
+        /// <summary>
+        ///     Gets a value that indicates whether the deletion of a referred (primary) entity
+        ///     should result in the deletion of the referring (foreign) entities.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if enabled; otherwise, <c>false</c>.
+        /// </value>
+        public bool CascadedDeletion
+        {
+            get
+            {
+                return this.cascadedDeletion;
+            }
+        }
     }
 }

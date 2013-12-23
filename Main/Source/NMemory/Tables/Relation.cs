@@ -68,6 +68,8 @@ namespace NMemory.Tables
         private readonly Func<TForeignKey, TPrimaryKey> convertForeignToPrimary;
         private readonly Func<TPrimaryKey, TForeignKey> convertPrimaryToForeign;
 
+        private readonly RelationOptions options;
+
         #endregion
 
         #region Ctor
@@ -76,7 +78,8 @@ namespace NMemory.Tables
             IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex,
             IIndex<TForeign, TForeignKey> foreignIndex,
             Func<TForeignKey, TPrimaryKey>  foreignToPrimary,
-            Func<TPrimaryKey, TForeignKey> primaryToForeign)
+            Func<TPrimaryKey, TForeignKey> primaryToForeign,
+            RelationOptions options)
         {
             this.isEnabled = true;
 
@@ -85,6 +88,8 @@ namespace NMemory.Tables
 
             this.convertForeignToPrimary = foreignToPrimary;
             this.convertPrimaryToForeign = primaryToForeign;
+
+            this.options = options;
         }
 
         #endregion
@@ -110,6 +115,14 @@ namespace NMemory.Tables
                 }
 
                 this.isEnabled = value;
+            }
+        }
+
+        public RelationOptions Options
+        {
+            get 
+            {
+                return this.options;
             }
         }
 

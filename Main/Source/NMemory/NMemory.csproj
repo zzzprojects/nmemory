@@ -254,6 +254,7 @@
     <Compile Include="Tables\RelationConstraint`3.cs" />
     <Compile Include="Tables\RelationKeyConverterFactory.cs" />
     <Compile Include="Tables\RelationGroup.cs" />
+    <Compile Include="Tables\RelationOptions.cs" />
     <Compile Include="Tables\Table`2.cs" />
     <Compile Include="Tables\TableCollection.cs" />
     <Compile Include="Transactions\Logs\AtomicLogScope.cs" />
