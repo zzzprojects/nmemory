@@ -498,40 +498,57 @@ namespace NMemory.Tables
             return relations;
         }
 
-        private HashSet<object> FindReferringEntities(
+        private Dictionary<IRelation, HashSet<object>> FindReferringEntities(
             IList<TEntity> storedEntities, 
             IList<IRelationInternal> relations)
         {
-            HashSet<object> result = new HashSet<object>();
+            var result = new Dictionary<IRelation, HashSet<object>>();
 
-            for (int i = 0; i < storedEntities.Count; i++)
+            for (int j = 0; j < relations.Count; j++)
             {
-                TEntity storedEntity = storedEntities[i];
+                IRelationInternal relation = relations[j];
 
-                for (int j = 0; j < relations.Count; j++)
-                {
-                    IRelationInternal relation = relations[j];
+                HashSet<object> reffering = new HashSet<object>();
 
-                    foreach (object entity in relation.GetReferringEntities(storedEntity))
+                for (int i = 0; i < storedEntities.Count; i++)
+                { 
+                    foreach (object entity in relation.GetReferringEntities(storedEntities[i]))
                     {
-                        result.Add(entity);
+                        reffering.Add(entity);
                     }
                 }
-            }
 
+                result.Add(relation, reffering);
+            }
+            
             return result;
         }
 
         private void ValidateForeignKeys(
             IList<IRelationInternal> relations,
-            IEnumerable<object> foreignEntities)
+            Dictionary<IRelation, HashSet<object>> referringEntities)
+        {
+            for (int i = 0; i < relations.Count; i++)
+            {
+                IRelationInternal relation = relations[i];
+
+                foreach (object entity in referringEntities[relation])
+                {
+                    relation.ValidateEntity(entity);
+                }
+            }
+        }
+
+        private void ValidateForeignKeys(
+            IList<IRelationInternal> relations,
+            IEnumerable<object> referringEntities)
         {
             if (relations.Count == 0)
             {
                 return;
             }
 
-            foreach (object entity in foreignEntities)
+            foreach (object entity in referringEntities)
             {
                 for (int i = 0; i < relations.Count; i++)
                 {
