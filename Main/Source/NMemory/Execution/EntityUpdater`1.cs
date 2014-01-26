@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="ICommandExecutor.cs" company="NMemory Team">
+// <copyright file="EntityUpdater`1.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,37 +20,36 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //     THE SOFTWARE.
 // </copyright>
-// ----------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 
-namespace NMemory.Modularity
+namespace NMemory.Execution
 {
-    using System.Collections.Generic;
-    using NMemory.Execution;
+    using System;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using NMemory.Tables;
 
-    public interface ICommandExecutor : IDatabaseComponent
+    public class EntityUpdater<T> : IUpdater<T>
     {
-        IEnumerator<T> ExecuteQuery<T>(
-            IExecutionPlan<IEnumerable<T>> plan, 
-            IExecutionContext context);
+        private readonly T source;
 
-        T ExecuteQuery<T>(
-            IExecutionPlan<T> plan, 
-            IExecutionContext context);
+        public EntityUpdater(T source)
+        {
+            this.source = source;
+        }
 
-        void ExecuteInsert<T>(
-            T entity, 
-            IExecutionContext context)
-            where T : class;
+        public T Update(T entity)
+        {
+            return this.source;
+        }
 
-        IEnumerable<T> ExecuteDelete<T>(
-            IExecutionPlan<IEnumerable<T>> plan, 
-            IExecutionContext context)
-            where T : class;
 
-        IEnumerable<T> ExecuteUpdater<T>(
-            IExecutionPlan<IEnumerable<T>> plan, 
-            IUpdater<T> updater, 
-            IExecutionContext context)
-            where T : class;
+        public MemberInfo[] Changes
+        {
+            get 
+            {
+                return typeof(T).GetMembers();
+            }
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="ICommandExecutor.cs" company="NMemory Team">
+// <copyright file="IUpdater`1.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,35 +22,14 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Modularity
+namespace NMemory.Execution
 {
-    using System.Collections.Generic;
-    using NMemory.Execution;
+    using System.Reflection;
 
-    public interface ICommandExecutor : IDatabaseComponent
+    public interface IUpdater<T>
     {
-        IEnumerator<T> ExecuteQuery<T>(
-            IExecutionPlan<IEnumerable<T>> plan, 
-            IExecutionContext context);
+        T Update(T entity);
 
-        T ExecuteQuery<T>(
-            IExecutionPlan<T> plan, 
-            IExecutionContext context);
-
-        void ExecuteInsert<T>(
-            T entity, 
-            IExecutionContext context)
-            where T : class;
-
-        IEnumerable<T> ExecuteDelete<T>(
-            IExecutionPlan<IEnumerable<T>> plan, 
-            IExecutionContext context)
-            where T : class;
-
-        IEnumerable<T> ExecuteUpdater<T>(
-            IExecutionPlan<IEnumerable<T>> plan, 
-            IUpdater<T> updater, 
-            IExecutionContext context)
-            where T : class;
+        MemberInfo[] Changes { get; }
     }
 }

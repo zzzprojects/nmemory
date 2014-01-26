@@ -67,11 +67,16 @@
     <Compile Include="Diagnostics\Messages\JoinArgumentsOrderSwappedMessage.cs" />
     <Compile Include="Diagnostics\Messages\JoinOperatorsSwappedMessage.cs" />
     <Compile Include="Exceptions\ExceptionMessages.cs" />
+    <Compile Include="Execution\EntityUpdater`1.cs" />
+    <Compile Include="Execution\ExpressionUpdater`1.cs" />
     <Compile Include="Execution\ExecutionPlan.cs" />
     <Compile Include="Execution\ExecutionPlanInfo.cs" />
     <Compile Include="Execution\IExecutionPlan.cs" />
     <Compile Include="Execution\IExecutionPlanInfo.cs" />
     <Compile Include="Execution\IExecutionPlan`1.cs" />
+    <Compile Include="Execution\IUpdater`1.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Execution\OperationType.cs" />
     <Compile Include="Execution\Optimization\EqualityMappingDetector.cs" />
     <Compile Include="Execution\Optimization\ITransformationContext.cs" />

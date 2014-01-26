@@ -127,46 +127,6 @@ namespace NMemory.Tables
 
         #endregion
 
-        #region Lock management
-
-        /// <summary>
-        /// Acquires the table write lock.
-        /// </summary>
-        /// <param name="transaction">The transaction.</param>
-        protected void AcquireWriteLock(Transaction transaction)
-        {
-            this.Database.DatabaseEngine.ConcurrencyManager.AcquireTableWriteLock(this, transaction);
-        }
-
-        /// <summary>
-        /// Releases the table write lock.
-        /// </summary>
-        /// <param name="transaction">The transaction.</param>
-        protected void ReleaseWriteLock(Transaction transaction)
-        {
-            this.Database.DatabaseEngine.ConcurrencyManager.ReleaseTableWriteLock(this, transaction);
-        }
-
-        /// <summary>
-        /// Acquires the table read lock.
-        /// </summary>
-        /// <param name="transaction">The transaction.</param>
-        protected void AcquireReadLock(Transaction transaction)
-        {
-            this.Database.DatabaseEngine.ConcurrencyManager.AcquireTableReadLock(this, transaction);
-        }
-
-        /// <summary>
-        /// Releases the table read lock.
-        /// </summary>
-        /// <param name="transaction">The transaction.</param>
-        protected void ReleaseReadLock(Transaction transaction)
-        {
-            this.Database.DatabaseEngine.ConcurrencyManager.ReleaseTableReadLock(this, transaction);
-        }
-
-        #endregion
-
         #region Manipulation
 
         /// <summary>
@@ -211,7 +171,6 @@ namespace NMemory.Tables
             {
                 throw new NMemoryException(ErrorCode.GenericError, ex);
             }
-
         }
 
         /// <summary>
@@ -282,26 +241,14 @@ namespace NMemory.Tables
         /// </param>
         public void Update(TPrimaryKey key, TEntity entity, Transaction transaction)
         {
-            try
-            {
-                using (var tran = Transaction.EnsureTransaction(ref transaction, this.Database))
-                {
-                    this.UpdateCore(key, entity, transaction);
+            var updater = new EntityUpdater<TEntity>(entity);
+            var query = this.CreateQuery(key);
 
-                    tran.Complete();
-                }
-            }
-            catch (System.Transactions.TransactionAbortedException)
+            var updated = this.Update(query, updater, transaction).SingleOrDefault();
+
+            if (updated != null)
             {
-                throw;
-            }
-            catch (NMemoryException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new NMemoryException(ErrorCode.GenericError, ex);
+                EntityPropertyCloner<TEntity>.Instance.Clone(updated, entity);
             }
         }
 
@@ -309,10 +256,10 @@ namespace NMemory.Tables
         ///     Updates the entities.
         /// </summary>
         /// <param name="query">
-        ///     A query expression that represents the entities to be updated.
+        ///     The query expression that represents the entities to be updated.
         /// </param>
         /// <param name="updater">
-        ///     An expression that represents the update logic.
+        ///     The expression that represents the update logic.
         /// </param>
         /// <param name="transaction">
         ///     The transaction within which the update operation is executed.
@@ -325,11 +272,18 @@ namespace NMemory.Tables
             updater = ExpressionHelper.ValidateAndCompleteUpdaterExpression(updater);
             Expression expression = ((IQueryable<TEntity>)query).Expression;
 
+            var updaterObj = new ExpressionUpdater<TEntity>(updater);
+
+            return this.Update((IQueryable<TEntity>)query, updaterObj, transaction);
+        }
+
+        private IEnumerable<TEntity> Update(IQueryable<TEntity> query, IUpdater<TEntity> updater, Transaction transaction)
+        {
             try
             {
                 using (var tran = Transaction.EnsureTransaction(ref transaction, this.Database))
                 {
-                    IEnumerable<TEntity> result = this.UpdateCore(expression, updater, transaction);
+                    IEnumerable<TEntity> result = this.UpdateCore(query.Expression, updater, transaction);
 
                     tran.Complete();
                     return result;
@@ -350,33 +304,19 @@ namespace NMemory.Tables
         }
 
         /// <summary>
-        ///     Core implementation of an entity update.
-        /// </summary>
-        /// <param name="key">
-        ///     The primary key of the entity to be updated.
-        /// </param>
-        /// <param name="entity">
-        ///     An entity that contains the new propery values.
-        /// </param>
-        /// <param name="transaction">
-        ///     The transaction within which the update operation is executed.
-        /// </param>
-        protected abstract void UpdateCore(TPrimaryKey key, TEntity entity, Transaction transaction);
-
-        /// <summary>
         ///     Core implementation of a bulk entity update.
         /// </summary>
         /// <param name="expression">
-        ///     A query expression that represents the entities to be updated.
+        ///     The query expression that represents the entities to be updated.
         /// </param>
         /// <param name="updater">
-        ///     An expression that represents the update mechanism.
+        ///     The updater.
         /// </param>
         /// <param name="transaction">
         ///     The transaction within which the update operation is executed.
         /// </param>
         /// <returns> The updated entities. </returns>
-        protected abstract IEnumerable<TEntity> UpdateCore(Expression expression, Expression<Func<TEntity, TEntity>> updater, Transaction transaction);
+        protected abstract IEnumerable<TEntity> UpdateCore(Expression expression, IUpdater<TEntity> updater, Transaction transaction);
 
         /// <summary>
         ///     Deletes an entity from the table.

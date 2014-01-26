@@ -34,6 +34,7 @@ namespace NMemory.Execution
     using NMemory.Transactions.Logs;
     using NMemory.Utilities;
     using NMemory.Indexes;
+    using System.Reflection;
 
     public class CommandExecutor : ICommandExecutor
     {
@@ -181,7 +182,6 @@ namespace NMemory.Execution
             where T : class
         {
             ITable<T> table = this.Database.Tables.FindTable<T>();
-            ITable[] tables = TableLocator.FindAffectedTables(context.Database, plan);
 
             // Find relations
             // Do not add referred relations!
@@ -189,15 +189,9 @@ namespace NMemory.Execution
 
             this.AcquireWriteLock(table, context);
 
-            var query = this.ExecuteQuery(
-                plan,
-                context,
-                tables.Except(new[] { table }).ToArray(),
-                cloneEntities: false);
-            
-            this.LockRelatedTables(table, relations, context);
+            var storedEntities = this.Query(plan, table, context);
 
-            var storedEntities = query.ToEnumerable().ToList();
+            this.LockRelatedTables(table, relations, context);
 
             // Find referring entities
             var referringEntities =
@@ -224,6 +218,94 @@ namespace NMemory.Execution
             }
 
             return storedEntities.ToArray();
+        }
+
+        #endregion
+
+        #region Update
+
+        public IEnumerable<T> ExecuteUpdater<T>(
+            IExecutionPlan<IEnumerable<T>> plan,
+            IUpdater<T> updater,
+            IExecutionContext context)
+            where T : class
+        {
+            ITable<T> table = this.Database.Tables.FindTable<T>();
+            var cloner = EntityPropertyCloner<T>.Instance;
+
+            // Determine which indexes are affected by the change
+            // If the key of an index containes a changed property, it is affected
+            IList<IIndex<T>> affectedIndexes = FindAffectedIndexes(table, updater.Changes);
+
+            // Find relations
+            // Add both referring and referred relations!
+            RelationGroup relations = this.FindRelations(affectedIndexes);
+
+            this.AcquireWriteLock(table, context);
+
+            var storedEntities = Query(plan, table, context);
+
+            // Lock related tables (based on found relations)
+            this.LockRelatedTables(table, relations, context);
+
+            // Find the entities referring the entities that are about to be updated
+            var referringEntities =
+                this.FindReferringEntities(storedEntities, relations.Referring);
+
+            using (AtomicLogScope logScope = this.StartAtomicLogOperation(context))
+            {
+                // Delete invalid index records (keys are invalid)
+                for (int i = 0; i < storedEntities.Count; i++)
+                {
+                    T storedEntity = storedEntities[i];
+
+                    foreach (IIndex<T> index in affectedIndexes)
+                    {
+                        index.Delete(storedEntity);
+                        logScope.Log.WriteIndexDelete(index, storedEntity);
+                    }
+                }
+
+                // Modify entity properties
+                for (int i = 0; i < storedEntities.Count; i++)
+                {
+                    T storedEntity = storedEntities[i];
+
+                    // Create backup
+                    T backup = Activator.CreateInstance<T>();
+                    cloner.Clone(storedEntity, backup);
+                    T newEntity = updater.Update(storedEntity);
+
+                    // Apply contraints on the entity
+                    table.Contraints.Apply(newEntity, context);
+
+                    // Update entity
+                    cloner.Clone(newEntity, storedEntity);
+                    logScope.Log.WriteEntityUpdate(cloner, storedEntity, backup);
+                }
+
+                // Insert to indexes the entities were removed from
+                for (int i = 0; i < storedEntities.Count; i++)
+                {
+                    T storedEntity = storedEntities[i];
+
+                    foreach (IIndex<T> index in affectedIndexes)
+                    {
+                        index.Insert(storedEntity);
+                        logScope.Log.WriteIndexInsert(index, storedEntity);
+                    }
+                }
+
+                // Validate the updated entities
+                this.ValidateForeignKeys(relations.Referred, storedEntities);
+
+                // Validate the entities that were referring to the old version of entities
+                this.ValidateForeignKeys(relations.Referring, referringEntities);
+
+                logScope.Complete();
+            }
+
+            return storedEntities;
         }
 
         #endregion
@@ -385,9 +467,42 @@ namespace NMemory.Execution
 
         #endregion
 
+
+        private List<T> Query<T>(
+            IExecutionPlan<IEnumerable<T>> plan,
+            ITable<T> table,
+            IExecutionContext context)
+            where T : class
+        {
+            ITable[] queryTables = TableLocator.FindAffectedTables(context.Database, plan);
+
+            var query = this.ExecuteQuery(
+                plan,
+                context,
+                queryTables.Except(new[] { table }).ToArray(),
+                cloneEntities: false);
+
+            return query.ToEnumerable().ToList();
+        }
+
+        private IList<IIndex<T>> FindAffectedIndexes<T>(ITable<T> table, MemberInfo[] changes)
+            where T : class
+        {
+            IList<IIndex<T>> affectedIndexes = new List<IIndex<T>>();
+
+            foreach (IIndex<T> index in table.Indexes)
+            {
+                if (index.KeyInfo.EntityKeyMembers.Any(x => changes.Contains(x)))
+                {
+                    affectedIndexes.Add(index);
+                }
+            }
+            return affectedIndexes;
+        }
+
         private AtomicLogScope StartAtomicLogOperation(IExecutionContext context)
         {
-            return new AtomicLogScope(context.Transaction, this.Database);
+            return new AtomicLogScope(context.Transaction, context.Database);
         }
     }
 }
