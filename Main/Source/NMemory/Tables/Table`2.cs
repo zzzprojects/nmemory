@@ -65,7 +65,7 @@ namespace NMemory.Tables
         private IdentityField<TEntity> identityField;
         private IUniqueIndex<TEntity, TPrimaryKey> primaryKeyIndex;
         private IList<IIndex<TEntity>> indexes;
-        private IList<IConstraint<TEntity>> constraints;
+        private ConstraintCollection<TEntity> constraints;
 
         private static int counter;
         private int id;
@@ -93,7 +93,7 @@ namespace NMemory.Tables
             this.id = Interlocked.Increment(ref counter);
 
             this.indexes = new List<IIndex<TEntity>>();
-            this.constraints = new List<IConstraint<TEntity>>();
+            this.constraints = new ConstraintCollection<TEntity>();
 
             this.primaryKeyIndex = 
                 this.CreateUniqueIndex(new DictionaryIndexFactory(), primaryKey);
@@ -665,6 +665,11 @@ namespace NMemory.Tables
             get { return indexes; }
         }
 
+        public ConstraintCollection<TEntity> Contraints
+        {
+            get { return this.constraints; }
+        }
+
         /// <summary>
         ///     Gets the primary key index of the table.
         /// </summary>
@@ -729,32 +734,6 @@ namespace NMemory.Tables
         #endregion
 
         /// <summary>
-        ///     Adds a table constraint.
-        /// </summary>
-        /// <param name="constraint">
-        ///     The constraint. Note that you must not share this constraint instance across 
-        ///     multiple tables.
-        /// </param>
-        public void AddConstraint(IConstraint<TEntity> constraint)
-        {
-            this.constraints.Add(constraint);
-        }
-
-        /// <summary>
-        ///     Adds a table constraint.
-        /// </summary>
-        /// <param name="constraintFactory"> 
-        ///     The constraint factory that instantiates a dedicated constraint instance for
-        ///     this table.
-        ///     </param>
-        public void AddConstraint(IConstraintFactory<TEntity> constraintFactory)
-        {
-            IConstraint<TEntity> constraint = constraintFactory.Create();
-
-            this.AddConstraint(constraint);
-        }
-
-        /// <summary>
         ///     Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
         /// <returns>
@@ -763,20 +742,6 @@ namespace NMemory.Tables
         public override string ToString()
         {
             return string.Format("Table<{0}>", this.EntityType.Name);
-        }
-
-        /// <summary>
-        ///     Applies the contraints on the specified entity.
-        /// </summary>
-        /// <param name="entity">
-        ///     The entity.
-        /// </param>
-        protected void ApplyContraints(TEntity entity, IExecutionContext context)
-        {
-            foreach (IConstraint<TEntity> constraint in this.constraints)
-            {
-                constraint.Apply(entity, context);
-            }
         }
 
         /// <summary>
@@ -858,7 +823,7 @@ namespace NMemory.Tables
                 var parameter = Expression.Parameter(typeof(TEntity));
                 var lambda = Expression.Lambda<Func<TEntity, Timestamp>>(Expression.Property(parameter, item), parameter);
 
-                this.constraints.Add(new TimestampConstraint<TEntity>(lambda));
+                this.Contraints.Add(new TimestampConstraint<TEntity>(lambda));
             }
         }
     }

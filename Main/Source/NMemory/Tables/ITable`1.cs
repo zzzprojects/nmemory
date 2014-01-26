@@ -100,5 +100,14 @@ namespace NMemory.Tables
         ///     The transaction within which the delete operation executes.
         /// </param>
         void Delete(TEntity entity, Transaction transaction);
+
+
+        /// <summary>
+        ///     Gets the collection of contraints registered to table.
+        /// </summary>
+        /// <value>
+        ///     The contraints.
+        /// </value>
+        ConstraintCollection<TEntity> Contraints { get; }
     }
 }

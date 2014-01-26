@@ -44,12 +44,12 @@ namespace NMemory.Test.Environment.Data
 
             if (createNcharContraintForGroup)
             {
-                groups.AddConstraint(new NCharConstraint<Group>(x => x.Name, 4));
+                groups.Contraints.Add(new NCharConstraint<Group>(x => x.Name, 4));
             }
 
             if (createNotNullConstraint)
             {
-                groups.AddConstraint(new NotNullableConstraint<Group, string>(x => x.Name));
+                groups.Contraints.Add(new NotNullableConstraint<Group, string>(x => x.Name));
             }
 
             this.members = members;

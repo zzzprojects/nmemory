@@ -235,6 +235,7 @@
     <Compile Include="Concurrency\Locks\DefaultLockFactory.cs" />
     <Compile Include="Execution\QueryCompiler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tables\ConstraintCollection`1.cs" />
     <Compile Include="Tables\DefaultTable.cs" />
     <Compile Include="Tables\IBulkTable.cs" />
     <Compile Include="Tables\IRelationInternal.cs" />

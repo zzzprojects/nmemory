@@ -91,42 +91,11 @@ namespace NMemory.Tables
                 new ExecutionContext(this.Database, transaction, OperationType.Insert);
 
             TEntity storedEntity = this.CreateStoredEntity();
-            this.cloner.Clone(entity, storedEntity);
+            cloner.Clone(entity, storedEntity);
 
-            this.ApplyContraints(storedEntity, executionContext);
+            this.Executor.ExecuteInsert(storedEntity, executionContext);
 
-            // Find referred relations
-            // Do not add referring relations!
-            RelationGroup relations = this.FindRelations(this.Indexes, referring: false);
-
-            // Lock table
-            this.AcquireWriteLock(transaction);
-            // Lock the related tables
-            this.LockRelatedTables(transaction, relations);
-
-            try
-            {
-                // Validate the inserted record
-                this.ValidateForeignKeys(relations.Referred, new TEntity[] { storedEntity });
-
-                using (AtomicLogScope logScope = this.StartAtomicLogOperation(transaction))
-                {
-                    foreach (IIndex<TEntity> index in this.Indexes)
-                    {
-                        index.Insert(storedEntity);
-                        logScope.Log.WriteIndexInsert(index, storedEntity);
-                    }
-
-                    // Copy back the modifications
-                    this.cloner.Clone(storedEntity, entity);
-
-                    logScope.Complete();
-                }
-            }
-            finally
-            {
-                this.ReleaseWriteLock(transaction);
-            }
+            cloner.Clone(storedEntity, entity);
         }
 
         #endregion
@@ -258,7 +227,7 @@ namespace NMemory.Tables
                     TEntity newEntity = updaterFunc.Invoke(storedEntity);
 
                     // Apply contraints on the entity
-                    this.ApplyContraints(newEntity, executionContext);
+                    this.Contraints.Apply(newEntity, executionContext);
 
                     // Update entity
                     this.cloner.Clone(newEntity, storedEntity);
@@ -385,6 +354,11 @@ namespace NMemory.Tables
         }
 
         #endregion
+
+        protected ICommandExecutor Executor
+        {
+            get { return this.Database.DatabaseEngine.Executor; }
+        }
 
         private List<TEntity> QueryEntities(Expression expression, Transaction transaction)
         {

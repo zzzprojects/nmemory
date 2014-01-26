@@ -32,5 +32,8 @@ namespace NMemory.Modularity
         IEnumerator<T> ExecuteQuery<T>(IExecutionPlan<IEnumerable<T>> plan, IExecutionContext context);
 
         T ExecuteQuery<T>(IExecutionPlan<T> plan, IExecutionContext context);
+
+        void ExecuteInsert<T>(T entity, IExecutionContext context)
+            where T : class;
     }
 }
