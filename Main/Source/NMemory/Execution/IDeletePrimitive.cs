@@ -1,5 +1,5 @@
-﻿// -----------------------------------------------------------------------------------
-// <copyright file="IRelationInternal.cs" company="NMemory Team">
+﻿// ----------------------------------------------------------------------------------
+// <copyright file="IDeletePrimitive.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,25 +20,17 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //     THE SOFTWARE.
 // </copyright>
-// -----------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 
-namespace NMemory.Tables
+namespace NMemory.Execution
 {
-    using System;
     using System.Collections.Generic;
-    using NMemory.Execution;
+    using NMemory.Tables;
     using NMemory.Transactions.Logs;
 
-    internal interface IRelationInternal : IRelation
+    internal interface IDeletePrimitive
     {
-        void ValidateEntity(object foreign);
-
-        void ValidateAll();
-
-        IEnumerable<object> GetReferringEntities(object primary);
-
-        IEnumerable<object> GetReferredEntities(object foreign);
-
-        void CascadedDelete(HashSet<object> entities, IDeletePrimitive delete, AtomicLogScope log);
+        void Delete<T>(IList<T> storedEntities, AtomicLogScope log)
+            where T : class;
     }
 }

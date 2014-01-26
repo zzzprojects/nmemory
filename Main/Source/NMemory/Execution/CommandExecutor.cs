@@ -25,18 +25,17 @@
 namespace NMemory.Execution
 {
     using System;
-    using System.Linq;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
     using NMemory.Common;
+    using NMemory.Indexes;
     using NMemory.Modularity;
     using NMemory.Tables;
-    using NMemory.Transactions;
     using NMemory.Transactions.Logs;
     using NMemory.Utilities;
-    using NMemory.Indexes;
-    using System.Reflection;
 
-    public class CommandExecutor : ICommandExecutor
+    public class CommandExecutor : ICommandExecutor, IDeletePrimitive
     {
         private IDatabase database;
 
@@ -148,7 +147,7 @@ namespace NMemory.Execution
 
             // Acquire locks
             this.AcquireWriteLock(table, context);
-            this.LockRelatedTables(table, relations, context);
+            this.LockRelatedTables(relations, context, table);
 
             try
             {
@@ -181,43 +180,82 @@ namespace NMemory.Execution
             IExecutionContext context) 
             where T : class
         {
-            ITable<T> table = this.Database.Tables.FindTable<T>();
+            var table = this.Database.Tables.FindTable<T>();
+            var cascadedTables = this.GetCascadedTables(table);
+            var allTables = cascadedTables.Concat(new[] { table }).ToArray();
 
             // Find relations
             // Do not add referred relations!
-            RelationGroup relations = this.FindRelations(table.Indexes, referred: false);
+            RelationGroup allRelations = 
+                this.FindRelations(allTables.SelectMany(x => x.Indexes), referred: false);
 
             this.AcquireWriteLock(table, context);
 
             var storedEntities = this.Query(plan, table, context);
 
-            this.LockRelatedTables(table, relations, context);
-
-            // Find referring entities
-            var referringEntities =
-                this.FindReferringEntities(storedEntities, relations.Referring);
+            this.AcquireWriteLock(cascadedTables, context);
+            this.LockRelatedTables(allRelations, context, except: allTables);
 
             using (AtomicLogScope logScope = this.StartAtomicLogOperation(context))
             {
-                // Delete invalid index records
-                for (int i = 0; i < storedEntities.Count; i++)
-                {
-                    T storedEntity = storedEntities[i];
-
-                    foreach (IIndex<T> index in table.Indexes)
-                    {
-                        index.Delete(storedEntity);
-                        logScope.Log.WriteIndexDelete(index, storedEntity);
-                    }
-                }
-
-                // Validate the entities that are referring to the deleted entities
-                this.ValidateForeignKeys(relations.Referring, referringEntities);
+                ((IDeletePrimitive)this).Delete<T>(storedEntities, logScope);
 
                 logScope.Complete();
             }
 
             return storedEntities.ToArray();
+        }
+
+        void IDeletePrimitive.Delete<T>(
+            IList<T> storedEntities, 
+            AtomicLogScope log)
+        {
+            ITable<T> table = this.Database.Tables.FindTable<T>();
+
+            // Find relations
+            // Do not add referred relations!
+            RelationGroup relations =
+                this.FindRelations(table.Indexes, referred: false);
+
+            // Find referring entities
+            var referringEntities =
+                this.FindReferringEntities<T>(storedEntities, relations.Referring);
+
+            // Delete invalid index records
+            for (int i = 0; i < storedEntities.Count; i++)
+            {
+                T storedEntity = storedEntities[i];
+
+                foreach (IIndex<T> index in table.Indexes)
+                {
+                    index.Delete(storedEntity);
+                    log.Log.WriteIndexDelete(index, storedEntity);
+                }
+            }
+
+            var cascadedRelations = relations.Referring.Where(x => x.Options.CascadedDeletion);
+
+            foreach (IRelationInternal index in cascadedRelations)
+            {
+                var entities = referringEntities[index];
+
+                if (entities.Count == 0)
+                {
+                    continue;
+                }
+
+                index.CascadedDelete(entities, (IDeletePrimitive)this, log);
+
+                // At this point these entities should have been removed from the database
+                // In order to avoid foreign key validation, clear the collection
+                //
+                // TODO: It might be better to do foreign key validation from the
+                // other direction: check if anything refers storedEntities
+                entities.Clear();
+            }
+
+            // Validate the entities that are referring to the deleted entities
+            this.ValidateForeignKeys(relations.Referring, referringEntities);
         }
 
         #endregion
@@ -246,7 +284,7 @@ namespace NMemory.Execution
             var storedEntities = Query(plan, table, context);
 
             // Lock related tables (based on found relations)
-            this.LockRelatedTables(table, relations, context);
+            this.LockRelatedTables(relations, context, table);
 
             // Find the entities referring the entities that are about to be updated
             var referringEntities =
@@ -327,6 +365,14 @@ namespace NMemory.Execution
             this.ConcurrencyManager.AcquireTableWriteLock(table, context.Transaction);
         }
 
+        protected void AcquireWriteLock(ITable[] tables, IExecutionContext context)
+        {
+            for (int i = 0; i < tables.Length; i++)
+            {
+                this.AcquireWriteLock(tables[i], context);
+            }
+        }
+
         protected void ReleaseWriteLock(ITable table, IExecutionContext context)
         {
             this.ConcurrencyManager.ReleaseTableWriteLock(table, context.Transaction);
@@ -342,38 +388,40 @@ namespace NMemory.Execution
             this.ConcurrencyManager.ReleaseTableReadLock(table, context.Transaction);
         }
 
-        private void LockRelatedTables(
-            ITable table,
-            RelationGroup relations,
+        protected void LockRelatedTables(
+            ITable[] relatedTables,
             IExecutionContext context)
         {
-            List<ITable> relatedTables = this.GetRelatedTables(table, relations).ToList();
-
-            this.LockRelatedTables(relatedTables, context);
+            for (int i = 0; i < relatedTables.Length; i++)
+            {
+                this.ConcurrencyManager
+                    .AcquireRelatedTableLock(relatedTables[i], context.Transaction);
+            }
         }
 
         private void LockRelatedTables(
-            IEnumerable<ITable> relatedTables,
-            IExecutionContext context)
+            RelationGroup relations,
+            IExecutionContext context,
+            params ITable[] except)
         {
-            foreach (ITable table in relatedTables)
-            {
-                this.ConcurrencyManager
-                    .AcquireRelatedTableLock(table, context.Transaction);
-            }
+            ITable[] relatedTables = this.GetRelatedTables(relations, except).ToArray();
+
+            this.LockRelatedTables(relatedTables, context);
         }
 
         #endregion
 
         #region Relations
 
-        private IEnumerable<ITable> GetRelatedTables(ITable table, RelationGroup relations)
+        private IEnumerable<ITable> GetRelatedTables(
+            RelationGroup relations, 
+            params ITable[] except)
         {
             return
                 relations.Referring.Select(x => x.ForeignTable)
                 .Concat(relations.Referred.Select(x => x.PrimaryTable))
                 .Distinct()
-                .Except(new[] { table }); // This table is already locked
+                .Except(except);
         }
 
         private RelationGroup FindRelations(
@@ -389,7 +437,10 @@ namespace NMemory.Execution
                 {
                     foreach (var relation in this.Database.Tables.GetReferringRelations(index))
                     {
-                        relations.Referring.Add(relation);
+                        if (!relations.Referring.Contains(relation))
+                        {
+                            relations.Referring.Add(relation);
+                        }
                     }
                 }
 
@@ -397,7 +448,10 @@ namespace NMemory.Execution
                 {
                     foreach (var relation in this.Database.Tables.GetReferredRelations(index))
                     {
-                        relations.Referred.Add(relation);
+                        if (!relations.Referred.Contains(relation))
+                        {
+                            relations.Referred.Add(relation);
+                        }
                     }
                 }
             }
@@ -465,8 +519,38 @@ namespace NMemory.Execution
             }
         }
 
-        #endregion
+        private ITable[] GetCascadedTables(ITable table)
+        {
+            List<ITable> tables = new List<ITable>();
 
+            CollectAllCascadedTables(table, tables);
+
+            return tables
+                .Except(new[] { table })
+                .ToArray();
+        }
+
+        private void CollectAllCascadedTables(ITable currentTable, List<ITable> tables)
+        {
+            var relations = this.FindRelations(currentTable.Indexes, referred: false)
+                .Referring;
+
+            var referringTables = relations
+                .Where(x => x.Options.CascadedDeletion)
+                .Select(x => x.ForeignTable)
+                .ToList();
+
+            foreach (ITable table in referringTables)
+            {
+                if (!tables.Contains(table))
+                {
+                    tables.Add(table);
+                    CollectAllCascadedTables(currentTable, tables);
+                }
+            }
+        }
+
+        #endregion
 
         private List<T> Query<T>(
             IExecutionPlan<IEnumerable<T>> plan,

@@ -67,6 +67,7 @@
     <Compile Include="Diagnostics\Messages\JoinArgumentsOrderSwappedMessage.cs" />
     <Compile Include="Diagnostics\Messages\JoinOperatorsSwappedMessage.cs" />
     <Compile Include="Exceptions\ExceptionMessages.cs" />
+    <Compile Include="Execution\IDeletePrimitive.cs" />
     <Compile Include="Execution\EntityUpdater`1.cs" />
     <Compile Include="Execution\ExpressionUpdater`1.cs" />
     <Compile Include="Execution\ExecutionPlan.cs" />

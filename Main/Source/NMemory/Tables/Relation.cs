@@ -28,7 +28,9 @@ namespace NMemory.Tables
     using System.Collections.Generic;
     using System.Linq;
     using NMemory.Exceptions;
+    using NMemory.Execution;
     using NMemory.Indexes;
+    using NMemory.Transactions.Logs;
 
     /// <summary>
     ///     Represents a relation between two database tables.
@@ -219,6 +221,20 @@ namespace NMemory.Tables
                     this.foreignIndex, 
                     primaryKey);
             }
+        }
+
+
+        void IRelationInternal.CascadedDelete(
+            HashSet<object> entities, 
+            IDeletePrimitive delete, 
+            AtomicLogScope log)
+        {
+            if (!this.Options.CascadedDeletion)
+            {
+                return;
+            }
+
+            delete.Delete<TForeign>(entities.Cast<TForeign>().ToList(), log);
         }
     }
 }

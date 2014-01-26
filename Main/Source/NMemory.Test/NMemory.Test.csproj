@@ -50,6 +50,7 @@
     <Compile Include="AggregationFixture.cs" />
     <Compile Include="BasicFixture.cs" />
     <Compile Include="BinaryFixture.cs" />
+    <Compile Include="CascadedOperationFixture.cs" />
     <Compile Include="ConstraintFixture.cs" />
     <Compile Include="Constraints\GeneratedGuidConstraintFixture.cs" />
     <Compile Include="Environment\Data\Group.cs">

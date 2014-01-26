@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------------
-// <copyright file="IRelationInternal.cs" company="NMemory Team">
+// <copyright file="CascadedOperationFixture.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,23 +22,31 @@
 // </copyright>
 // -----------------------------------------------------------------------------------
 
-namespace NMemory.Tables
+
+namespace NMemory.Test
 {
     using System;
-    using System.Collections.Generic;
-    using NMemory.Execution;
-    using NMemory.Transactions.Logs;
+    using System.Linq;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NMemory.Test.Environment.Data;
 
-    internal interface IRelationInternal : IRelation
+    [TestClass]
+    public class CascadedOperationFixture
     {
-        void ValidateEntity(object foreign);
+        [TestMethod]
+        public void CascadedDelete()
+        {
+            TestDatabase database = new TestDatabase();
+            database.AddMemberGroupRelation(cascadedDeletion: true);
+      
+            database.Groups.Insert(new Group { Name = "Group 1" });
+            database.Groups.Insert(new Group { Name = "Group 2" });
+            database.Members.Insert(new Member { Id = "JD", Name = "John Doe", GroupId = 1 });
+      
+            database.Groups.Delete(new Group { Id = 1 });
 
-        void ValidateAll();
-
-        IEnumerable<object> GetReferringEntities(object primary);
-
-        IEnumerable<object> GetReferredEntities(object foreign);
-
-        void CascadedDelete(HashSet<object> entities, IDeletePrimitive delete, AtomicLogScope log);
+            Assert.AreEqual(1, database.Groups.Count());
+            Assert.AreEqual(0, database.Members.Count());
+        }
     }
 }
