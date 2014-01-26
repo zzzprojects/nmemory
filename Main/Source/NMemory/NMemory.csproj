@@ -174,7 +174,7 @@
     <Compile Include="Execution\Optimization\Rewriters\TableScanRewriter.cs" />
     <Compile Include="Execution\Optimization\TransformationContext.cs" />
     <Compile Include="Execution\QueryCompilerBase.cs" />
-    <Compile Include="Execution\QueryExecutor.cs" />
+    <Compile Include="Execution\CommandExecutor.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="Indexes\DictionaryIndexFactory.cs" />
     <Compile Include="Indexes\IIndex.cs" />
@@ -218,7 +218,7 @@
     <Compile Include="Modularity\ITableCatalog.cs" />
     <Compile Include="Modularity\IExtensible.cs" />
     <Compile Include="Modularity\IQueryCompiler.cs" />
-    <Compile Include="Modularity\IQueryExecutor.cs" />
+    <Compile Include="Modularity\ICommandExecutor.cs" />
     <Compile Include="Modularity\ITransactionHandler.cs" />
     <Compile Include="StoredProcedures\ISharedStoredProcedure`1.cs" />
     <Compile Include="StoredProcedures\IParameter.cs" />

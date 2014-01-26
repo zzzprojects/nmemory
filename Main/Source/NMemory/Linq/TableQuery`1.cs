@@ -114,7 +114,7 @@ namespace NMemory.Linq
                         parameters);
 
                 IEnumerator<TEntity> result = 
-                    this.Database.DatabaseEngine.Executor.Execute(
+                    this.Database.DatabaseEngine.Executor.ExecuteQuery(
                         planToExecute, 
                         executionContext);
 

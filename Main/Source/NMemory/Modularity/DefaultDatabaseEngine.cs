@@ -30,7 +30,7 @@ namespace NMemory.Modularity
     public sealed class DefaultDatabaseEngine : IDatabaseEngine
     {
         private IQueryCompiler compiler;
-        private IQueryExecutor executor;
+        private ICommandExecutor executor;
         private IConcurrencyManager concurrencyManager;
         private ITransactionHandler transactionHandler;
         private ILoggingPort loggingPort;
@@ -64,7 +64,7 @@ namespace NMemory.Modularity
             get { return this.compiler; }
         }
 
-        public IQueryExecutor Executor
+        public ICommandExecutor Executor
         {
             get { return this.executor; }
         }

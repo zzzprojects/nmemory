@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IQueryExecutor.cs" company="NMemory Team">
+// <copyright file="ICommandExecutor.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,10 +27,10 @@ namespace NMemory.Modularity
     using System.Collections.Generic;
     using NMemory.Execution;
 
-    public interface IQueryExecutor : IDatabaseComponent
+    public interface ICommandExecutor : IDatabaseComponent
     {
-        IEnumerator<T> Execute<T>(IExecutionPlan<IEnumerable<T>> plan, IExecutionContext context);
+        IEnumerator<T> ExecuteQuery<T>(IExecutionPlan<IEnumerable<T>> plan, IExecutionContext context);
 
-        T Execute<T>(IExecutionPlan<T> plan, IExecutionContext context);
+        T ExecuteQuery<T>(IExecutionPlan<T> plan, IExecutionContext context);
     }
 }

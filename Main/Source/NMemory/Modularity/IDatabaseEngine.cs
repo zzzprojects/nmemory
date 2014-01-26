@@ -38,7 +38,7 @@ namespace NMemory.Modularity
             get;
         }
 
-        IQueryExecutor Executor
+        ICommandExecutor Executor
         {
             get;
         }

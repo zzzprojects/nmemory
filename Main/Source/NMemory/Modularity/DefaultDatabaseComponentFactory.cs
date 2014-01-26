@@ -48,9 +48,9 @@ namespace NMemory.Modularity
             };
         }
 
-        public virtual IQueryExecutor CreateQueryExecutor()
+        public virtual ICommandExecutor CreateQueryExecutor()
         {
-            return new QueryExecutor();
+            return new CommandExecutor();
         }
 
         public virtual ITransactionHandler CreateTransactionHandler()

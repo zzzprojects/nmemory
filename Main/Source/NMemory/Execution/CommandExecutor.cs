@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="QueryExecutor.cs" company="NMemory Team">
+// <copyright file="CommandExecutor.cs" company="NMemory Team">
 //     Copyright (C) 2012-2013 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -31,7 +31,7 @@ namespace NMemory.Execution
     using NMemory.Tables;
     using NMemory.Transactions;
 
-    public class QueryExecutor : IQueryExecutor
+    public class CommandExecutor : ICommandExecutor
     {
         private IDatabase database;
 
@@ -40,7 +40,7 @@ namespace NMemory.Execution
             this.database = database;
         }
 
-        public IEnumerator<T> Execute<T>(
+        public IEnumerator<T> ExecuteQuery<T>(
             IExecutionPlan<IEnumerable<T>> plan, 
             IExecutionContext context)
         {
@@ -97,7 +97,7 @@ namespace NMemory.Execution
             return result.GetEnumerator();
         }
 
-        public T Execute<T>(
+        public T ExecuteQuery<T>(
             IExecutionPlan<T> plan, 
             IExecutionContext context)
         {

@@ -47,7 +47,7 @@ namespace NMemory.Modularity
         /// Creates a query executor that executes compiled queries.
         /// </summary>
         /// <returns>A query executor.</returns>
-        IQueryExecutor CreateQueryExecutor();
+        ICommandExecutor CreateQueryExecutor();
 
         /// <summary>
         /// 

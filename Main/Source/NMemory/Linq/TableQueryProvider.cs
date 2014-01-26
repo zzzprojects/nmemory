@@ -66,7 +66,7 @@ namespace NMemory.Linq
                         OperationType.Query);
 
                 TResult result = 
-                    this.database.DatabaseEngine.Executor.Execute<TResult>(plan, context);
+                    this.database.DatabaseEngine.Executor.ExecuteQuery<TResult>(plan, context);
 
                 tran.Complete();
                 return result;
