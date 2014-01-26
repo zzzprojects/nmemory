@@ -273,84 +273,15 @@ namespace NMemory.Tables
             Expression expression, 
             Transaction transaction)
         {
-            List<TEntity> result = null;
+            IExecutionContext context = 
+                new ExecutionContext(
+                    this.Database, 
+                    transaction,
+                    OperationType.Delete);
 
-            this.AcquireWriteLock(transaction);
+            var query = this.Compiler.Compile<IEnumerable<TEntity>>(expression);
 
-            try
-            {
-                result = this.QueryEntities(expression, transaction);
-
-                this.DeleteCore(result, transaction);
-            }
-            finally
-            {
-                this.ReleaseWriteLock(transaction);
-            }
-
-            return result != null ? result.Count : 0;
-        }
-
-        /// <summary>
-        ///     Core implementation of a bulk entity delete.
-        /// </summary>
-        /// <param name="expression">
-        ///     A query expression that represents the entities to be deleted.
-        /// </param>
-        /// <param name="transaction">
-        ///     The transaction within which the delete operation is executed.
-        /// </param>
-        /// <returns>
-        ///     The count of deleted entities.
-        /// </returns>
-        protected override void DeleteCore(TPrimaryKey key, Transaction transaction)
-        {
-            this.AcquireWriteLock(transaction);
-
-            try
-            {
-                TEntity storedEntity = this.PrimaryKeyIndex.GetByUniqueIndex(key);
-
-                this.DeleteCore(new TEntity[] { storedEntity }, transaction);
-            }
-            finally
-            {
-                this.ReleaseWriteLock(transaction);
-            }
-        }
-
-        private void DeleteCore(IList<TEntity> storedEntities, Transaction transaction)
-        {
-            // Find relations
-            // Do not add referred relations!
-            RelationGroup relations = this.FindRelations(this.Indexes, referred: false);
-
-            // Lock related tables
-            this.LockRelatedTables(transaction, relations);
-
-            // Find referring entities
-            var referringEntities = 
-                this.FindReferringEntities(storedEntities, relations.Referring);
-
-            using (AtomicLogScope logScope = this.StartAtomicLogOperation(transaction))
-            {
-                // Delete invalid index records
-                for (int i = 0; i < storedEntities.Count; i++)
-                {
-                    TEntity storedEntity = storedEntities[i];
-
-                    foreach (IIndex<TEntity> index in this.Indexes)
-                    {
-                        index.Delete(storedEntity);
-                        logScope.Log.WriteIndexDelete(index, storedEntity);
-                    }
-                }
-
-                // Validate the entities that are referring to the deleted entities
-                this.ValidateForeignKeys(relations.Referring, referringEntities);
-
-                logScope.Complete();
-            }
+            return this.Executor.ExecuteDelete(query, context).Count();
         }
 
         #endregion
@@ -358,6 +289,11 @@ namespace NMemory.Tables
         protected ICommandExecutor Executor
         {
             get { return this.Database.DatabaseEngine.Executor; }
+        }
+
+        protected IQueryCompiler Compiler
+        {
+            get { return this.Database.DatabaseEngine.Compiler; }
         }
 
         private List<TEntity> QueryEntities(Expression expression, Transaction transaction)

@@ -46,16 +46,27 @@ namespace NMemory.Common
             IKeyInfoHelper helper)
         {
             ParameterExpression param = Expression.Parameter(typeof(TEntity));
+
+            Expression body = CreateKeySelector(param, entityMembers, helper);
+
+            return Expression.Lambda<Func<TEntity, TKey>>(body, param);
+        }
+
+        public static Expression CreateKeySelector(
+            Expression source,
+            MemberInfo[] entityMembers,
+            IKeyInfoHelper helper)
+        {
             Expression[] memberAccess = new Expression[entityMembers.Length];
 
             for (int i = 0; i < entityMembers.Length; i++)
             {
-                memberAccess[i] = Expression.MakeMemberAccess(param, entityMembers[i]);
+                memberAccess[i] = Expression.MakeMemberAccess(source, entityMembers[i]);
             }
 
             Expression body = helper.CreateKeyFactoryExpression(memberAccess);
 
-            return Expression.Lambda<Func<TEntity, TKey>>(body, param);
+            return body;
         }
 
         public static Expression CreateKeyEmptinessDetector(

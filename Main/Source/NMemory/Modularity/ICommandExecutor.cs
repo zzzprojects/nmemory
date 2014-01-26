@@ -29,11 +29,20 @@ namespace NMemory.Modularity
 
     public interface ICommandExecutor : IDatabaseComponent
     {
-        IEnumerator<T> ExecuteQuery<T>(IExecutionPlan<IEnumerable<T>> plan, IExecutionContext context);
+        IEnumerator<T> ExecuteQuery<T>(
+            IExecutionPlan<IEnumerable<T>> plan, 
+            IExecutionContext context);
 
-        T ExecuteQuery<T>(IExecutionPlan<T> plan, IExecutionContext context);
+        T ExecuteQuery<T>(
+            IExecutionPlan<T> plan, 
+            IExecutionContext context);
 
-        void ExecuteInsert<T>(T entity, IExecutionContext context)
+        void ExecuteInsert<T>(
+            T entity, 
+            IExecutionContext context)
+            where T : class;
+
+        IEnumerable<T> ExecuteDelete<T>(IExecutionPlan<IEnumerable<T>> plan, IExecutionContext context)
             where T : class;
     }
 }

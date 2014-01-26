@@ -39,6 +39,7 @@ namespace NMemory.Tables
     using NMemory.Indexes;
     using NMemory.Linq;
     using NMemory.Modularity;
+    using NMemory.Services.Contracts;
     using NMemory.Transactions;
 
     /// <summary>
@@ -426,27 +427,9 @@ namespace NMemory.Tables
         /// </param>
         public void Delete(TPrimaryKey key, Transaction transaction)
         {
-            try
-            {
-                using (var tran = Transaction.EnsureTransaction(ref transaction, this.Database))
-                {
-                    this.DeleteCore(key, transaction);
+            var query = this.CreateQuery(key);
 
-                    tran.Complete();
-                }
-            }
-            catch (System.Transactions.TransactionAbortedException)
-            {
-                throw;
-            }
-            catch (NMemoryException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new NMemoryException(ErrorCode.GenericError, ex);
-            }
+            this.Delete(query, transaction);
         }
 
         /// <summary>
@@ -463,13 +446,16 @@ namespace NMemory.Tables
         /// </returns>
         int IBulkTable<TEntity>.Delete(TableQuery<TEntity> query, Transaction transaction)
         {
-            Expression expression = ((IQueryable<TEntity>)query).Expression;
+            return this.Delete(((IQueryable<TEntity>)query), transaction);
+        }
 
+        private int Delete(IQueryable<TEntity> query, Transaction transaction)
+        {
             try
             {
                 using (var tran = Transaction.EnsureTransaction(ref transaction, this.Database))
                 {
-                    int result = this.DeleteCore(expression, transaction);
+                    int result = this.DeleteCore(query.Expression, transaction);
 
                     tran.Complete();
                     return result;
@@ -488,17 +474,6 @@ namespace NMemory.Tables
                 throw new NMemoryException(ErrorCode.GenericError, ex);
             }
         }
-
-        /// <summary>
-        ///     Core implementation of an entity delete.
-        /// </summary>
-        /// <param name="key">
-        ///     The primary key of the entity to be deleted.
-        /// </param>
-        /// <param name="transaction">
-        ///     The transaction within which the delete operation is executed.
-        /// </param>
-        protected abstract void DeleteCore(TPrimaryKey key, Transaction transaction);
 
         /// <summary>
         ///     Core implementation of a bulk entity delete.
@@ -768,6 +743,46 @@ namespace NMemory.Tables
             if (this.identityField != null)
             {
                 this.identityField.InitializeBasedOnData(this.primaryKeyIndex.SelectAll());                                
+            }
+        }
+
+        protected IQueryable<TEntity> CreateQuery(TPrimaryKey key)
+        {
+            var param = Expression.Parameter(typeof(TEntity));
+            var members = this.PrimaryKeyIndex.KeyInfo.EntityKeyMembers;
+
+            var selector =
+                KeyExpressionHelper.CreateKeySelector(param, members, this.KeyInfoHelper);
+
+            var predicate =
+                Expression.Lambda<Func<TEntity, bool>>(
+                    Expression.Equal(
+                        selector,
+                        Expression.Constant(key)),
+                    param);
+
+            return ((IQueryable<TEntity>)this).Where(predicate);
+        }
+
+        protected IKeyInfoHelper KeyInfoHelper
+        {
+            get
+            {
+                var keyInfoService = this.Database
+                    .DatabaseEngine
+                    .ServiceProvider
+                    .GetService<IKeyInfoService>();
+
+                IKeyInfoHelper helper;
+
+                keyInfoService.TryCreateKeyInfoHelper(typeof(TPrimaryKey), out helper);
+
+                if (helper == null)
+                {
+                    throw new NMemoryException();
+                }
+
+                return helper;
             }
         }
 

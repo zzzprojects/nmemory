@@ -44,24 +44,36 @@ namespace NMemory.Execution
             this.database = database;
         }
 
+        #region Query
+
         public IEnumerator<T> ExecuteQuery<T>(
             IExecutionPlan<IEnumerable<T>> plan, 
             IExecutionContext context)
         {
-            IConcurrencyManager cm = this.database.DatabaseEngine.ConcurrencyManager;
+            ITable[] tables = TableLocator.FindAffectedTables(context.Database, plan);
+
+            return ExecuteQuery(plan, context, tables, cloneEntities: true);
+        }
+
+         private IEnumerator<T> ExecuteQuery<T>(
+            IExecutionPlan<IEnumerable<T>> plan, 
+            IExecutionContext context,
+            ITable[] tablesToLock,
+            bool cloneEntities)
+        {
             ITable[] tables = TableLocator.FindAffectedTables(context.Database, plan);
 
             EntityPropertyCloner<T> cloner = null;
-            if (this.database.Tables.IsEntityType<T>())
+            if (cloneEntities && this.database.Tables.IsEntityType<T>())
             {
                 cloner = EntityPropertyCloner<T>.Instance;
             }
 
             LinkedList<T> result = new LinkedList<T>();
 
-            for (int i = 0; i < tables.Length; i++)
+            for (int i = 0; i < tablesToLock.Length; i++)
             {
-                this.AcquireReadLock(tables[i], context);
+                this.AcquireReadLock(tablesToLock[i], context);
             }
 
             IEnumerable<T> query = plan.Execute(context);
@@ -85,12 +97,12 @@ namespace NMemory.Execution
             }
             finally
             {
-                for (int i = 0; i < tables.Length; i++)
+                for (int i = 0; i < tablesToLock.Length; i++)
                 {
-                    this.ReleaseReadLock(tables[i], context);
+                    this.ReleaseReadLock(tablesToLock[i], context);
                 }
             }
-             
+
             return result.GetEnumerator();
         }
 
@@ -118,9 +130,13 @@ namespace NMemory.Execution
             }
         }
 
-        public void ExecuteInsert<T>(T entity, IExecutionContext context) where T : class
+        #endregion
+
+        #region Insert
+        
+        public void ExecuteInsert<T>(T entity, IExecutionContext context) 
+            where T : class
         {
-            IConcurrencyManager cm = this.database.DatabaseEngine.ConcurrencyManager;
             ITable<T> table = this.Database.Tables.FindTable<T>();
 
             table.Contraints.Apply(entity, context);
@@ -138,7 +154,7 @@ namespace NMemory.Execution
                 // Validate the inserted record
                 this.ValidateForeignKeys(relations.Referred, new[] { entity });
 
-                using (AtomicLogScope logScope = this.StartAtomicLogOperation(context.Transaction))
+                using (AtomicLogScope logScope = this.StartAtomicLogOperation(context))
                 {
                     foreach (IIndex<T> index in table.Indexes)
                     {
@@ -154,6 +170,63 @@ namespace NMemory.Execution
                 this.ReleaseWriteLock(table, context);
             }
         }
+
+        #endregion
+
+        #region Delete
+       
+        public IEnumerable<T> ExecuteDelete<T>(
+            IExecutionPlan<IEnumerable<T>> plan, 
+            IExecutionContext context) 
+            where T : class
+        {
+            ITable<T> table = this.Database.Tables.FindTable<T>();
+            ITable[] tables = TableLocator.FindAffectedTables(context.Database, plan);
+
+            // Find relations
+            // Do not add referred relations!
+            RelationGroup relations = this.FindRelations(table.Indexes, referred: false);
+
+            this.AcquireWriteLock(table, context);
+
+            var query = this.ExecuteQuery(
+                plan,
+                context,
+                tables.Except(new[] { table }).ToArray(),
+                cloneEntities: false);
+            
+            this.LockRelatedTables(table, relations, context);
+
+            var storedEntities = query.ToEnumerable().ToList();
+
+            // Find referring entities
+            var referringEntities =
+                this.FindReferringEntities(storedEntities, relations.Referring);
+
+            using (AtomicLogScope logScope = this.StartAtomicLogOperation(context))
+            {
+                // Delete invalid index records
+                for (int i = 0; i < storedEntities.Count; i++)
+                {
+                    T storedEntity = storedEntities[i];
+
+                    foreach (IIndex<T> index in table.Indexes)
+                    {
+                        index.Delete(storedEntity);
+                        logScope.Log.WriteIndexDelete(index, storedEntity);
+                    }
+                }
+
+                // Validate the entities that are referring to the deleted entities
+                this.ValidateForeignKeys(relations.Referring, referringEntities);
+
+                logScope.Complete();
+            }
+
+            return storedEntities.ToArray();
+        }
+
+        #endregion
 
         protected IDatabase Database
         {
@@ -250,6 +323,33 @@ namespace NMemory.Execution
             return relations;
         }
 
+        private Dictionary<IRelation, HashSet<object>> FindReferringEntities<T>(
+            IList<T> storedEntities,
+            IList<IRelationInternal> relations)
+            where T : class
+        {
+            var result = new Dictionary<IRelation, HashSet<object>>();
+
+            for (int j = 0; j < relations.Count; j++)
+            {
+                IRelationInternal relation = relations[j];
+
+                HashSet<object> reffering = new HashSet<object>();
+
+                for (int i = 0; i < storedEntities.Count; i++)
+                {
+                    foreach (object entity in relation.GetReferringEntities(storedEntities[i]))
+                    {
+                        reffering.Add(entity);
+                    }
+                }
+
+                result.Add(relation, reffering);
+            }
+
+            return result;
+        }
+
         private void ValidateForeignKeys(
            IList<IRelationInternal> relations,
            Dictionary<IRelation, HashSet<object>> referringEntities)
@@ -285,9 +385,9 @@ namespace NMemory.Execution
 
         #endregion
 
-        private AtomicLogScope StartAtomicLogOperation(Transaction transaction)
+        private AtomicLogScope StartAtomicLogOperation(IExecutionContext context)
         {
-            return new AtomicLogScope(transaction, this.Database);
+            return new AtomicLogScope(context.Transaction, this.Database);
         }
     }
 }
