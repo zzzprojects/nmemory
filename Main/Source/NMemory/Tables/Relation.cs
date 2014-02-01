@@ -29,6 +29,7 @@ namespace NMemory.Tables
     using System.Linq;
     using NMemory.Exceptions;
     using NMemory.Execution;
+    using NMemory.Execution.Primitives;
     using NMemory.Indexes;
     using NMemory.Transactions.Logs;
 
@@ -226,15 +227,14 @@ namespace NMemory.Tables
 
         void IRelationInternal.CascadedDelete(
             HashSet<object> entities, 
-            IDeletePrimitive delete, 
-            AtomicLogScope log)
+            IDeletePrimitive delete)
         {
             if (!this.Options.CascadedDeletion)
             {
                 return;
             }
 
-            delete.Delete<TForeign>(entities.Cast<TForeign>().ToList(), log);
+            delete.Delete<TForeign>(entities.Cast<TForeign>().ToList());
         }
     }
 }

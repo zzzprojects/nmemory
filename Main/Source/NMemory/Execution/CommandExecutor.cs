@@ -29,13 +29,14 @@ namespace NMemory.Execution
     using System.Linq;
     using System.Reflection;
     using NMemory.Common;
+    using NMemory.Execution.Primitives;
     using NMemory.Indexes;
     using NMemory.Modularity;
     using NMemory.Tables;
     using NMemory.Transactions.Logs;
     using NMemory.Utilities;
 
-    public class CommandExecutor : ICommandExecutor, IDeletePrimitive
+    public class CommandExecutor : ICommandExecutor
     {
         private IDatabase database;
 
@@ -137,13 +138,14 @@ namespace NMemory.Execution
         public void ExecuteInsert<T>(T entity, IExecutionContext context) 
             where T : class
         {
-            ITable<T> table = this.Database.Tables.FindTable<T>();
+            var helper = new ExecutionHelper(this.Database);
+            var table = this.Database.Tables.FindTable<T>();
 
             table.Contraints.Apply(entity, context);
 
             // Find referred relations
             // Do not add referring relations!
-            RelationGroup relations = this.FindRelations(table.Indexes, referring: false);
+            RelationGroup relations = helper.FindRelations(table.Indexes, referring: false);
 
             // Acquire locks
             this.AcquireWriteLock(table, context);
@@ -152,7 +154,7 @@ namespace NMemory.Execution
             try
             {
                 // Validate the inserted record
-                this.ValidateForeignKeys(relations.Referred, new[] { entity });
+                helper.ValidateForeignKeys(relations.Referred, new[] { entity });
 
                 using (AtomicLogScope logScope = this.StartAtomicLogOperation(context))
                 {
@@ -180,14 +182,15 @@ namespace NMemory.Execution
             IExecutionContext context) 
             where T : class
         {
+            var helper = new ExecutionHelper(this.Database);
             var table = this.Database.Tables.FindTable<T>();
-            var cascadedTables = this.GetCascadedTables(table);
+            var cascadedTables = helper.GetCascadedTables(table);
             var allTables = cascadedTables.Concat(new[] { table }).ToArray();
 
             // Find relations
             // Do not add referred relations!
-            RelationGroup allRelations = 
-                this.FindRelations(allTables.SelectMany(x => x.Indexes), referred: false);
+            RelationGroup allRelations =
+                helper.FindRelations(allTables.SelectMany(x => x.Indexes), referred: false);
 
             this.AcquireWriteLock(table, context);
 
@@ -196,66 +199,16 @@ namespace NMemory.Execution
             this.AcquireWriteLock(cascadedTables, context);
             this.LockRelatedTables(allRelations, context, except: allTables);
 
-            using (AtomicLogScope logScope = this.StartAtomicLogOperation(context))
+            using (AtomicLogScope log = this.StartAtomicLogOperation(context))
             {
-                ((IDeletePrimitive)this).Delete<T>(storedEntities, logScope);
+                IDeletePrimitive primitive = new DeletePrimitive(this.Database, log);
 
-                logScope.Complete();
+                primitive.Delete(storedEntities);
+
+                log.Complete();
             }
 
             return storedEntities.ToArray();
-        }
-
-        void IDeletePrimitive.Delete<T>(
-            IList<T> storedEntities, 
-            AtomicLogScope log)
-        {
-            ITable<T> table = this.Database.Tables.FindTable<T>();
-
-            // Find relations
-            // Do not add referred relations!
-            RelationGroup relations =
-                this.FindRelations(table.Indexes, referred: false);
-
-            // Find referring entities
-            var referringEntities =
-                this.FindReferringEntities<T>(storedEntities, relations.Referring);
-
-            // Delete invalid index records
-            for (int i = 0; i < storedEntities.Count; i++)
-            {
-                T storedEntity = storedEntities[i];
-
-                foreach (IIndex<T> index in table.Indexes)
-                {
-                    index.Delete(storedEntity);
-                    log.Log.WriteIndexDelete(index, storedEntity);
-                }
-            }
-
-            var cascadedRelations = relations.Referring.Where(x => x.Options.CascadedDeletion);
-
-            foreach (IRelationInternal index in cascadedRelations)
-            {
-                var entities = referringEntities[index];
-
-                if (entities.Count == 0)
-                {
-                    continue;
-                }
-
-                index.CascadedDelete(entities, (IDeletePrimitive)this, log);
-
-                // At this point these entities should have been removed from the database
-                // In order to avoid foreign key validation, clear the collection
-                //
-                // TODO: It might be better to do foreign key validation from the
-                // other direction: check if anything refers storedEntities
-                entities.Clear();
-            }
-
-            // Validate the entities that are referring to the deleted entities
-            this.ValidateForeignKeys(relations.Referring, referringEntities);
         }
 
         #endregion
@@ -268,16 +221,18 @@ namespace NMemory.Execution
             IExecutionContext context)
             where T : class
         {
-            ITable<T> table = this.Database.Tables.FindTable<T>();
+            var helper = new ExecutionHelper(this.Database);
+            var table = this.Database.Tables.FindTable<T>();
             var cloner = EntityPropertyCloner<T>.Instance;
 
             // Determine which indexes are affected by the change
             // If the key of an index containes a changed property, it is affected
-            IList<IIndex<T>> affectedIndexes = FindAffectedIndexes(table, updater.Changes);
+            IList<IIndex<T>> affectedIndexes = 
+                helper.FindAffectedIndexes(table, updater.Changes);
 
             // Find relations
             // Add both referring and referred relations!
-            RelationGroup relations = this.FindRelations(affectedIndexes);
+            RelationGroup relations = helper.FindRelations(affectedIndexes);
 
             this.AcquireWriteLock(table, context);
 
@@ -288,7 +243,7 @@ namespace NMemory.Execution
 
             // Find the entities referring the entities that are about to be updated
             var referringEntities =
-                this.FindReferringEntities(storedEntities, relations.Referring);
+                helper.FindReferringEntities(storedEntities, relations.Referring);
 
             using (AtomicLogScope logScope = this.StartAtomicLogOperation(context))
             {
@@ -335,10 +290,10 @@ namespace NMemory.Execution
                 }
 
                 // Validate the updated entities
-                this.ValidateForeignKeys(relations.Referred, storedEntities);
+                helper.ValidateForeignKeys(relations.Referred, storedEntities);
 
                 // Validate the entities that were referring to the old version of entities
-                this.ValidateForeignKeys(relations.Referring, referringEntities);
+                helper.ValidateForeignKeys(relations.Referring, referringEntities);
 
                 logScope.Complete();
             }
@@ -404,150 +359,10 @@ namespace NMemory.Execution
             IExecutionContext context,
             params ITable[] except)
         {
-            ITable[] relatedTables = this.GetRelatedTables(relations, except).ToArray();
+            var helper = new ExecutionHelper(this.Database);
+            ITable[] relatedTables = helper.GetRelatedTables(relations, except).ToArray();
 
             this.LockRelatedTables(relatedTables, context);
-        }
-
-        #endregion
-
-        #region Relations
-
-        private IEnumerable<ITable> GetRelatedTables(
-            RelationGroup relations, 
-            params ITable[] except)
-        {
-            return
-                relations.Referring.Select(x => x.ForeignTable)
-                .Concat(relations.Referred.Select(x => x.PrimaryTable))
-                .Distinct()
-                .Except(except);
-        }
-
-        private RelationGroup FindRelations(
-           IEnumerable<IIndex> indexes,
-           bool referring = true,
-           bool referred = true)
-        {
-            RelationGroup relations = new RelationGroup();
-
-            foreach (IIndex index in indexes)
-            {
-                if (referring)
-                {
-                    foreach (var relation in this.Database.Tables.GetReferringRelations(index))
-                    {
-                        if (!relations.Referring.Contains(relation))
-                        {
-                            relations.Referring.Add(relation);
-                        }
-                    }
-                }
-
-                if (referred)
-                {
-                    foreach (var relation in this.Database.Tables.GetReferredRelations(index))
-                    {
-                        if (!relations.Referred.Contains(relation))
-                        {
-                            relations.Referred.Add(relation);
-                        }
-                    }
-                }
-            }
-
-            return relations;
-        }
-
-        private Dictionary<IRelation, HashSet<object>> FindReferringEntities<T>(
-            IList<T> storedEntities,
-            IList<IRelationInternal> relations)
-            where T : class
-        {
-            var result = new Dictionary<IRelation, HashSet<object>>();
-
-            for (int j = 0; j < relations.Count; j++)
-            {
-                IRelationInternal relation = relations[j];
-
-                HashSet<object> reffering = new HashSet<object>();
-
-                for (int i = 0; i < storedEntities.Count; i++)
-                {
-                    foreach (object entity in relation.GetReferringEntities(storedEntities[i]))
-                    {
-                        reffering.Add(entity);
-                    }
-                }
-
-                result.Add(relation, reffering);
-            }
-
-            return result;
-        }
-
-        private void ValidateForeignKeys(
-           IList<IRelationInternal> relations,
-           Dictionary<IRelation, HashSet<object>> referringEntities)
-        {
-            for (int i = 0; i < relations.Count; i++)
-            {
-                IRelationInternal relation = relations[i];
-
-                foreach (object entity in referringEntities[relation])
-                {
-                    relation.ValidateEntity(entity);
-                }
-            }
-        }
-
-        private void ValidateForeignKeys(
-            IList<IRelationInternal> relations,
-            IEnumerable<object> referringEntities)
-        {
-            if (relations.Count == 0)
-            {
-                return;
-            }
-
-            foreach (object entity in referringEntities)
-            {
-                for (int i = 0; i < relations.Count; i++)
-                {
-                    relations[i].ValidateEntity(entity);
-                }
-            }
-        }
-
-        private ITable[] GetCascadedTables(ITable table)
-        {
-            List<ITable> tables = new List<ITable>();
-
-            CollectAllCascadedTables(table, tables);
-
-            return tables
-                .Except(new[] { table })
-                .ToArray();
-        }
-
-        private void CollectAllCascadedTables(ITable currentTable, List<ITable> tables)
-        {
-            var relations = this.FindRelations(currentTable.Indexes, referred: false)
-                .Referring;
-
-            var referringTables = relations
-                .Where(x => x.Options.CascadedDeletion)
-                .Select(x => x.ForeignTable)
-                .ToList();
-
-            foreach (ITable table in referringTables)
-            {
-                if (!tables.Contains(table))
-                {
-                    tables.Add(table);
-                    CollectAllCascadedTables(currentTable, tables);
-                }
-            }
         }
 
         #endregion
@@ -567,21 +382,6 @@ namespace NMemory.Execution
                 cloneEntities: false);
 
             return query.ToEnumerable().ToList();
-        }
-
-        private IList<IIndex<T>> FindAffectedIndexes<T>(ITable<T> table, MemberInfo[] changes)
-            where T : class
-        {
-            IList<IIndex<T>> affectedIndexes = new List<IIndex<T>>();
-
-            foreach (IIndex<T> index in table.Indexes)
-            {
-                if (index.KeyInfo.EntityKeyMembers.Any(x => changes.Contains(x)))
-                {
-                    affectedIndexes.Add(index);
-                }
-            }
-            return affectedIndexes;
         }
 
         private AtomicLogScope StartAtomicLogOperation(IExecutionContext context)

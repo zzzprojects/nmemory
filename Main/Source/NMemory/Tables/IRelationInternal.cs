@@ -27,6 +27,7 @@ namespace NMemory.Tables
     using System;
     using System.Collections.Generic;
     using NMemory.Execution;
+    using NMemory.Execution.Primitives;
     using NMemory.Transactions.Logs;
 
     internal interface IRelationInternal : IRelation
@@ -39,6 +40,6 @@ namespace NMemory.Tables
 
         IEnumerable<object> GetReferredEntities(object foreign);
 
-        void CascadedDelete(HashSet<object> entities, IDeletePrimitive delete, AtomicLogScope log);
+        void CascadedDelete(HashSet<object> entities, IDeletePrimitive delete);
     }
 }

@@ -22,7 +22,7 @@
 // </copyright>
 // --------------------------------------------------------------------------------
 
-namespace NMemory.Execution
+namespace NMemory.Execution.Primitives
 {
     using System.Collections.Generic;
     using NMemory.Tables;
@@ -30,7 +30,6 @@ namespace NMemory.Execution
 
     internal interface IDeletePrimitive
     {
-        void Delete<T>(IList<T> storedEntities, AtomicLogScope log)
-            where T : class;
+        void Delete<T>(IList<T> storedEntities) where T : class;
     }
 }
