@@ -27,6 +27,7 @@ namespace NMemory.Services
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
+    using NMemory.Data;
     using NMemory.Indexes;
     using NMemory.Services.Contracts;
 
@@ -60,7 +61,9 @@ namespace NMemory.Services
             Type keyType,
             out IKeyInfoHelper result)
         {
-            if (!keyType.IsValueType && keyType != typeof(string))
+            if (!keyType.IsValueType && 
+                keyType != typeof(string) && 
+                keyType != typeof(Binary))
             {
                 result = null;
                 return false;
