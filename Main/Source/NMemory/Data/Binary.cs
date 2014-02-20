@@ -153,8 +153,38 @@ namespace NMemory.Data
 
         public override int GetHashCode()
         {
-            return this.binary.GetHashCode();
+			return GetHashCode(this.binary);
         }
+
+		private static unsafe int GetHashCode(byte[] b)
+		{
+			int result = 0;
+
+			fixed (byte* p = b)
+			{
+				int l = b.Length;
+				byte* x = p;
+
+				for (int i = 0; i < l / 4; i++, x += 4)
+				{
+					result ^= (*((int*)x));
+				}
+
+				if ((l & 2) != 0)
+				{
+					result ^= (*((short*)x));
+
+					x += 2;
+				}
+
+				if ((l & 1) != 0)
+				{
+					result ^= (*((byte*)x));
+				}
+			}
+
+			return result;
+		}
 
         private static unsafe bool AreEqual(byte[] b1, byte[] b2)
         {
