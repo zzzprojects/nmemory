@@ -147,13 +147,13 @@ namespace NMemory.Test
             Method(binary);
         }
 
-		[TestMethod]
+        [TestMethod]
         public void BinaryHashCode()
-		{
-			Binary binary = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
+        {
+            Binary binary = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
 
-			binary.GetHashCode();
-		}
+            binary.GetHashCode();
+        }
 
         private void Method(byte[] binary) { }
     }
