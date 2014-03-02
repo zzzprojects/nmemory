@@ -53,6 +53,7 @@
     <Compile Include="CascadedOperationFixture.cs" />
     <Compile Include="ConstraintFixture.cs" />
     <Compile Include="Constraints\GeneratedGuidConstraintFixture.cs" />
+    <Compile Include="Environment\Data\BinaryEntity.cs" />
     <Compile Include="Environment\Data\Group.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -84,6 +85,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Indexes\RedBlackTreeFixture.cs" />
     <Compile Include="RelationFixture.cs" />
+    <Compile Include="Services\PrimitiveKeyInfoServiceFixture.cs" />
     <Compile Include="StoredProcedureFixture.cs" />
     <Compile Include="TimestampFixture.cs" />
     <Compile Include="TransactionFixture.cs" />

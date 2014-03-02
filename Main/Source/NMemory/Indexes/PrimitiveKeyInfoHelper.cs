@@ -104,6 +104,8 @@ namespace NMemory.Indexes
                 return false;
             }
 
+
+
             //if (member.Expression.NodeType != ExpressionType.Parameter)
             //{
             //    throw new ArgumentException("Invalid expression", "keySelector");

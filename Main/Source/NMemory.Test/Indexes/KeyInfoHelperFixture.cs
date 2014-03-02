@@ -29,6 +29,7 @@ namespace NMemory.Test.Indexes
     using System.Linq.Expressions;
     using System.Reflection;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NMemory.Data;
     using NMemory.Indexes;
     using NMemory.Test.Environment.Data;
 
@@ -273,6 +274,24 @@ namespace NMemory.Test.Indexes
 
             Assert.AreEqual(1, result1);
             Assert.AreEqual("2", result2);
+        }
+
+        [TestMethod]
+        public void PrimitiveTypeKeyInfoHelper_Binary()
+        {
+            var helper = new PrimitiveKeyInfoHelper(typeof(Binary));
+
+            Expression<Func<BinaryEntity, Binary>> selector = x => x.Binary;
+
+            MemberInfo[] members;
+
+            bool res = helper.TryParseKeySelectorExpression(
+                selector.Body,
+                true,
+                out members);
+
+            Assert.IsTrue(res);
+            Assert.AreEqual(1, members.Length);
         }
     }
 }

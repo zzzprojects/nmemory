@@ -37,7 +37,7 @@ namespace NMemory.Services
             Expression<Func<TEntity, TKey>> keySelector, 
             out IKeyInfo<TEntity, TKey> result) where TEntity : class
         {
-            if (!typeof(TKey).IsValueType && typeof(TKey) != typeof(string))
+            if (!ValidateType(typeof(TKey)))
             {
                 result = null;
                 return false;
@@ -61,9 +61,7 @@ namespace NMemory.Services
             Type keyType,
             out IKeyInfoHelper result)
         {
-            if (!keyType.IsValueType && 
-                keyType != typeof(string) && 
-                keyType != typeof(Binary))
+            if (!ValidateType(keyType))
             {
                 result = null;
                 return false;
@@ -71,6 +69,14 @@ namespace NMemory.Services
 
             result = new PrimitiveKeyInfoHelper(keyType);
             return true;
+        }
+
+        private static bool ValidateType(Type type)
+        {
+            return 
+                type.IsValueType ||
+                type == typeof(string) ||
+                type == typeof(Binary);
         }
     }
 }
