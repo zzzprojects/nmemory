@@ -155,6 +155,127 @@ namespace NMemory.Test
             binary.GetHashCode();
         }
 
+        [TestMethod]
+        public void BinaryCompare1()
+        {
+            Binary binary1 = new byte[] { };
+            Binary binary2 = new byte[] { };
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.AreEqual(0, res);
+        }
+
+        [TestMethod]
+        public void BinaryCompare2()
+        {
+            Binary binary1 = new byte[] { 1 };
+            Binary binary2 = new byte[] { };
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.IsTrue(0 < res);
+        }
+
+        [TestMethod]
+        public void BinaryCompare3()
+        {
+            Binary binary1 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 21, 22, 31 };
+            Binary binary2 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 21, 22, 31 };
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.AreEqual(0, res);
+        }
+
+        [TestMethod]
+        public void BinaryCompare4()
+        {
+            Binary binary1 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 21, 22, 31 };
+            Binary binary2 = new byte[] { 1, 2, 3, 5, 5, 6, 7, 8, 11, 12, 13, 14, 21, 22, 31 };
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.IsTrue(res < 0);
+        }
+
+        [TestMethod]
+        public void BinaryCompare5()
+        {
+            Binary binary1 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 21, 22, 31 };
+            Binary binary2 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 13, 13, 14, 21, 22, 31 };
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.IsTrue(res < 0);
+        }
+
+        [TestMethod]
+        public void BinaryCompare6()
+        {
+            Binary binary1 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 21, 22, 31 };
+            Binary binary2 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 21, 23, 31 };
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.IsTrue(res < 0);
+        }
+
+        [TestMethod]
+        public void BinaryCompare7()
+        {
+            Binary binary1 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 21, 22, 31 };
+            Binary binary2 = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 11, 12, 13, 14, 21, 22, 32 };
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.IsTrue(res < 0);
+        }
+
+        [TestMethod]
+        public void BinaryCompare8()
+        {
+            Binary binary1 = new byte[] { };
+            Binary binary2 = null;
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.IsTrue(0 < res);
+        }
+
+        [TestMethod]
+        public void BinaryCompare9()
+        {
+            Binary binary1 = new byte[] { };
+            byte[] binary2 = null;
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.IsTrue(0 < res);
+        }
+
+        [TestMethod]
+        public void BinaryCompare10()
+        {
+            Binary binary1 = new byte[] { 1 };
+            byte[] binary2 = new byte[] { 1 };
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.IsTrue(res == 0);
+        }
+
+        [TestMethod]
+        public void BinaryCompare11()
+        {
+            Binary binary1 = new byte[] { 1 };
+            byte[] binary2 = new byte[] { 2 };
+
+            int res = binary1.CompareTo(binary2);
+
+            Assert.IsTrue(res < 0);
+        }
+
         private void Method(byte[] binary) { }
     }
 }
