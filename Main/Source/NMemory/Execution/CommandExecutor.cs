@@ -83,7 +83,7 @@ namespace NMemory.Execution
             {
                 foreach (T item in query)
                 {
-                    if (cloner != null)
+                    if (cloner != null && item != null)
                     {
                         T resultEntity = Activator.CreateInstance<T>();
                         cloner.Clone(item, resultEntity);
@@ -120,7 +120,17 @@ namespace NMemory.Execution
 
             try
             {
-                return plan.Execute(context);
+                var result = plan.Execute(context);
+
+                if (this.database.Tables.IsEntityType<T>() && result != null)
+                {
+                    T resultEntity = Activator.CreateInstance<T>();
+                    EntityPropertyCloner<T>.Instance.Clone(result, resultEntity);
+
+                    result = resultEntity;
+                }
+
+                return result;
             }
             finally
             {
