@@ -726,38 +726,50 @@ namespace NMemory.Tables
             }
         }
 
+        protected virtual bool SupportsPropertyType(PropertyInfo prop)
+        {
+            Type type = prop.PropertyType;
+
+            if (type.IsValueType)
+            {
+                return true;
+            }
+
+            if (type == typeof(string))
+            {
+                return true;
+            }
+
+            if (type == typeof(NMemory.Data.Binary))
+            {
+                return true;
+            }
+
+            if (type == typeof(NMemory.Data.Timestamp))
+            {
+                return true;
+            }
+
+            if (type == typeof(byte[]))
+            {
+                throw new ArgumentException(
+                    string.Format("The type of '{0}' property is '{1}', use '{2}' instead.",
+                        prop.Name,
+                        typeof(byte[]).FullName,
+                        typeof(Binary).FullName),
+                    "TEntity");
+            }
+
+            return false;
+        }
+
         private void VerifyType()
         {
             foreach (PropertyInfo item in typeof(TEntity).GetProperties())
             {
-                if (item.PropertyType.IsValueType)
+                if (this.SupportsPropertyType(item))
                 {
                     continue;
-                }
-
-                if (item.PropertyType == typeof(string))
-                {
-                    continue;
-                }
-
-                if (item.PropertyType == typeof(NMemory.Data.Binary))
-                {
-                    continue;
-                }
-
-                if (item.PropertyType == typeof(NMemory.Data.Timestamp))
-                {
-                    continue;
-                }
-
-                if (item.PropertyType == typeof(byte[]))
-                {
-                    throw new ArgumentException(
-                        string.Format("The type of '{0}' property is '{1}', use '{2}' instead.",
-                            item.Name,
-                            typeof(byte[]).FullName,
-                            typeof(Binary).FullName),
-                        "TEntity");
                 }
 
                 throw new ArgumentException(
