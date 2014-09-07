@@ -30,7 +30,7 @@ namespace NMemory.Data
     using System.Text;
     using System.Threading;
 
-    public class Timestamp : IEquatable<Timestamp>
+    public class Timestamp : IEquatable<Timestamp>, IComparable<Timestamp>, IComparable
     {
         private static long counter;
 
@@ -81,6 +81,21 @@ namespace NMemory.Data
         public bool Equals(Timestamp other)
         {
             return this.value == other.value;
+        }
+
+        public int CompareTo(Timestamp other)
+        {
+            return this.value.CompareTo(other.value);
+        }
+
+        public int CompareTo(object obj)
+        {
+            var ts = obj as Timestamp;
+            if (ts == null)
+            {
+                return -1;
+            }
+            return this.CompareTo(ts);
         }
     }
 }
