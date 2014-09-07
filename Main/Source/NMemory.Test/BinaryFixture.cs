@@ -276,6 +276,138 @@ namespace NMemory.Test
             Assert.IsTrue(res < 0);
         }
 
+        [TestMethod]
+        public void BinaryGreaterThan1()
+        {
+            Binary binary1 = new byte[] { 2 };
+            byte[] binary2 = new byte[] { 1 };
+
+            bool res = binary1 > binary2;
+
+            Assert.IsTrue(res);
+        }
+
+        [TestMethod]
+        public void BinaryGreaterThan2()
+        {
+            Binary binary1 = new byte[] { 1 };
+            byte[] binary2 = new byte[] { 1 };
+
+            bool res = binary1 > binary2;
+
+            Assert.IsFalse(res);
+        }
+
+        [TestMethod]
+        public void BinaryGreaterThan3()
+        {
+            Binary binary1 = new byte[] { 1 };
+            byte[] binary2 = new byte[] { 2 };
+
+            bool res = binary1 > binary2;
+
+            Assert.IsFalse(res);
+        }
+
+        [TestMethod]
+        public void BinaryGreaterThanOrEqual1()
+        {
+            Binary binary1 = new byte[] { 2 };
+            byte[] binary2 = new byte[] { 1 };
+
+            bool res = binary1 >= binary2;
+
+            Assert.IsTrue(res);
+        }
+
+        [TestMethod]
+        public void BinaryGreaterThanOrEqual2()
+        {
+            Binary binary1 = new byte[] { 1 };
+            byte[] binary2 = new byte[] { 1 };
+
+            bool res = binary1 >= binary2;
+
+            Assert.IsTrue(res);
+        }
+
+        [TestMethod]
+        public void BinaryGreaterThanOrEqual3()
+        {
+            Binary binary1 = new byte[] { 1 };
+            byte[] binary2 = new byte[] { 2 };
+
+            bool res = binary1 >= binary2;
+
+            Assert.IsFalse(res);
+        }
+
+        [TestMethod]
+        public void BinarySmallerThan1()
+        {
+            Binary binary1 = new byte[] { 2 };
+            byte[] binary2 = new byte[] { 1 };
+
+            bool res = binary1 < binary2;
+
+            Assert.IsFalse(res);
+        }
+
+        [TestMethod]
+        public void BinarySmallerThan2()
+        {
+            Binary binary1 = new byte[] { 1 };
+            byte[] binary2 = new byte[] { 1 };
+
+            bool res = binary1 < binary2;
+
+            Assert.IsFalse(res);
+        }
+
+        [TestMethod]
+        public void BinarySmallerThan3()
+        {
+            Binary binary1 = new byte[] { 1 };
+            byte[] binary2 = new byte[] { 2 };
+
+            bool res = binary1 < binary2;
+
+            Assert.IsTrue(res);
+        }
+
+        [TestMethod]
+        public void BinarySmallerThanOrEqual1()
+        {
+            Binary binary1 = new byte[] { 2 };
+            byte[] binary2 = new byte[] { 1 };
+
+            bool res = binary1 <= binary2;
+
+            Assert.IsFalse(res);
+        }
+
+        [TestMethod]
+        public void BinarySmallerThanOrEqual2()
+        {
+            Binary binary1 = new byte[] { 1 };
+            byte[] binary2 = new byte[] { 1 };
+
+            bool res = binary1 <= binary2;
+
+            Assert.IsTrue(res);
+        }
+
+        [TestMethod]
+        public void BinarySmallerThanOrEqual3()
+        {
+            Binary binary1 = new byte[] { 1 };
+            byte[] binary2 = new byte[] { 2 };
+
+            bool res = binary1 <= binary2;
+
+            Assert.IsTrue(res);
+        }
+
         private void Method(byte[] binary) { }
     }
 }
