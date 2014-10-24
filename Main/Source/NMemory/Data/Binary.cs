@@ -108,6 +108,26 @@ namespace NMemory.Data
             return !(left == right);
         }
 
+        public static bool operator >(Binary left, Binary right)
+        {
+            return left.CompareTo(right) > 0;
+        }
+
+        public static bool operator <(Binary left, Binary right)
+        {
+            return left.CompareTo(right) < 0;
+        }
+
+        public static bool operator >=(Binary left, Binary right)
+        {
+            return left.CompareTo(right) >= 0;
+        }
+
+        public static bool operator <=(Binary left, Binary right)
+        {
+            return left.CompareTo(right) <= 0;
+        }
+
         public bool Equals(Binary other)
         {
             if (((object)other) == null)

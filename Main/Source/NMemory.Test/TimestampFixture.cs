@@ -87,5 +87,38 @@ namespace NMemory.Test
 
             Assert.AreNotEqual(timestamp, db.TimestampEntities.Single(t => t.Id == 1).Timestamp);
         }
+
+        [TestMethod]
+        public void BinaryCompare1()
+        {
+            Timestamp timestamp1 = Timestamp.CreateNew();
+            Timestamp timestamp2 = timestamp1;
+
+            int res = timestamp1.CompareTo(timestamp2);
+
+            Assert.AreEqual(0, res);
+        }
+
+        [TestMethod]
+        public void BinaryCompare2()
+        {
+            Timestamp timestamp1 = Timestamp.CreateNew();
+            Timestamp timestamp2 = Timestamp.CreateNew();
+
+            int res = timestamp1.CompareTo(timestamp2);
+            
+            Assert.IsTrue(res < 0);
+        }
+
+        [TestMethod]
+        public void BinaryCompare3()
+        {
+            Timestamp timestamp1 = Timestamp.CreateNew();
+            Timestamp timestamp2 = Timestamp.CreateNew();
+
+            int res = timestamp2.CompareTo(timestamp1);
+
+            Assert.IsTrue(res > 0);
+        }
     }
 }

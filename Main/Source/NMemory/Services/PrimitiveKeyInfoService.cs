@@ -76,7 +76,8 @@ namespace NMemory.Services
             return 
                 type.IsValueType ||
                 type == typeof(string) ||
-                type == typeof(Binary);
+                type == typeof(Binary) ||
+                type == typeof(Timestamp);
         }
     }
 }
