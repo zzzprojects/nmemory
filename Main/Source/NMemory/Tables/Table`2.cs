@@ -63,10 +63,11 @@ namespace NMemory.Tables
 
         #region Fields
 
-        private IdentityField<TEntity> identityField;
-        private IUniqueIndex<TEntity, TPrimaryKey> primaryKeyIndex;
-        private IList<IIndex<TEntity>> indexes;
-        private ConstraintCollection<TEntity> constraints;
+        private readonly IdentityField<TEntity> identityField;
+        private readonly IUniqueIndex<TEntity, TPrimaryKey> primaryKeyIndex;
+        private readonly IList<IIndex<TEntity>> indexes;
+        private readonly IEntityService entityService;
+        private readonly ConstraintCollection<TEntity> constraints;
 
         private static int counter;
         private int id;
@@ -95,6 +96,10 @@ namespace NMemory.Tables
 
             this.indexes = new List<IIndex<TEntity>>();
             this.constraints = new ConstraintCollection<TEntity>();
+            this.entityService = database
+                .DatabaseEngine
+                .ServiceProvider
+                .GetService<IEntityService>();
 
             this.primaryKeyIndex = 
                 this.CreateUniqueIndex(new DictionaryIndexFactory(), primaryKey);
@@ -248,7 +253,7 @@ namespace NMemory.Tables
 
             if (updated != null)
             {
-                EntityPropertyCloner<TEntity>.Instance.Clone(updated, entity);
+                this.EntityService.CloneProperties(updated, entity);
             }
         }
 
@@ -723,6 +728,14 @@ namespace NMemory.Tables
                 }
 
                 return helper;
+            }
+        }
+
+        protected IEntityService EntityService
+        {
+            get
+            {
+                return this.entityService;
             }
         }
 

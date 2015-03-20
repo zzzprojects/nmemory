@@ -37,6 +37,9 @@ namespace NMemory.Services
 
             this.Add<ITableService>(
                 new DefaultTableService());
+
+            this.Add<IEntityService>(
+                new DefaultEntityService());
         }
     }
 }

@@ -67,6 +67,7 @@
     <Compile Include="Diagnostics\Messages\JoinArgumentsOrderSwappedMessage.cs" />
     <Compile Include="Diagnostics\Messages\JoinOperatorsSwappedMessage.cs" />
     <Compile Include="Exceptions\ExceptionMessages.cs" />
+    <Compile Include="Execution\ExecutionContextExtensions.cs" />
     <Compile Include="Execution\ExecutionHelper.cs" />
     <Compile Include="Execution\Primitives\DeletePrimitive.cs" />
     <Compile Include="Execution\Primitives\IDeletePrimitive.cs" />
@@ -208,10 +209,12 @@
     <Compile Include="Modularity\DefaultDatabaseComponentFactory.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="Properties\AssemblyVisibility.cs" />
+    <Compile Include="Services\Contracts\IEntityService.cs" />
     <Compile Include="Services\DefaultServiceConfigurations.cs" />
     <Compile Include="Services\Contracts\ITableService.cs" />
     <Compile Include="Services\AnonymousTypeKeyInfoService.cs" />
     <Compile Include="Services\DefaultServiceProvider.cs" />
+    <Compile Include="Services\DefaultEntityService.cs" />
     <Compile Include="Services\PrimitiveKeyInfoService.cs" />
     <Compile Include="Services\TupleKeyInfoService.cs" />
     <Compile Include="Services\CombinedKeyInfoService.cs" />

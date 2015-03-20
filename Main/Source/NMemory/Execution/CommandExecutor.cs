@@ -32,6 +32,7 @@ namespace NMemory.Execution
     using NMemory.Execution.Primitives;
     using NMemory.Indexes;
     using NMemory.Modularity;
+    using NMemory.Services.Contracts;
     using NMemory.Tables;
     using NMemory.Transactions.Logs;
     using NMemory.Utilities;
@@ -64,10 +65,12 @@ namespace NMemory.Execution
         {
             ITable[] tables = TableLocator.FindAffectedTables(context.Database, plan);
 
-            EntityPropertyCloner<T> cloner = null;
+            Action<T, T> cloner = null;
             if (cloneEntities && this.database.Tables.IsEntityType<T>())
             {
-                cloner = EntityPropertyCloner<T>.Instance;
+                cloner = context
+                    .GetService<IEntityService>()
+                    .CloneProperties<T>;
             }
 
             LinkedList<T> result = new LinkedList<T>();
@@ -86,7 +89,7 @@ namespace NMemory.Execution
                     if (cloner != null && item != null)
                     {
                         T resultEntity = Activator.CreateInstance<T>();
-                        cloner.Clone(item, resultEntity);
+                        cloner(item, resultEntity);
 
                         result.AddLast(resultEntity);
                     }
@@ -118,6 +121,10 @@ namespace NMemory.Execution
                 this.AcquireReadLock(tables[i], context);
             }
 
+            Action<T, T> cloner = context
+                .GetService<IEntityService>()
+                .CloneProperties<T>;
+
             try
             {
                 var result = plan.Execute(context);
@@ -125,7 +132,7 @@ namespace NMemory.Execution
                 if (this.database.Tables.IsEntityType<T>() && result != null)
                 {
                     T resultEntity = Activator.CreateInstance<T>();
-                    EntityPropertyCloner<T>.Instance.Clone(result, resultEntity);
+                    cloner(result, resultEntity);
 
                     result = resultEntity;
                 }
@@ -233,7 +240,8 @@ namespace NMemory.Execution
         {
             var helper = new ExecutionHelper(this.Database);
             var table = this.Database.Tables.FindTable<T>();
-            var cloner = EntityPropertyCloner<T>.Instance;
+
+            Action<T, T> cloner = context.GetService<IEntityService>().CloneProperties<T>;
 
             // Determine which indexes are affected by the change
             // If the key of an index containes a changed property, it is affected
@@ -276,14 +284,14 @@ namespace NMemory.Execution
 
                     // Create backup
                     T backup = Activator.CreateInstance<T>();
-                    cloner.Clone(storedEntity, backup);
+                    cloner(storedEntity, backup);
                     T newEntity = updater.Update(storedEntity);
 
                     // Apply contraints on the entity
                     table.Contraints.Apply(newEntity, context);
 
                     // Update entity
-                    cloner.Clone(newEntity, storedEntity);
+                    cloner(newEntity, storedEntity);
                     logScope.Log.WriteEntityUpdate(cloner, storedEntity, backup);
                 }
 

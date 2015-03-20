@@ -34,9 +34,9 @@ namespace NMemory.Transactions.Logs
     {
         private TEntity storedEntity;
         private TEntity oldEntity;
-        private EntityPropertyCloner<TEntity> propertyCloner;
+        private Action<TEntity, TEntity> propertyCloner;
 
-        public UpdateEntityLogItem(EntityPropertyCloner<TEntity> propertyCloner, TEntity storedEntity, TEntity oldEntity)
+        public UpdateEntityLogItem(Action<TEntity, TEntity> propertyCloner, TEntity storedEntity, TEntity oldEntity)
         {
             this.storedEntity = storedEntity;
             this.oldEntity = oldEntity;
@@ -45,7 +45,7 @@ namespace NMemory.Transactions.Logs
 
         public void Undo()
         {
-            this.propertyCloner.Clone(oldEntity, storedEntity);
+            this.propertyCloner(oldEntity, storedEntity);
         }
     }
 }

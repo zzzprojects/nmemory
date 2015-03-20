@@ -34,6 +34,7 @@ namespace NMemory.Tables
     using NMemory.Execution;
     using NMemory.Indexes;
     using NMemory.Modularity;
+    using NMemory.Services.Contracts;
     using NMemory.Transactions;
     using NMemory.Transactions.Logs;
 
@@ -85,11 +86,11 @@ namespace NMemory.Tables
 
             TEntity storedEntity = this.CreateStoredEntity();
 
-            var cloner = EntityPropertyCloner<TEntity>.Instance;
+            Action<TEntity, TEntity> cloner = this.EntityService.CloneProperties<TEntity>;
 
-            cloner.Clone(entity, storedEntity);
+            cloner(entity, storedEntity);
             this.Executor.ExecuteInsert(storedEntity, context);
-            cloner.Clone(storedEntity, entity);
+            cloner(storedEntity, entity);
         }
 
         /// <summary>

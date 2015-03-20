@@ -45,7 +45,7 @@ namespace NMemory.Transactions.Logs
             log.Write(new IndexDeleteTransactionLogItem<TEntity>(index, entity));
         }
 
-        public static void WriteEntityUpdate<TEntity>(this ITransactionLog log, EntityPropertyCloner<TEntity> propertyCloner, TEntity storedEntity, TEntity oldEntity)
+        public static void WriteEntityUpdate<TEntity>(this ITransactionLog log, Action<TEntity, TEntity> propertyCloner, TEntity storedEntity, TEntity oldEntity)
             where TEntity : class
         {
             log.Write(new UpdateEntityLogItem<TEntity>(propertyCloner, storedEntity, oldEntity));
