@@ -42,8 +42,6 @@ namespace NMemory.Tables
         private readonly IDatabase database;
         private readonly List<ITable> tables;
         private readonly List<IRelation> relations;
-        private readonly ReadOnlyCollection<ITable> tablesPublic;
-        private readonly ReadOnlyCollection<IRelation> relationsPublic;
 
         private readonly Dictionary<ITable, RelationGroup> relationMapping;
 
@@ -53,9 +51,7 @@ namespace NMemory.Tables
         {
             this.database = database;
             this.tables = new List<ITable>();
-            this.tablesPublic = this.tables.AsReadOnly();
             this.relations = new List<IRelation>();
-            this.relationsPublic = this.relations.AsReadOnly();
 
             this.relationMapping = new Dictionary<ITable, RelationGroup>();
 
@@ -68,7 +64,7 @@ namespace NMemory.Tables
         /// <returns> A list of the tables. </returns>
         public IList<ITable> GetAllTables()
         {
-            return this.tablesPublic;
+            return this.tables.AsReadOnly();
         }
 
         /// <summary>
@@ -77,7 +73,7 @@ namespace NMemory.Tables
         /// <returns> A list of the table relations. </returns>
         public IList<IRelation> GetAllRelations()
         {
-            return this.relationsPublic;
+            return this.relations.AsReadOnly();
         }
 
         /// <summary>
@@ -248,6 +244,7 @@ namespace NMemory.Tables
 
             this.relationMapping[relation.PrimaryTable].Referring.Add(relation);
             this.relationMapping[relation.ForeignTable].Referred.Add(relation);
+            this.relations.Add(relation);
 
             return result;
         }

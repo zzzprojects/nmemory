@@ -87,6 +87,7 @@
     <Compile Include="RelationFixture.cs" />
     <Compile Include="Services\PrimitiveKeyInfoServiceFixture.cs" />
     <Compile Include="StoredProcedureFixture.cs" />
+    <Compile Include="TableCollectionFixture.cs" />
     <Compile Include="TimestampFixture.cs" />
     <Compile Include="TransactionFixture.cs" />
     <Compile Include="Visitors\EntityTypeSearchVisitorFixture.cs" />
