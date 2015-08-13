@@ -73,7 +73,8 @@ namespace NMemory.Execution.Optimization
                 // Detect the operands of the EQUAL operation
                 return 
                     this.DetectEqualOperand(equal.Left) && 
-                    this.DetectEqualOperand(equal.Right);
+                    this.DetectEqualOperand(equal.Right) &&
+                    this.leftMembers.Count == this.rightMembers.Count;
             }
 
             if (expression.NodeType != ExpressionType.AndAlso)
