@@ -9,7 +9,7 @@ Getting started
 * Install [NuGet package](https://www.nuget.org/packages/NMemory)
 * Define the database
 
-```
+```csharp
 public class Person
 {
     public int Id { get; set; }
@@ -53,7 +53,7 @@ public class MyDatabase : Database
 
 * Create a database instance and some data
 
-```
+```csharp
 MyDatabase db = new MyDatabase();
 
 db.Groups.Insert(new Group { 
@@ -73,7 +73,7 @@ db.People.Insert(new Person {
 
 * Perform queries
 
-```
+```csharp
 var query =
     from p in db.People
     join g in db.Groups on p.GroupId equals g.Id
@@ -84,7 +84,7 @@ query.ToList()
 
 * Manipulate data
 
-```
+```csharp
 var q = db.Groups.Where(x => x.Name.StartsWith("B"));
 
 // Update command
