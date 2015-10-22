@@ -24,10 +24,26 @@
 
 namespace NMemory.Exceptions
 {
+    using NMemory.Indexes;
+    using System;
+    using System.Linq;
+
     public class MultipleUniqueKeyFoundException : NMemoryException
     {
         public MultipleUniqueKeyFoundException() : base()
         {
+        }
+
+        public MultipleUniqueKeyFoundException(IKeyInfo keyInfo, Exception inner) 
+            : base(GetMessage(keyInfo), inner)
+        {
+        }
+
+        private static string GetMessage(IKeyInfo info)
+        {
+            var fields = string.Join(", ", info.EntityKeyMembers.Select(x => x.Name));
+
+            return string.Format("Unique key violation ({0})", fields);
         }
     }
 }

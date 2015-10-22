@@ -27,6 +27,7 @@ namespace NMemory.Indexes
     using System.Collections.Generic;
     using NMemory.DataStructures;
     using NMemory.Tables;
+    using NMemory.Exceptions;
 
     public class UniqueIndex<TEntity, TUniqueKey> : IndexBase<TEntity, TUniqueKey>, IUniqueIndex<TEntity, TUniqueKey>
         where TEntity : class
@@ -59,7 +60,14 @@ namespace NMemory.Indexes
         {
             TUniqueKey key = Key(item);
 
-            this.uniqueDataStructure.Insert(key, item);
+            try
+            {
+                this.uniqueDataStructure.Insert(key, item);
+            }
+            catch (MultipleUniqueKeyFoundException e)
+            {
+                throw new MultipleUniqueKeyFoundException(this.KeyInfo, e);
+            }
         }
 
         public override void Delete(TEntity item)
