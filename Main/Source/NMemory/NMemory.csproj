@@ -44,7 +44,6 @@
     <Compile Include="Common\Expressions\UnaryExpressionCloner.cs" />
     <Compile Include="Common\DatabaseMembers.cs" />
     <Compile Include="Common\DatabaseReflectionHelper.cs" />
-
     <Compile Include="Common\LinqJoinKeyHelper.cs" />
     <Compile Include="Common\MemberChain.cs" />
     <Compile Include="Common\QueryExpressionHelper.cs" />
@@ -85,7 +84,6 @@
     <Compile Include="Indexes\PrimitiveComparer.cs" />
     <Compile Include="Indexes\PrimitiveKeyComparer`1.cs" />
     <Compile Include="Common\QueryMethods.cs" />
-
     <Compile Include="Common\Visitors\ReplaceVisitor.cs" />
     <Compile Include="Concurrency\ChaosConcurrencyManager.cs" />
     <Compile Include="Concurrency\TableLockConcurrencyManager.cs" />
@@ -120,7 +118,6 @@
     <Compile Include="Exceptions\ConstraintException.cs" />
     <Compile Include="Exceptions\DeadlockException.cs" />
     <Compile Include="Exceptions\IndexKeyTypeNotSupportedException.cs" />
-
     <Compile Include="Execution\Optimization\Rewriters\ExpressionRewriterBase.cs" />
     <Compile Include="Execution\Optimization\Rewriters\StoredProcedureParameterRewriter.cs" />
     <Compile Include="Execution\Optimization\Rewriters\TableScanRewriter.cs" />
@@ -128,12 +125,10 @@
     <Compile Include="Execution\QueryCompilerBase.cs" />
     <Compile Include="Execution\CommandExecutor.cs" />
     <Compile Include="Functions.cs" />
-
     <Compile Include="Indexes\RedBlackTreeIndexFactory.cs" />
-
-
     <Compile Include="Modularity\DefaultDatabaseComponentFactory.cs" />
-
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="Services\DefaultServiceConfigurations.cs" />
     <Compile Include="Services\AnonymousTypeKeyInfoService.cs" />
     <Compile Include="Services\DefaultServiceProvider.cs" />
@@ -151,8 +146,6 @@
     <Compile Include="Tables\DefaultTable.cs" />
     <Compile Include="Tables\EntityPropertyChangeDetector.cs" />
     <Compile Include="Tables\EntityPropertyCloner.cs" />
-
-
     <Compile Include="Transactions\Logs\AtomicLogScope.cs" />
     <Compile Include="Transactions\Logs\IndexDeleteTransactionLogItem`1.cs" />
     <Compile Include="Transactions\Logs\IndexInsertTransactionLogItem`1.cs" />
@@ -161,7 +154,6 @@
     <Compile Include="Transactions\Logs\TransactionLogExtensions.cs" />
     <Compile Include="Transactions\Logs\UpdateEntityLogItem`1.cs" />
     <Compile Include="Transactions\TransactionHandler.cs" />
-
     <Compile Include="Utilities\TableExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
