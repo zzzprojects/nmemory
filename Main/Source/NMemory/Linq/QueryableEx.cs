@@ -122,7 +122,7 @@ namespace NMemory.Linq
             return Execute<T>(queryable, parameters, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
-        internal static IEnumerable<T> Execute<T>(this IQueryable<T> queryable, IDictionary<string, object> parameters, Transaction transaction)
+        public static IEnumerable<T> Execute<T>(this IQueryable<T> queryable, IDictionary<string, object> parameters, Transaction transaction)
         {
             if (queryable == null)
             {

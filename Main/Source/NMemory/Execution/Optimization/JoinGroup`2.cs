@@ -26,7 +26,7 @@ namespace NMemory.Execution.Optimization
 {
     using System.Collections.Generic;
 
-    internal class JoinGroup<TOuter, TInner>
+	public class JoinGroup<TOuter, TInner>
     {
         private TOuter outer;
         private IEnumerable<TInner> inner;

@@ -24,7 +24,7 @@
 
 namespace NMemory.Common
 {
-    interface IEntityMemberInfoServicesProvider<TEntity, TMember>
+    public interface IEntityMemberInfoServicesProvider<TEntity, TMember>
     {
         IEntityMemberInfoServices<TEntity, TMember> EntityMemberInfoServices { get; }
     }

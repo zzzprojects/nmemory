@@ -490,7 +490,7 @@ namespace NMemory.Tables
             IIndexFactory indexFactory,
             Expression<Func<TEntity, TKey>> keySelector)
         {
-            var keyFactory = new ModularKeyInfoFactory(this.Database);
+            var keyFactory = KeyInfoFactory.ModularKeyInfoFactory(Database);
             var key = keyFactory.Create(keySelector);
             var index = indexFactory.CreateIndex(this, key);
 
@@ -528,7 +528,7 @@ namespace NMemory.Tables
         /// <param name="indexFactory">
         ///     The index factory.
         /// </param>
-        /// <param name="key">
+		/// <param name="keySelector">
         ///     The expression representing the definition of the index key.
         /// </param>
         /// <returns>
@@ -538,7 +538,7 @@ namespace NMemory.Tables
             IIndexFactory indexFactory,
             Expression<Func<TEntity, TUniqueKey>> keySelector)
         {
-            var keyFactory = new ModularKeyInfoFactory(this.Database);
+			var keyFactory = KeyInfoFactory.ModularKeyInfoFactory(Database);
             var key = keyFactory.Create(keySelector);
             var index = indexFactory.CreateUniqueIndex(this, key);
 

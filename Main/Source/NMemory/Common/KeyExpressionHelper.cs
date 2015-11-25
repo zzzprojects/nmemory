@@ -29,7 +29,7 @@ namespace NMemory.Common
     using System.Reflection;
     using NMemory.Indexes;
 
-    internal static class KeyExpressionHelper
+	public static class KeyExpressionHelper
     {
         public static Expression<Func<TKey, bool>> CreateKeyEmptinessDetector<TEntity,TKey>(     
             IKeyInfoHelper helper)

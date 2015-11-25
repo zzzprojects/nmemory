@@ -22,6 +22,8 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
+using NMemory.Indexes;
+
 namespace NMemory
 {
     using System;
@@ -37,6 +39,10 @@ namespace NMemory
         private IDatabaseEngine databaseEngine;
         private StoredProcedureCollection storedProcedures;
         private TableCollection tables;
+
+	    static Database() { //need to register this Delegate to separate Implementation from Interface
+		    ModularKeyInfoFactory.Register();
+	    }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Database" /> class.

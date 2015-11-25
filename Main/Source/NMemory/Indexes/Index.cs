@@ -35,7 +35,7 @@ namespace NMemory.Indexes
 
         #region Ctor
 
-        internal Index(
+		public Index(
             ITable<TEntity> table, 
             IKeyInfo<TEntity, TKey> keyInfo, 
             IDataStructure<TKey, TEntity> dataStructure)

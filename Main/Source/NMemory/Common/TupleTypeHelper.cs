@@ -26,7 +26,7 @@ namespace NMemory.Common
 {
     using System;
 
-    internal class TupleTypeHelper
+    public class TupleTypeHelper
     {
         public static readonly int LargeTupleSize = 8;
 

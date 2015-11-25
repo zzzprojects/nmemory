@@ -30,7 +30,7 @@ namespace NMemory.Execution.Optimization
     /// Provides factory method for <see cref="GroupJoin{TOuter, TInner}"/> in order to
     /// achieve type impeance.
     /// </summary>
-    internal static class JoinGroup
+	public static class JoinGroup
     {
         public static JoinGroup<TOuter, TInner> Create<TOuter, TInner>(
             TOuter outer,

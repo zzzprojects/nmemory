@@ -32,7 +32,7 @@ namespace NMemory.Common
     using System.Reflection;
     using System.Runtime.CompilerServices;
 
-    internal class ReflectionHelper
+    public class ReflectionHelper
     {
         public static Type GetMemberType(MemberInfo member)
         {

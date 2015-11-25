@@ -29,7 +29,7 @@ namespace NMemory.Constraints
     using NMemory.Data;
     using NMemory.Execution;
 
-    internal class TimestampConstraint<TEntity> : ConstraintBase<TEntity, Timestamp>
+    public class TimestampConstraint<TEntity> : ConstraintBase<TEntity, Timestamp>
     {
         public TimestampConstraint(Expression<Func<TEntity, Timestamp>> propertySelector) 
             : base(propertySelector)

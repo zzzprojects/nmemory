@@ -29,7 +29,7 @@ namespace NMemory.DataStructures.Internal.Trees
     using System.Linq;
     using System.Text;
 
-    internal class RedBlackTreeNode<TKey, TValue>
+	public class RedBlackTreeNode<TKey, TValue>
     {
         private WeakReference parent; 
 

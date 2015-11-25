@@ -31,7 +31,7 @@ namespace NMemory.Common
     using NMemory.Tables;
     using NMemory.Utilities;
 
-    internal static class DatabaseMembers
+	public static class DatabaseMembers
     {
         public static PropertyInfo Database_Tables
         {

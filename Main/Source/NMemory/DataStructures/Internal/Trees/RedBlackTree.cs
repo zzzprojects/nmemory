@@ -31,7 +31,7 @@ namespace NMemory.DataStructures.Internal.Trees
 
     //// Red-black tree structure based on:
     //// http://www.jot.fm/issues/issue_2005_03/column6/
-    internal class RedBlackTree<TKey, TValue> : IDictionary<TKey, TValue>
+	public class RedBlackTree<TKey, TValue> : IDictionary<TKey, TValue>
     {
         private IComparer<TKey> comparer;
 
@@ -99,7 +99,7 @@ namespace NMemory.DataStructures.Internal.Trees
             }
         }
 
-        internal RedBlackTreeNode<TKey, TValue> RootElement
+		public RedBlackTreeNode<TKey, TValue> RootElement
         {
             get { return this.root; }
         }

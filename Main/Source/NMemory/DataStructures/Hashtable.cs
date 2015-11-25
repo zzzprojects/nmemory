@@ -26,10 +26,8 @@ namespace NMemory.DataStructures
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
 
-    public class Hashtable<TKey, TEntity> : IDataStructure<TKey, TEntity>
+	public class Hashtable<TKey, TEntity> : IDataStructure<TKey, TEntity>
     {
         private Dictionary<TKey, List<TEntity>> inner;
 

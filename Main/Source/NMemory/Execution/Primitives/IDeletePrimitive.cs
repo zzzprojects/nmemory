@@ -28,7 +28,7 @@ namespace NMemory.Execution.Primitives
     using NMemory.Tables;
     using NMemory.Transactions.Logs;
 
-    internal interface IDeletePrimitive
+    public interface IDeletePrimitive
     {
         void Delete<T>(IList<T> storedEntities) where T : class;
     }

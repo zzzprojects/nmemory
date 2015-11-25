@@ -34,7 +34,7 @@ namespace NMemory.Tables
     /// Defines bulk operations for a table.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entities contained by the table.</typeparam>
-    internal interface IBulkTable<TEntity>
+    public interface IBulkTable<TEntity>
         where TEntity : class
     {
         /// <summary>

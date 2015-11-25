@@ -53,7 +53,7 @@ namespace NMemory.Transactions
             return new Transaction(external, false);
         }
 
-        internal static TransactionContext EnsureTransaction(ref Transaction transaction, IDatabase database)
+        public static TransactionContext EnsureTransaction(ref Transaction transaction, IDatabase database)
         {
             TransactionContext result = null;
 
@@ -83,7 +83,7 @@ namespace NMemory.Transactions
             return result;
         }
 
-        internal static Transaction TryGetAmbientEnlistedTransaction()
+        public static Transaction TryGetAmbientEnlistedTransaction()
         {
             System.Transactions.Transaction ambientTransaction = System.Transactions.Transaction.Current;
 
@@ -119,7 +119,7 @@ namespace NMemory.Transactions
 
         private HashSet<ITransactionHandler> registeredHandlers;
 
-        internal Transaction(System.Transactions.Transaction transaction, bool isAmbient)
+        public Transaction(System.Transactions.Transaction transaction, bool isAmbient)
         {
             this.internalTransaction = transaction;
             this.isAmbient = isAmbient;
@@ -182,7 +182,7 @@ namespace NMemory.Transactions
             }
         }
 
-        internal void EnterAtomicSection()
+        public void EnterAtomicSection()
         {
             this.atomicSectionLock.Enter();
 
@@ -193,7 +193,7 @@ namespace NMemory.Transactions
             }
         }
 
-        internal void ExitAtomicSection()
+		public void ExitAtomicSection()
         {
             this.atomicSectionLock.Exit();
         }

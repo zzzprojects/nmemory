@@ -22,6 +22,8 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
+using NMemory.Modularity;
+
 namespace NMemory.StoredProcedures
 {
     using System;
@@ -34,7 +36,7 @@ namespace NMemory.StoredProcedures
         private WeakReference database;
         private List<object> storedProcedures;
 
-        internal StoredProcedureCollection(Database database)
+        public StoredProcedureCollection(IDatabase database)
         {
             if (database == null)
             {
@@ -45,9 +47,9 @@ namespace NMemory.StoredProcedures
             this.storedProcedures = new List<object>();
         }
 
-        private Database Database
+        private IDatabase Database
         {
-            get { return this.database.Target as Database; }
+            get { return this.database.Target as IDatabase; }
         }
 
         public IStoredProcedure<T> Create<T>(IQueryable<T> query)

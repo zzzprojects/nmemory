@@ -27,7 +27,7 @@ namespace NMemory.Tables
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
 
-    internal class RelationGroup
+    public class RelationGroup
     {
         private readonly List<IRelationInternal> referring;
         private readonly List<IRelationInternal> referred;

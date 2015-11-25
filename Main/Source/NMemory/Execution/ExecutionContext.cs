@@ -29,7 +29,7 @@ namespace NMemory.Execution
     using NMemory.Modularity;
     using NMemory.Transactions;
 
-    internal class ExecutionContext : IExecutionContext
+	public class ExecutionContext : IExecutionContext
     {
         private Transaction transaction;
         private IDictionary<string, object> parameters;

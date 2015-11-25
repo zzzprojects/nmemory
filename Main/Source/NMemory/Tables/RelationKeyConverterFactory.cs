@@ -54,7 +54,9 @@ namespace NMemory.Tables
             return CreateConversion(foreignKey, primaryKey, mapping);
         }
 
-        private static Func<TFrom, TTo> CreateConversion<TFrom, TTo>(
+		#region private 
+
+		private static Func<TFrom, TTo> CreateConversion<TFrom, TTo>(
             IKeyInfo<TFrom> fromKeyInfo,
             IKeyInfo<TTo> toKeyInfo,
             int[] mapping)
@@ -154,5 +156,7 @@ namespace NMemory.Tables
 
             return helper;
         }
-    }
+		#endregion private
+
+	}
 }
