@@ -24,7 +24,7 @@
 
 namespace NMemory.Exceptions
 {
-    internal static class ExceptionMessages
+    public static class ExceptionMessages
     {
         public static readonly string Missing = string.Empty;
 

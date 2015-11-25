@@ -94,8 +94,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NMemory\NMemory.csproj">
-      <Project>{E95EF85F-FAC7-476E-8333-2D835BD41BD9}</Project>
+      <Project>{e95ef85f-fac7-476e-8333-2d835bd41bd9}</Project>
       <Name>NMemory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMemory\NMemory.Interface.csproj">
+      <Project>{0ae29c99-7824-4f13-bc92-b2c71ab60cea}</Project>
+      <Name>NMemory.Interface</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

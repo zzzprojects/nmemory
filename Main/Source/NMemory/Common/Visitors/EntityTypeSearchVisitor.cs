@@ -31,7 +31,7 @@ namespace NMemory.Common.Visitors
     using NMemory.Indexes;
     using NMemory.Tables;
 
-    internal class EntityTypeSearchVisitor : ExpressionVisitor
+	public class EntityTypeSearchVisitor : ExpressionVisitor
     {
         private HashSet<Type> entityTypes;
 

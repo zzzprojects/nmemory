@@ -36,7 +36,7 @@ namespace NMemory.Indexes
 
         #region Ctor
 
-        internal UniqueIndex(
+		public UniqueIndex(
             ITable<TEntity> table, 
             IKeyInfo<TEntity, TUniqueKey> keyInfo, 
             IUniqueDataStructure<TUniqueKey, TEntity> dataStructure)

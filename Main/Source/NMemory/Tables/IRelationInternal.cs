@@ -30,7 +30,7 @@ namespace NMemory.Tables
     using NMemory.Execution.Primitives;
     using NMemory.Transactions.Logs;
 
-    internal interface IRelationInternal : IRelation
+    public interface IRelationInternal : IRelation
     {
         void ValidateEntity(object foreign);
 

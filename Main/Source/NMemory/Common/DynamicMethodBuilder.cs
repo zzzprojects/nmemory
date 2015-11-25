@@ -29,9 +29,9 @@ namespace NMemory.Common
     using System.Reflection;
     using System.Reflection.Emit;
 
-    internal delegate TObject DynamicPropertySetter<TObject>(TObject obj, params object[] args);
+    public delegate TObject DynamicPropertySetter<TObject>(TObject obj, params object[] args);
 
-    internal static class DynamicMethodBuilder
+    public static class DynamicMethodBuilder
     {
         public static Action<TObject, TValue> CreateSinglePropertySetter<TObject, TValue>(PropertyInfo member)
         {

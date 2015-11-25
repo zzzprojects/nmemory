@@ -47,7 +47,7 @@ namespace NMemory.Tables
 
         private HashSet<Type> entityTypes;
 
-        internal TableCollection(IDatabase database)
+        public TableCollection(IDatabase database)
         {
             this.database = database;
             this.tables = new List<ITable>();
@@ -105,7 +105,7 @@ namespace NMemory.Tables
                 throw new ArgumentNullException("primaryKey");
             }
 
-            IKeyInfoFactory keyInfoFactory = new ModularKeyInfoFactory(this.database);
+            IKeyInfoFactory keyInfoFactory = KeyInfoFactory.ModularKeyInfoFactory(database);
 
             return this.Create(keyInfoFactory.Create(primaryKey), identitySpecification);
         }
@@ -264,21 +264,21 @@ namespace NMemory.Tables
             return this.relationMapping[foreignTable].ReferredReadOnly;
         }
 
-        internal IList<IRelationInternal> GetReferringRelations(IIndex primaryIndex)
+        public IList<IRelationInternal> GetReferringRelations(IIndex primaryIndex)
         {
             return this.GetReferringRelations(primaryIndex.Table)
                 .Where(x => x.PrimaryIndex == primaryIndex)
                 .ToList();
         }
 
-        internal IList<IRelationInternal> GetReferredRelations(IIndex foreignIndex)
+		public IList<IRelationInternal> GetReferredRelations(IIndex foreignIndex)
         {
             return this.GetReferredRelations(foreignIndex.Table)
                 .Where(x => x.ForeignIndex == foreignIndex)
                 .ToList();
         }
 
-        internal bool IsEntityType<T>()
+		public bool IsEntityType<T>()
         {
             return this.entityTypes.Contains(typeof(T));
         }

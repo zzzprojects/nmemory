@@ -31,7 +31,7 @@ namespace NMemory.Utilities
 
     public static class TableExtensions
     {
-        internal static IEnumerable<T> SelectAll<T>(this ITable<T> table)
+		public static IEnumerable<T> SelectAll<T>(this ITable<T> table)
             where T : class
         {
             if (table == null)

@@ -40,7 +40,7 @@ namespace NMemory.Linq
 
         #region Ctor
 
-        internal TableQuery(IDatabase database, Expression expression, IQueryProvider provider) 
+        public TableQuery(IDatabase database, Expression expression, IQueryProvider provider) 
             : base(database, expression, provider)
         {
             this.storeCompilation = false;
@@ -87,7 +87,7 @@ namespace NMemory.Linq
             return GetEnumerator(null, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
-        internal IEnumerator<TEntity> GetEnumerator(
+        public IEnumerator<TEntity> GetEnumerator(
             IDictionary<string, object> parameters, 
             Transaction transaction)
         {

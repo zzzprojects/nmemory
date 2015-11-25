@@ -1,5 +1,5 @@
 ﻿// ----------------------------------------------------------------------------------
-// <copyright file="IEntityMemberInfoServicesProvider`2.cs" company="NMemory Team">
+// <copyright file="AssemblyInfo.cs" company="NMemory Team">
 //     Copyright (C) NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,10 +22,26 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
-namespace NMemory.Common
-{
-    public interface IEntityMemberInfoServicesProvider<TEntity, TMember>
-    {
-        IEntityMemberInfoServices<TEntity, TMember> EntityMemberInfoServices { get; }
-    }
-}
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+[assembly: AssemblyTitle("NMemory.Interface")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("NMemory")]
+[assembly: AssemblyCopyright("")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
+
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM components.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
+[assembly: ComVisible(false)]
+
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("5503d327-916a-494b-8bda-83b85da942a9")]

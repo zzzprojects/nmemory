@@ -32,7 +32,7 @@ namespace NMemory.Common
     using NMemory.Indexes;
     using NMemory.StoredProcedures;
 
-    internal static class ExpressionHelper
+	public static class ExpressionHelper
     {
         public static MemberExpression FindMemberExpression(Expression expression)
         {

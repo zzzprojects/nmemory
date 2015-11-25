@@ -22,10 +22,16 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
+using NMemory.Modularity;
+
 namespace NMemory.Indexes
 {
     using System;
     using System.Linq.Expressions;
+
+	public static class KeyInfoFactory {
+		public static Func<IDatabase, IKeyInfoFactory> ModularKeyInfoFactory;
+	}
 
     public interface IKeyInfoFactory
     {

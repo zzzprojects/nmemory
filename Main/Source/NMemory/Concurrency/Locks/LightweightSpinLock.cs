@@ -30,7 +30,7 @@ namespace NMemory.Concurrency.Locks
     using System.Text;
     using System.Threading;
 
-    internal class LightweightSpinLock
+    public class LightweightSpinLock
     {
         private static readonly int ProcessorCount = Environment.ProcessorCount; 
         private int held;
@@ -59,7 +59,7 @@ namespace NMemory.Concurrency.Locks
             this.held = 0;
         }
 
-        internal static void SpinWait(ref int retry)
+		public static void SpinWait(ref int retry)
         {
             if (retry < 10 && ProcessorCount > 1)
             {

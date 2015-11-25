@@ -33,6 +33,11 @@ namespace NMemory.Indexes
 
     public class ModularKeyInfoFactory : IKeyInfoFactory
     {
+		/// <summary> need to register this Delegate to separate Implementation from Interface </summary>
+	    public static void Register() {
+			KeyInfoFactory.ModularKeyInfoFactory = database => new ModularKeyInfoFactory(database);
+	    }
+
         private readonly IKeyInfoService service;
 
         protected ModularKeyInfoFactory(IKeyInfoService service)
