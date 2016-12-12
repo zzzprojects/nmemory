@@ -33,7 +33,7 @@ namespace NMemory.Linq
     using NMemory.Modularity;
     using NMemory.Transactions;
 
-    public class TableQuery<TEntity> : TableQuery, IQueryable<TEntity>
+    public class TableQuery<TEntity> : TableQuery, IOrderedQueryable<TEntity>
     {
         private IExecutionPlan<IEnumerable<TEntity>> plan;
         private bool storeCompilation;

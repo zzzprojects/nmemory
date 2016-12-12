@@ -81,6 +81,7 @@
     <Compile Include="Indexes\KeyInfoHelperFixture.cs" />
     <Compile Include="Indexes\KeyInfoFixture.cs" />
     <Compile Include="Indexes\RelationKeyConverterFactoryFixture.cs" />
+    <Compile Include="OrderByFixture.cs" />
     <Compile Include="JoinFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Indexes\RedBlackTreeFixture.cs" />
