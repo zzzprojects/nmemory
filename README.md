@@ -1,3 +1,13 @@
+## Library Powered By
+
+This library is powered by [Entity Framework Extensions](http://entityframework-extensions.net/?z=github&y=entityframework-plus)
+
+<a href="http://entityframework-extensions.net/?z=github&y=nmemory">
+<kbd>
+<img src="https://zzzprojects.github.io/images/logo/entityframework-extensions-pub.jpg" alt="Entity Framework Extensions" />
+</kbd>
+</a>
+
 NMemory is a lightweight non-persistent in-memory relational database engine 
 that is purely written in C# and can be hosted by .NET applications. It supports
 traditional database features like indexes, foreign key relations, transaction 
