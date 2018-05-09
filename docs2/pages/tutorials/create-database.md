@@ -1,6 +1,4 @@
----
-permalink: create-database
----
+# Create Database
 
 ## In-Memory Database
 

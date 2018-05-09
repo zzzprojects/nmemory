@@ -1,6 +1,4 @@
----
-permalink: stored-procedures
----
+# Stored Procedures
 
 ## Introduction
 

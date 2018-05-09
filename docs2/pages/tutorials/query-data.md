@@ -1,6 +1,4 @@
----
-permalink: query-data
----
+# Query Data
 
 ## Introduction
 

@@ -1,6 +1,4 @@
----
-permalink: cascaded-operation
----
+# Cascaded Operation
 
 ## Introduction
 

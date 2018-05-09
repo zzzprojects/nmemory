@@ -1,6 +1,4 @@
----
-permalink: create-table
----
+# Create Table
 
 ## Introduction
  

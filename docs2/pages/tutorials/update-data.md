@@ -1,6 +1,4 @@
----
-permalink: update-data
----
+# Update Data
 
 ## Introduction
 

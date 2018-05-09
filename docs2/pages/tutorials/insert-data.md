@@ -1,6 +1,5 @@
----
-permalink: insert-data
----
+# Insert Data
+
 ## Introduction
 
 **Table.Insert** inserts the specified entity into the table. It takes the following arguments by using different overloads.

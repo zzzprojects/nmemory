@@ -1,6 +1,4 @@
----
-permalink: visitors
----
+# Visitors
 
 ## Introduction
 

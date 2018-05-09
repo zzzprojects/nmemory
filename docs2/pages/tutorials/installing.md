@@ -1,6 +1,4 @@
----
-permalink: installing
----
+# Installing
 
 **NMemory** can be installed through NuGet.
 

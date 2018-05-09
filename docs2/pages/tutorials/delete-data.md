@@ -1,6 +1,4 @@
----
-permalink: delete-data
----
+# Delete Data
 
 ## Introduction
 
