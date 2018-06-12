@@ -54,7 +54,6 @@ namespace NMemory.Tables
     public abstract class Table<TEntity, TPrimaryKey> :
         TableQuery<TEntity>,
         ITable<TEntity, TPrimaryKey>,
-        IQueryable<TEntity>,
         IBulkTable<TEntity>,
         IReflectionTable
 
