@@ -10,6 +10,9 @@
  - Stored Procedures
  - Query Optimization
 
+Installing & Upgrading
+Download the <a href="/download">NuGet Package</a>
+
 NMemory library provides a class called Database which represents an in-memory database instance.
 
 {% include template-example.html %} 
