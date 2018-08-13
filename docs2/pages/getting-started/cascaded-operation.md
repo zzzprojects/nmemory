@@ -4,7 +4,7 @@
 
 A foreign key with cascade delete means that if a record in the parent table is deleted, then the corresponding records in the child table will automatically be removed and this is called a cascade delete.
 
-A foreign key with cascade delete can be created using **RelationOptions** object with cascad option in **TableCollection.CreateRelation** method.
+A foreign key with cascade delete can be created using **RelationOptions** object with cascade option in **TableCollection.CreateRelation** method.
 
 {% include template-example.html %} 
 ```csharp
