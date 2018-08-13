@@ -35,7 +35,7 @@ public class MyDatabase : Database
 }
 ```
 
-Now when object is created of MyDatabase class, then it will also create two tables in that in-memory database, 
+Now when object is created of MyDatabase class, then it will also create two tables in that in-memory database. 
 
 ## Identity Column
 
