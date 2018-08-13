@@ -26,7 +26,7 @@ using (TransactionScope tran = new TransactionScope())
 
 ### Rollback Data
 
-Execute and roll back data operation within a transaction scope.
+Execute and rollback data operation within a transaction scope.
 
 {% include template-example.html %} 
 ```csharp
