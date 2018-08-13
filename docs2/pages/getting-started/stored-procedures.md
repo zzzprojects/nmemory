@@ -4,7 +4,7 @@
 
 A stored procedure is nothing more than prepared SQL code that you save so you can reuse the code over and over again. The commands in a procedure are executed as a single batch of code. 
   
- - Resue of code. 
+ - Reuse of code. 
  - Easier in maintenance
  - Improved performance
 

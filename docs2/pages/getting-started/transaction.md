@@ -4,8 +4,8 @@
 
 **Transaction** is a unit of work that is performed against a database. 
 
- - If a transaction is successful, all of the data modifications made during the transaction are committed and become a permanent part of the database.
- - If a transaction encounters errors and must be canceled or rolled back, then all of the data modifications are erased.
+ - If a transaction is successful, all the data modifications made during the transaction are committed and become a permanent part of the database.
+ - If a transaction encounters errors and must be canceled or rolled back, then all the data modifications are erased.
 
 ## Transaction Scope
 
@@ -77,7 +77,7 @@ catch { }
 
 ## External Transaction
 
-Enlist the transaction to a manually created, external Transaction object that propagates `Commit`.
+Enlist the transaction to a manually created external Transaction object that propagates `Commit`.
 
 {% include template-example.html %} 
 ```csharp
