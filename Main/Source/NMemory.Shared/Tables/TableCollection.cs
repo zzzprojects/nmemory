@@ -285,6 +285,11 @@ namespace NMemory.Tables
 
         private void RegisterTable(ITable table)
         {
+            if (entityTypes.Contains(table.EntityType))
+            {
+                return;
+            }
+
             foreach (ITableCatalog catalog in 
                 this.database.DatabaseEngine.Components.OfType<ITableCatalog>())
             {
