@@ -50,12 +50,6 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="Form_Request_DeleteDatabase.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form_Request_DeleteDatabase.Designer.cs">
-      <DependentUpon>Form_Request_DeleteDatabase.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

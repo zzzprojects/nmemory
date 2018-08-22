@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMemory.Net45", "NMemory.Ne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMemory.Test", "NMemory.Test\NMemory.Test.csproj", "{D877B580-57C2-44E6-98DB-0791D1F1DD64}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMemory.Lab", "NMemory.Lab\NMemory.Lab.csproj", "{C7F6F7DD-6650-47D8-9A85-182BAB3F3146}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		NMemory.Shared\NMemory.Shared.projitems*{148c0604-d59b-44a5-aae4-ec17c6067ea7}*SharedItemsImports = 13
@@ -40,6 +42,10 @@ Global
 		{D877B580-57C2-44E6-98DB-0791D1F1DD64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D877B580-57C2-44E6-98DB-0791D1F1DD64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D877B580-57C2-44E6-98DB-0791D1F1DD64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7F6F7DD-6650-47D8-9A85-182BAB3F3146}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7F6F7DD-6650-47D8-9A85-182BAB3F3146}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7F6F7DD-6650-47D8-9A85-182BAB3F3146}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7F6F7DD-6650-47D8-9A85-182BAB3F3146}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
