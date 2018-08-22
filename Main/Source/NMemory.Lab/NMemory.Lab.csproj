@@ -50,6 +50,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form_Request_DeleteDatabase.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_Request_DeleteDatabase.Designer.cs">
+      <DependentUpon>Form_Request_DeleteDatabase.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -73,6 +79,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NMemory.Net45\NMemory.Net45.csproj">
+      <Project>{d90524e5-abe4-41e6-a7af-5148754bb5a6}</Project>
+      <Name>NMemory.Net45</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
