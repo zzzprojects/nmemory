@@ -1,6 +1,6 @@
-﻿// ----------------------------------------------------------------------------------
-// <copyright file="AssemblyVisibility.cs" company="NMemory Team">
-//     Copyright (C) NMemory Team
+﻿// -----------------------------------------------------------------------------------
+// <copyright file="OrderByFixture.cs" company="NMemory Team">
+//     Copyright (C) 2012-2014 NMemory Team
 //
 //     Permission is hereby granted, free of charge, to any person obtaining a copy
 //     of this software and associated documentation files (the "Software"), to deal
@@ -20,9 +20,34 @@
 //     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //     THE SOFTWARE.
 // </copyright>
-// ----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
 
-using System.Runtime.CompilerServices;
+namespace NMemory.Test
+{
+    using System.Linq;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using NMemory.Test.Environment.Data;
 
-[assembly: InternalsVisibleTo("NMemory.Test")]
-//[assembly: InternalsVisibleTo("NMemory.Test, PublicKey=002400000480000094000000060200000024000052534131000400000100010007D1FA57C4AED9F0A32E84AA0FAEFD0DE9E8FD6AEC8F87FB03766C834C99921EB23BE79AD9D5DCC1DD9AD236132102900B723CF980957FC4E177108FC607774F29E8320E92EA05ECE4E821C0A5EFE8F1645C4C0C93C1AB99285D622CAA652C1DFAD63D745D6F2DE5F17E5EAF0FC4963D261C8A12436518206DC093344D5AD293")]
+    [TestClass]
+    public class OrderByFixture
+    {
+        [TestMethod]
+        public void SortTableById()
+        {
+            var db = new TestDatabase();
+
+            db.Members.Insert(new Member { Id = "A" });
+            db.Members.Insert(new Member { Id = "B" });
+
+            var q =
+                from m in db.Members
+                orderby m.Id descending
+                select m;
+
+            var result = q.ToList();
+
+            Assert.AreEqual("B", result[0].Id);
+            Assert.AreEqual("A", result[1].Id);
+        }
+    }
+}

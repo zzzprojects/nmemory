@@ -34,7 +34,7 @@ namespace NMemory.Tables
     /// <typeparam name="TEntity">
     ///     The type of the entities contained by the table.
     /// </typeparam>
-    public interface ITable<TEntity> : ITable, IQueryable<TEntity>
+    public interface ITable<TEntity> : ITable, IOrderedQueryable<TEntity>
         where TEntity : class
     {
         /// <summary>

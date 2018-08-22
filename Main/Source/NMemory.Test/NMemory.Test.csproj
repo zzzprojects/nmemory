@@ -37,7 +37,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>FinalPublicKey.snk</AssemblyOriginatorKeyFile>
@@ -95,6 +95,7 @@
     <Compile Include="Indexes\KeyInfoFixture.cs" />
     <Compile Include="Indexes\RelationKeyConverterFactoryFixture.cs" />
     <Compile Include="JoinFixture.cs" />
+    <Compile Include="OrderByFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Indexes\RedBlackTreeFixture.cs" />
     <Compile Include="RelationFixture.cs" />

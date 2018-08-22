@@ -30,7 +30,7 @@ namespace NMemory.Linq
     using System.Linq.Expressions;
     using NMemory.Modularity;
 
-    public abstract class TableQuery : IQueryable, ITableQuery
+    public abstract class TableQuery : IOrderedQueryable, ITableQuery
     {
         private Expression expression;
         private IDatabase database;
