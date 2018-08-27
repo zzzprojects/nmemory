@@ -36,7 +36,7 @@ namespace NMemory.Indexes
 
         long Count { get; }
 
-        ////void Clear();
+        void Clear();
 
         void Rebuild();
     }
