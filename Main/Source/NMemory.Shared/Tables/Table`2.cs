@@ -63,7 +63,8 @@ namespace NMemory.Tables
 
         #region Fields
 
-        private readonly IdentityField<TEntity> identityField;
+        private IdentityField<TEntity> identityField;
+        private readonly IdentitySpecification<TEntity> identityFieldBackupForClean;
         private readonly IUniqueIndex<TEntity, TPrimaryKey> primaryKeyIndex;
         private readonly IList<IIndex<TEntity>> indexes;
         private readonly IEntityService entityService;
@@ -109,6 +110,7 @@ namespace NMemory.Tables
             if (identitySpecification != null)
             {
                 this.identityField = new IdentityField<TEntity>(identitySpecification);
+                this.identityFieldBackupForClean = identitySpecification;
             }
         }
 
@@ -805,6 +807,11 @@ namespace NMemory.Tables
 
                 this.Contraints.Add(new TimestampConstraint<TEntity>(lambda));
             }
+        }
+            
+        public void RestoreIdentityField()
+        {
+            identityField = new IdentityField<TEntity>(this.identityFieldBackupForClean); 
         }
     }
 }
