@@ -198,5 +198,10 @@ namespace NMemory.Indexes
                 this.DataStructure.Insert(this.KeyInfo.SelectKey(entity), entity);
             }
         }
+            
+        public void Clear()
+        {
+            this.DataStructure.Clear(); 
+        }
     }
 }
