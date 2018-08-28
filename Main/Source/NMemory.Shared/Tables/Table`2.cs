@@ -64,7 +64,7 @@ namespace NMemory.Tables
         #region Fields
 
         private IdentityField<TEntity> identityField;
-        private readonly IdentitySpecification<TEntity> identityFieldBackupForClean;
+        private readonly IdentitySpecification<TEntity> originalIdentitySpecification;
         private readonly IUniqueIndex<TEntity, TPrimaryKey> primaryKeyIndex;
         private readonly IList<IIndex<TEntity>> indexes;
         private readonly IEntityService entityService;
@@ -110,7 +110,7 @@ namespace NMemory.Tables
             if (identitySpecification != null)
             {
                 this.identityField = new IdentityField<TEntity>(identitySpecification);
-                this.identityFieldBackupForClean = identitySpecification;
+                this.originalIdentitySpecification = identitySpecification;
             }
         }
 
@@ -811,7 +811,7 @@ namespace NMemory.Tables
             
         public void RestoreIdentityField()
         {
-            identityField = new IdentityField<TEntity>(this.identityFieldBackupForClean); 
+            identityField = new IdentityField<TEntity>(this.originalIdentitySpecification); 
         }
     }
 }
