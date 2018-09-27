@@ -20,7 +20,7 @@ namespace NMemory.Lab
             MyDatabase myDatabase = new MyDatabase();
 
             myDatabase.Members.Insert(new Member() {Id = "1", Name = "abc"});
-            var list = myDatabase.Members.Where(x => x.Name == "Abc").ToList();
+            var list = myDatabase.Members.Where(x => Functions.Like(x.Name, "%e%")).ToList();
 
         }
 
