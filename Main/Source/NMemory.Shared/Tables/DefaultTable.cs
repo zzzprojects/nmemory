@@ -54,9 +54,9 @@ namespace NMemory.Tables
         public DefaultTable(
             IDatabase database,
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
-            IdentitySpecification<TEntity> identitySpecification)
+            IdentitySpecification<TEntity> identitySpecification, object tableInfo =null)
 
-            : base(database, primaryKey, identitySpecification)
+            : base(database, primaryKey, identitySpecification, tableInfo)
         {
         }
 
