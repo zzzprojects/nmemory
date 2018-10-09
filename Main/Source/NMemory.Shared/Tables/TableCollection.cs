@@ -130,7 +130,8 @@ namespace NMemory.Tables
         /// </returns>
         public Table<TEntity, TPrimaryKey> Create<TEntity, TPrimaryKey>(
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
-            IdentitySpecification<TEntity> identitySpecification)
+            IdentitySpecification<TEntity> identitySpecification,
+            object tableInfo = null)
 
             where TEntity : class
         {
@@ -153,7 +154,8 @@ namespace NMemory.Tables
                 service.CreateTable<TEntity, TPrimaryKey>(
                     primaryKey,
                     identitySpecification,
-                    this.database);
+                    this.database,
+                    tableInfo);
 
             if (table == null)
             {
