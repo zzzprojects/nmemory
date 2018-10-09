@@ -72,7 +72,9 @@ namespace NMemory.Tables
 
         private static int counter;
         private int id;
-
+            
+        public object TableInfo { get; set; }
+            
         #endregion
 
         #region Constructor
@@ -87,10 +89,12 @@ namespace NMemory.Tables
         public Table(
             IDatabase database,
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
-            IdentitySpecification<TEntity> identitySpecification)
+            IdentitySpecification<TEntity> identitySpecification,
+            object tableInfo = null)
 
             : base(database, false)
         {
+            this.TableInfo = tableInfo;
             this.VerifyType();
 
             this.id = Interlocked.Increment(ref counter);
