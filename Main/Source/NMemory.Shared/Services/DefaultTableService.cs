@@ -34,18 +34,25 @@ namespace NMemory.Services
         public Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
             IdentitySpecification<TEntity> identitySpecification,
-            IDatabase database,
-            object tableInfo = null)
+            IDatabase database, object tableInfo)
             where TEntity : class
         {
             Table<TEntity, TPrimaryKey> table = 
                 new DefaultTable<TEntity, TPrimaryKey>(
                     database, 
                     primaryKey, 
-                    identitySpecification,
-                    tableInfo);
+                    identitySpecification, tableInfo);
             
             return table;
+        }
+
+        public Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
+            IKeyInfo<TEntity, TPrimaryKey> primaryKey,
+            IdentitySpecification<TEntity> identitySpecification,
+            IDatabase database )
+            where TEntity : class
+        {
+            return CreateTable(primaryKey, identitySpecification, database, null);
         }
     }
 }
