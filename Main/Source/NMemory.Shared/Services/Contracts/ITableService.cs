@@ -33,7 +33,13 @@ namespace NMemory.Services.Contracts
         Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
             IdentitySpecification<TEntity> identitySpecification,
-            IDatabase database, object tableInfo = null)
+            IDatabase database)
+            where TEntity : class;
+         
+        Table<TEntity, TPrimaryKey> CreateTable<TEntity, TPrimaryKey>(
+            IKeyInfo<TEntity, TPrimaryKey> primaryKey,
+            IdentitySpecification<TEntity> identitySpecification,
+            IDatabase database, object tableInfo = null )
             where TEntity : class;
     }
 }
