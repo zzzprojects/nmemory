@@ -815,7 +815,10 @@ namespace NMemory.Tables
             
         public void RestoreIdentityField()
         {
-            identityField = new IdentityField<TEntity>(this.originalIdentitySpecification); 
+            if (originalIdentitySpecification != null)
+            {
+                identityField = new IdentityField<TEntity>(originalIdentitySpecification);
+            }
         }
     }
 }
