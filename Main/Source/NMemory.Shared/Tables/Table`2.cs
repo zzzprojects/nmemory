@@ -238,6 +238,13 @@ namespace NMemory.Tables
             this.Update(key, entity, Transaction.TryGetAmbientEnlistedTransaction());
         }
 
+        internal IEnumerable<TEntity> Execute(IQueryable<TEntity> query, Transaction transaction)
+        {
+            IEnumerable<TEntity> entities = QueryableEx.Execute(query, transaction);
+
+            return entities;
+        }
+
         /// <summary>
         ///     Updates the properties of the specified entity contained by the table.
         /// </summary>

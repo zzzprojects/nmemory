@@ -93,7 +93,7 @@ namespace NMemory.StoredProcedures
             IDictionary<string, object> parameters, 
             Transaction transaction)
         {
-            return this.Execute(database, parameters);
+            return this.Execute(database, parameters, transaction);
         }
     }
 }
