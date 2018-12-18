@@ -22,6 +22,9 @@
 // </copyright>
 // ----------------------------------------------------------------------------------
 
+using System;
+using System.Reflection;
+
 namespace NMemory.Tables
 {
     using System.Collections.Generic;
@@ -51,11 +54,64 @@ namespace NMemory.Tables
         /// </summary>
         /// <param name="entity"> The entity. </param>
         /// <param name="context"> The execution context. </param>
-        public void Apply(T entity, IExecutionContext context)
+        public void Apply(T entity, IExecutionContext context, ITable table)
         {
-            foreach (IConstraint<T> constraint in this.constraints)
+
+	        var _identityEnabled = table.GetType().GetField("identityEnabled",
+		        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+
+	        bool identityEnabled = true;
+
+	        if (_identityEnabled != null)
+	        {
+		        identityEnabled = (bool)_identityEnabled.GetValue(table);
+	        }
+
+			foreach (IConstraint<T> constraint in this.constraints)
             {
-                constraint.Apply(entity, context);
+				//{NMemory.Constraints.GeneratedGuidConstraint<T>}
+	            if (constraint.GetType().FullName.Contains("NMemory.Constraints.GeneratedGuidConstraint") && !identityEnabled)
+	            {
+		            var _memberName = constraint.GetType().GetProperty("MemberName",
+			            BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+
+		            string memberName = "";
+
+					if (_memberName != null)
+		            {
+			            memberName = (string)_memberName.GetValue(constraint, new Object[]{}); 
+		            }
+
+		            bool isIndex = false;
+
+		            if (!String.IsNullOrEmpty(memberName))
+		            {
+			            foreach (var index in table.Indexes)
+			            {
+				            foreach (var keyMember in index.KeyInfo.EntityKeyMembers)
+				            {
+					            if (keyMember.Name.Equals(memberName))
+					            {
+						            isIndex = true;
+									break;
+					            }
+
+							}
+
+							if (isIndex)
+				            break; 
+						}
+		            }
+
+					if (!isIndex)
+		            {
+			            constraint.Apply(entity, context);
+					}
+	            }
+	            else
+	            {
+					constraint.Apply(entity, context);
+				}
             }
         }
 

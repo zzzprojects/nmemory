@@ -157,8 +157,8 @@ namespace NMemory.Execution
         {
             var helper = new ExecutionHelper(this.Database);
             var table = this.Database.Tables.FindTable<T>();
-
-            table.Contraints.Apply(entity, context);
+			 
+			table.Contraints.Apply(entity, context, table);
 
             // Find referred relations
             // Do not add referring relations!
@@ -288,7 +288,7 @@ namespace NMemory.Execution
                     T newEntity = updater.Update(storedEntity);
 
                     // Apply contraints on the entity
-                    table.Contraints.Apply(newEntity, context);
+                    table.Contraints.Apply(newEntity, context, table);
 
                     // Update entity
                     cloner(newEntity, storedEntity);
