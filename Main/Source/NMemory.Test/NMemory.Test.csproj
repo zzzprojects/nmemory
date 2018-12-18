@@ -37,7 +37,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>FinalPublicKey.snk</AssemblyOriginatorKeyFile>
@@ -110,9 +110,9 @@
     <None Include="FinalPublicKey.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NMemory.Net45\NMemory.Net45.csproj">
-      <Project>{d90524e5-abe4-41e6-a7af-5148754bb5a6}</Project>
-      <Name>NMemory.Net45</Name>
+    <ProjectReference Include="..\NMemory.Unsigned.Net45\NMemory.Unsigned.Net45.csproj">
+      <Project>{c1d5e809-517f-4c4a-b97c-aea4f50d58c4}</Project>
+      <Name>NMemory.Unsigned.Net45</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
