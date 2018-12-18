@@ -49,69 +49,60 @@ namespace NMemory.Tables
             this.constraints = new List<IConstraint<T>>();
         }
 
-        /// <summary>
-        ///     Applys all contraints on the specified entity.
-        /// </summary>
-        /// <param name="entity"> The entity. </param>
-        /// <param name="context"> The execution context. </param>
+        /// <summary>Applys all contraints on the specified entity.</summary>
+        /// <param name="entity">The entity.</param>
+        /// <param name="context">The execution context.</param>
+        /// <param name="table">The table.</param>
         public void Apply(T entity, IExecutionContext context, ITable table)
         {
+            var identityEnabledField = table.GetType().GetField("identityEnabled", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
 
-	        var _identityEnabled = table.GetType().GetField("identityEnabled",
-		        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+            bool identityEnabled = true;
 
-	        bool identityEnabled = true;
-
-	        if (_identityEnabled != null)
-	        {
-		        identityEnabled = (bool)_identityEnabled.GetValue(table);
-	        }
-
-			foreach (IConstraint<T> constraint in this.constraints)
+            if (identityEnabledField != null)
             {
-				//{NMemory.Constraints.GeneratedGuidConstraint<T>}
-	            if (constraint.GetType().FullName.Contains("NMemory.Constraints.GeneratedGuidConstraint") && !identityEnabled)
-	            {
-		            var _memberName = constraint.GetType().GetProperty("MemberName",
-			            BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+                identityEnabled = (bool)identityEnabledField.GetValue(table);
+            }
 
-		            string memberName = "";
+            foreach (var constraint in this.constraints)
+            {
+                if (constraint.GetType().FullName.Contains("NMemory.Constraints.GeneratedGuidConstraint") && !identityEnabled)
+                {
+                    var memberNameProperty = constraint.GetType().GetProperty("MemberName", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
 
-					if (_memberName != null)
-		            {
-			            memberName = (string)_memberName.GetValue(constraint, new Object[]{}); 
-		            }
+                    string memberName = memberNameProperty != null ? (string) memberNameProperty.GetValue(constraint, new object[] { }) : "";
 
-		            bool isIndex = false;
+                    bool isIndex = false;
 
-		            if (!String.IsNullOrEmpty(memberName))
-		            {
-			            foreach (var index in table.Indexes)
-			            {
-				            foreach (var keyMember in index.KeyInfo.EntityKeyMembers)
-				            {
-					            if (keyMember.Name.Equals(memberName))
-					            {
-						            isIndex = true;
-									break;
-					            }
+                    if (!string.IsNullOrEmpty(memberName))
+                    {
+                        foreach (var index in table.Indexes)
+                        {
+                            foreach (var keyMember in index.KeyInfo.EntityKeyMembers)
+                            {
+                                if (keyMember.Name.Equals(memberName))
+                                {
+                                    isIndex = true;
+                                    break;
+                                }
+                            }
 
-							}
+                            if (isIndex)
+                            {
+                                break;
+                            }
+                        }
+                    }
 
-							if (isIndex)
-				            break; 
-						}
-		            }
-
-					if (!isIndex)
-		            {
-			            constraint.Apply(entity, context);
-					}
-	            }
-	            else
-	            {
-					constraint.Apply(entity, context);
-				}
+                    if (!isIndex)
+                    {
+                        constraint.Apply(entity, context);
+                    }
+                }
+                else
+                {
+                    constraint.Apply(entity, context);
+                }
             }
         }
 
