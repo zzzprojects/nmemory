@@ -22,6 +22,8 @@
 // </copyright>
 // -----------------------------------------------------------------------------------
 
+using NMemory.Utilities;
+
 namespace NMemory.Tables
 {
     using System;
@@ -110,25 +112,34 @@ namespace NMemory.Tables
             return this.Create(keyInfoFactory.Create(primaryKey), identitySpecification);
         }
 
-        /// <summary>
-        ///     Initializes a database table.
-        /// </summary>
-        /// <typeparam name="TEntity">
-        ///     Specifies the type of the entities of the table.
-        ///  </typeparam>
-        /// <typeparam name="TPrimaryKey">
-        ///     Specifies the type of the primary key of the entities.
-        ///  </typeparam>
-        /// <param name="primaryKey">
-        ///     An IKeyInfo object that represents the primary key of the entities.
-        /// </param>
-        /// <param name="identitySpecification">
-        ///     An IdentitySpecification to set an identity field.
-        /// </param>
-        /// <returns>
-        ///     The table.
-        /// </returns>
-        public Table<TEntity, TPrimaryKey> Create<TEntity, TPrimaryKey>(
+
+	    public Table<TEntity, TPrimaryKey> Create<TEntity, TPrimaryKey>(
+		    Expression<Func<TEntity, TPrimaryKey>> primaryKey)
+
+		    where TEntity : class
+	    {
+		    return this.Create<TEntity, TPrimaryKey>(primaryKey, null);
+	    }
+
+		/// <summary>
+		///     Initializes a database table.
+		/// </summary>
+		/// <typeparam name="TEntity">
+		///     Specifies the type of the entities of the table.
+		///  </typeparam>
+		/// <typeparam name="TPrimaryKey">
+		///     Specifies the type of the primary key of the entities.
+		///  </typeparam>
+		/// <param name="primaryKey">
+		///     An IKeyInfo object that represents the primary key of the entities.
+		/// </param>
+		/// <param name="identitySpecification">
+		///     An IdentitySpecification to set an identity field.
+		/// </param>
+		/// <returns>
+		///     The table.
+		/// </returns>
+		public Table<TEntity, TPrimaryKey> Create<TEntity, TPrimaryKey>(
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
             IdentitySpecification<TEntity> identitySpecification,
             object tableInfo = null)
