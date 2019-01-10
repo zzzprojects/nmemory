@@ -19,28 +19,32 @@ NMemory library provides a class called Database which represents an in-memory d
 ```csharp
 public class MyDatabase : Database
 {
-    public MyDatabase()
-    {
-        var members = base.Tables.Create<Member, int>(p => p.Id);
-        var groups = base.Tables.Create<Group, int>(g => g.Id);
+	public MyDatabase()
+	{
+		var members = this.Tables.Create<Member, int>(x => x.Id);
+		var groups = base.Tables.Create<Group, int>(g => g.Id);
 
-       var peopleGroupIdIndex = members.CreateIndex(
-           new RedBlackTreeIndexFactory<Member>(), 
-           p => p.GroupId);
+		this.Members = members;
+		this.Groups = groups;
 
-       this.Tables.CreateRelation(
-           groups.PrimaryKeyIndex, 
-           peopleGroupIdIndex, 
-           x => x, 
-           x => x);
+		RelationOptions options = new RelationOptions(
+			cascadedDeletion: true);
 
-        this.Members = members;
-        this.Groups = groups;
-    }
+		var peopleGroupIdIndex = members.CreateIndex(
+			new RedBlackTreeIndexFactory(),
+			p => p.GroupId);
 
-    public ITable<Member> Members { get; private set; }
+		this.Tables.CreateRelation(
+			groups.PrimaryKeyIndex,
+			peopleGroupIdIndex,
+			x =>  x ?? -1,
+			x => x,
+			options);
+	}
 
-    public ITable<Group> Groups { get; private set; }
+	public ITable<Member> Members { get; private set; }
+
+	public ITable<Group> Groups { get; private set; }
 }
 ```
 
