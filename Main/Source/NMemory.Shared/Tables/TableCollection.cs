@@ -218,8 +218,8 @@ namespace NMemory.Tables
 		    where TPrimary : class
 		    where TForeign : class
 	    {
-		    this.CreateRelation<TPrimary, TPrimaryKey, TForeign,
-			    TForeignKey>(primaryIndex, foreignIndex, convertForeignToPrimary, convertPrimaryToForeign, null);
+	        return this.CreateRelation<TPrimary, TPrimaryKey, TForeign,
+	            TForeignKey>(primaryIndex, foreignIndex, convertForeignToPrimary, convertPrimaryToForeign, null);
 	    }
 
 
