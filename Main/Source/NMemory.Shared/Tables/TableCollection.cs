@@ -22,6 +22,8 @@
 // </copyright>
 // -----------------------------------------------------------------------------------
 
+using NMemory.Utilities;
+
 namespace NMemory.Tables
 {
     using System;
@@ -110,25 +112,34 @@ namespace NMemory.Tables
             return this.Create(keyInfoFactory.Create(primaryKey), identitySpecification);
         }
 
-        /// <summary>
-        ///     Initializes a database table.
-        /// </summary>
-        /// <typeparam name="TEntity">
-        ///     Specifies the type of the entities of the table.
-        ///  </typeparam>
-        /// <typeparam name="TPrimaryKey">
-        ///     Specifies the type of the primary key of the entities.
-        ///  </typeparam>
-        /// <param name="primaryKey">
-        ///     An IKeyInfo object that represents the primary key of the entities.
-        /// </param>
-        /// <param name="identitySpecification">
-        ///     An IdentitySpecification to set an identity field.
-        /// </param>
-        /// <returns>
-        ///     The table.
-        /// </returns>
-        public Table<TEntity, TPrimaryKey> Create<TEntity, TPrimaryKey>(
+
+	    public Table<TEntity, TPrimaryKey> Create<TEntity, TPrimaryKey>(
+		    Expression<Func<TEntity, TPrimaryKey>> primaryKey)
+
+		    where TEntity : class
+	    {
+		    return this.Create<TEntity, TPrimaryKey>(primaryKey, null);
+	    }
+
+		/// <summary>
+		///     Initializes a database table.
+		/// </summary>
+		/// <typeparam name="TEntity">
+		///     Specifies the type of the entities of the table.
+		///  </typeparam>
+		/// <typeparam name="TPrimaryKey">
+		///     Specifies the type of the primary key of the entities.
+		///  </typeparam>
+		/// <param name="primaryKey">
+		///     An IKeyInfo object that represents the primary key of the entities.
+		/// </param>
+		/// <param name="identitySpecification">
+		///     An IdentitySpecification to set an identity field.
+		/// </param>
+		/// <returns>
+		///     The table.
+		/// </returns>
+		public Table<TEntity, TPrimaryKey> Create<TEntity, TPrimaryKey>(
             IKeyInfo<TEntity, TPrimaryKey> primaryKey,
             IdentitySpecification<TEntity> identitySpecification,
             object tableInfo = null)
@@ -167,37 +178,82 @@ namespace NMemory.Tables
             return table;
         }
 
-        /// <summary>
-        ///     Creates a relation between two tables.
-        /// </summary>
-        /// <typeparam name="TPrimary">
-        ///     The type of the entities of the primary table.
-        /// </typeparam>
-        /// <typeparam name="TPrimaryKey">
-        ///     The type of the primary key of the entities of the primary table.
-        /// </typeparam>
-        /// <typeparam name="TForeign">
-        ///     The type of the entities of the foreign table.
-        /// </typeparam>
-        /// <typeparam name="TForeignKey">
-        ///     Type type of the foreign key of the foreign table.
-        /// </typeparam>
-        /// <param name="primaryIndex">
-        ///     An IIndex that specifies the primary key.
-        /// </param>
-        /// <param name="foreignIndex">
-        ///     An IIndex that specifies the foreign key.
-        /// </param>
-        /// <param name="convertForeignToPrimary">
-        ///     A function to convert a foreign key to the corresponding primary key.
-        /// </param>
-        /// <param name="convertPrimaryToForeign">
-        ///     A function to convert a primary key to the corresponding foreign key.
-        /// </param>
-        /// <returns>
-        ///     The relation.
-        /// </returns>
-        public Relation<TPrimary, TPrimaryKey, TForeign, TForeignKey> CreateRelation<TPrimary, TPrimaryKey, TForeign, TForeignKey>(
+	    /// <summary>
+	    ///     Creates a relation between two tables.
+	    /// </summary>
+	    /// <typeparam name="TPrimary">
+	    ///     The type of the entities of the primary table.
+	    /// </typeparam>
+	    /// <typeparam name="TPrimaryKey">
+	    ///     The type of the primary key of the entities of the primary table.
+	    /// </typeparam>
+	    /// <typeparam name="TForeign">
+	    ///     The type of the entities of the foreign table.
+	    /// </typeparam>
+	    /// <typeparam name="TForeignKey">
+	    ///     Type type of the foreign key of the foreign table.
+	    /// </typeparam>
+	    /// <param name="primaryIndex">
+	    ///     An IIndex that specifies the primary key.
+	    /// </param>
+	    /// <param name="foreignIndex">
+	    ///     An IIndex that specifies the foreign key.
+	    /// </param>
+	    /// <param name="convertForeignToPrimary">
+	    ///     A function to convert a foreign key to the corresponding primary key.
+	    /// </param>
+	    /// <param name="convertPrimaryToForeign">
+	    ///     A function to convert a primary key to the corresponding foreign key.
+	    /// </param>
+	    /// <returns>
+	    ///     The relation.
+	    /// </returns>
+	    public Relation<TPrimary, TPrimaryKey, TForeign, TForeignKey> CreateRelation<TPrimary, TPrimaryKey, TForeign,
+		    TForeignKey>(
+		    IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex,
+		    IIndex<TForeign, TForeignKey> foreignIndex,
+		    Func<TForeignKey, TPrimaryKey> convertForeignToPrimary,
+		    Func<TPrimaryKey, TForeignKey> convertPrimaryToForeign
+	    )
+		    where TPrimary : class
+		    where TForeign : class
+	    {
+		    this.CreateRelation<TPrimary, TPrimaryKey, TForeign,
+			    TForeignKey>(primaryIndex, foreignIndex, convertForeignToPrimary, convertPrimaryToForeign, null);
+	    }
+
+
+	    /// <summary>
+			///     Creates a relation between two tables.
+			/// </summary>
+			/// <typeparam name="TPrimary">
+			///     The type of the entities of the primary table.
+			/// </typeparam>
+			/// <typeparam name="TPrimaryKey">
+			///     The type of the primary key of the entities of the primary table.
+			/// </typeparam>
+			/// <typeparam name="TForeign">
+			///     The type of the entities of the foreign table.
+			/// </typeparam>
+			/// <typeparam name="TForeignKey">
+			///     Type type of the foreign key of the foreign table.
+			/// </typeparam>
+			/// <param name="primaryIndex">
+			///     An IIndex that specifies the primary key.
+			/// </param>
+			/// <param name="foreignIndex">
+			///     An IIndex that specifies the foreign key.
+			/// </param>
+			/// <param name="convertForeignToPrimary">
+			///     A function to convert a foreign key to the corresponding primary key.
+			/// </param>
+			/// <param name="convertPrimaryToForeign">
+			///     A function to convert a primary key to the corresponding foreign key.
+			/// </param>
+			/// <returns>
+			///     The relation.
+			/// </returns>
+			public Relation<TPrimary, TPrimaryKey, TForeign, TForeignKey> CreateRelation<TPrimary, TPrimaryKey, TForeign, TForeignKey>(
                 IUniqueIndex<TPrimary, TPrimaryKey> primaryIndex,
                 IIndex<TForeign, TForeignKey> foreignIndex,
                 Func<TForeignKey, TPrimaryKey> convertForeignToPrimary,
