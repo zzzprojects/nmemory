@@ -21,6 +21,7 @@ IQueryable<Group> query =
 
 var procedure = database.StoredProcedures.Create(query);
 ```
+[Try it](https://dotnetfiddle.net/3OGtT3)
 
 A shared, stored procedure creates the query every time the Execute method is called.
 
@@ -38,5 +39,5 @@ var procedure = new SharedStoredProcedure<MyDatabase, Group>(
 var result = procedure.Execute(database, null).ToList();
 
 ```
-
+[Try it](https://dotnetfiddle.net/EEWXoI)
 
