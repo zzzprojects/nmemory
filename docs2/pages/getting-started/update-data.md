@@ -14,18 +14,19 @@ To update properties of an entity in a table, pass an entity that contains the p
 {% include template-example.html %} 
 ```csharp
 
-MyDatabase database = new MyDatabase();
+MyDatabase myDatabase = new MyDatabase();
 
 Member member = new Member { Id = "JD1967", Name = "Joh Doe" };
-database.Members.Insert(member);
+myDatabase.Members.Insert(member);
 
 member.Name = "John Doe";
 
-database.Members.Update(member);
+myDatabase.Members.Update(member);
 
 Member updated = database.Members.FirstOrDefault();
 
 ```
+[Try it](https://dotnetfiddle.net/PVU58y)
 
 ## Update Multiple Entities
 
@@ -34,17 +35,20 @@ To update multiple records in a table.
 {% include template-example.html %} 
 ```csharp
 
-MyDatabase database = new MyDatabase();
+ MyDatabase myDatabase = new MyDatabase();
 
-database.Groups.Insert(new Group { Name = "Group 1" });
-database.Groups.Insert(new Group { Name = "Group 2" });
-database.Groups.Insert(new Group { Name = "Group 3" });
+ myDatabase.Groups.Insert(new Group { Id = 1, Name = "Group 1" });
+ myDatabase.Groups.Insert(new Group { Id = 2,Name = "Group 2" });
+ myDatabase.Groups.Insert(new Group { Id = 3,Name = "Group 3" });
 
-database.Groups.Update(x => new Group { Name = x.Name + " (deleted)" });
+ var groups = myDatabase.Groups.ToList();
+ groups.ForEach(x => x.Name += " (deleted)" );
+ groups.ForEach(x => myDatabase.Groups.Update(x));
 
-var newEntities = database.Groups.ToList();
+var newEntities = myDatabase.Groups.ToList();
 
 ```
+[Try it](https://dotnetfiddle.net/ImQTZ5)
 
 
 

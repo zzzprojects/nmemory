@@ -26,6 +26,5 @@ db.Members.Insert(new Member {
     GroupId = 1});
 
 ```
-
-
+[Try it](https://dotnetfiddle.net/Ch0plY)
 

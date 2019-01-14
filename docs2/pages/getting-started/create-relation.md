@@ -29,6 +29,7 @@ this.Tables.CreateRelation(
     x => x);
 
 ```
+[Try it](https://dotnetfiddle.net/UymqaO)
 
 The columns you choose for the foreign key must have the same data type of the primary columns they correspond to. 
 

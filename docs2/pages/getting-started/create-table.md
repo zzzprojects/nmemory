@@ -13,6 +13,7 @@ Database database = new Database();
 
 database.Tables.Create<Group, int>(g => g.Id, null);
 ```
+[Try it](https://dotnetfiddle.net/Ob2ZMJ)
 
 If your class is inherited from the Database class, call Create method in your class constructor. 
 
@@ -34,6 +35,7 @@ public class MyDatabase : Database
     public ITable<Group> Groups { get; private set; }
 }
 ```
+[Try it](https://dotnetfiddle.net/Uc0cOP)
 
 Now when object is created of MyDatabase class, it will also create two tables in that in-memory database. 
 
@@ -52,5 +54,6 @@ var groups = base.Tables.Create<Group, int>(g => g.Id,
                     new IdentitySpecification<Group>(x => x.Id, 1, 1) );
 
 ```
+[Try it](https://dotnetfiddle.net/I0louZ)
 
 

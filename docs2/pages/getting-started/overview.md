@@ -47,6 +47,7 @@ public class MyDatabase : Database
 	public ITable<Group> Groups { get; private set; }
 }
 ```
+[Try it](https://dotnetfiddle.net/O5Kil7)
 
 [Learn more](/create-database)
 
@@ -54,24 +55,18 @@ Once the in-memory database is defined, create a database instance and insert so
 
 {% include template-example.html %} 
 ```csharp
-MyDatabase db = new MyDatabase();
+MyDatabase myDatabase = new MyDatabase();
 
-db.Groups.Insert(new Group { 
-    Id = 1, 
-    Name = "Alpha Group" });
+myDatabase.Groups.Insert(new Group() { Id = 1});
 
-db.Groups.Insert(new Group { 
-    Id = 2, 
-    Name = "Beta Group" });
+myDatabase.Groups.Insert(new Group() { Id = 2});
 
-db.Members.Insert(new Member { 
-    Id = 1, 
-    Name = "John Doe", 
-    GroupId = 1, 
-    BirthDay = new DateTime(1966, 4, 12) });
+myDatabase.Members.Insert(new Member() { Id = 1, GroupId = 1, Name = "It's Member_1" });
+
+myDatabase.Members.Insert(new Member() { Id = 2, Name = "It's Member_2" });
 
 ```
-
+[Try it](https://dotnetfiddle.net/77UyeL)
 [Learn more](/create-table)
 
 Currently, it just serves as the core component of the [Effort](http://entityframework-effort.net/) library. However, developer interest and contribution could make it a more robust engine that might serve well in a wide range of scenarios.
