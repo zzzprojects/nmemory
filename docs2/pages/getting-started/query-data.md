@@ -17,6 +17,7 @@ var query =
 query.ToList()
 
 ```
+[Try it](https://dotnetfiddle.net/ru3YVb)
 
 You can also use LINQ to Entities, e.g., to enumerate a table.
 
@@ -29,6 +30,7 @@ var groups = db.Groups.ToList();
 var members = db.Members.ToList();
 
 ```
+[Try it](https://dotnetfiddle.net/7v52xn)
 
 
 
