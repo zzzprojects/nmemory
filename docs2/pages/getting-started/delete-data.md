@@ -14,33 +14,34 @@ To delete a single entity from a table, pass an entity that contains the primary
 {% include template-example.html %} 
 ```csharp
 
-MyDatabase database = new MyDatabase();
+MyDatabase myDatabase = new MyDatabase();
 
-database.Groups.Insert(new Group { Name = "Group 1" });
-database.Groups.Insert(new Group { Name = "Group 2" });
+myDatabase.Groups.Insert(new Group { Name = "Group 1" });
+myDatabase.Groups.Insert(new Group { Name = "Group 2" });
 
-database.Groups.Delete(new Group() { Id = 1 });
+myDatabase.Groups.Delete(new Group() { Id = 1 });
 
-Group group = database.Groups.FirstOrDefault();
+Group group = myDatabase.Groups.FirstOrDefault();
 
 ```
+[Try it](https://dotnetfiddle.net/uRcI8e)
 
 ## Delete All
 
-To delete all records from a table using the Delete() with no arguments.
+To delete all records from a table using a loop with Delete().
 
 {% include template-example.html %} 
 ```csharp
 
-MyDatabase database = new MyDatabase();
+MyDatabase myDatabase = new MyDatabase();
 
-database.Groups.Insert(new Group { Name = "Group 1" });
-database.Groups.Insert(new Group { Name = "Group 2" });
-database.Groups.Insert(new Group { Name = "Group 3" });
+myDatabase.Groups.Insert(new Group { Name = "Group 1" });
+myDatabase.Groups.Insert(new Group { Name = "Group 2" });
+myDatabase.Groups.Insert(new Group { Name = "Group 3" });
 
-database.Groups.Delete();
+myDatabase.Groups.ToList().ForEach(x => myDatabase.Groups.Delete(x));
 
-Group group = database.Groups.FirstOrDefault();
+Group group = myDatabase.Groups.FirstOrDefault();
 
 ```
-
+[Try it](https://dotnetfiddle.net/ZF8PdO)
