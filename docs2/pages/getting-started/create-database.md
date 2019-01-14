@@ -34,6 +34,7 @@ public class Group
 }
 
 ```
+[Try it](https://dotnetfiddle.net/xBxpYE)
 
 NMemory library provides a class called Database which represents an in-memory database instance which can contain tables and stored procedures. The simplest way is to create an object of Database class.
 
@@ -43,6 +44,7 @@ NMemory library provides a class called Database which represents an in-memory d
 Database database = new Database();
 
 ```
+[Try it](https://dotnetfiddle.net/3Kk3hj)
 
 You can also inherit Database class to define your own in-memory database.
 
@@ -59,6 +61,7 @@ public class MyDatabase : Database
     public ITable<Group> Groups { get; private set; }
 }
 ```
+[Try it](https://dotnetfiddle.net/Xx5lta)
 
 And then create an object of your own class.
 
@@ -68,6 +71,7 @@ And then create an object of your own class.
 MyDatabase myDatabase = new MyDatabase();
 
 ```
+[Try it](https://dotnetfiddle.net/qvQz0e)
 
 The database is created, but it doesn't contain any table or stored procedure right now.
 
