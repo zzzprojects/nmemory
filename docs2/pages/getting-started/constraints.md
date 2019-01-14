@@ -21,6 +21,7 @@ var groups = this.Tables.Create<Group, int>(x => x.Id,
 // group name must not exceed 12 characters
 groups.Contraints.Add(new NCharConstraint<Group>(x => x.Name, 12));
 ```
+[Try it](https://dotnetfiddle.net/p7ztdf)
 
 ## Not Null Constraint
 
@@ -35,5 +36,5 @@ var groups = this.Tables.Create<Group, int>(x => x.Id,
 // group name can not be null
 groups.Contraints.Add(new NotNullableConstraint<Group, string>(x => x.Name));
 ```
-
+[Try it](https://dotnetfiddle.net/ai2ZZl)
 
