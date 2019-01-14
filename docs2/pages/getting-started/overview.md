@@ -67,6 +67,7 @@ myDatabase.Members.Insert(new Member() { Id = 2, Name = "It's Member_2" });
 
 ```
 [Try it](https://dotnetfiddle.net/77UyeL)
+
 [Learn more](/create-table)
 
 Currently, it just serves as the core component of the [Effort](http://entityframework-effort.net/) library. However, developer interest and contribution could make it a more robust engine that might serve well in a wide range of scenarios.
