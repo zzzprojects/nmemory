@@ -132,6 +132,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Execution\Primitives\IDeletePrimitive.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Execution\QueryCompiler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Execution\QueryCompilerBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NMemoryManage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Functions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Indexes\AnonymousTypeKeyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Indexes\AnonymousTypeKeyInfoHelper.cs" />

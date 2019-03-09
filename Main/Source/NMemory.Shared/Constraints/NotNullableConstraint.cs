@@ -47,6 +47,19 @@ namespace NMemory.Constraints
         {
             if (value == null)
             {
+	            if (NMemory.NMemoryManager.DisableNullableConstraint)
+	            {
+		            if (typeof(TMember) == typeof(string))
+		            {
+			            return (TMember)(object)"";
+		            }
+		            else
+		            {
+			            return default(TMember);
+
+		            }
+				}
+
                 throw new ConstraintException(
                     string.Format("Column '{0}' cannot be null", this.MemberName));
             }
