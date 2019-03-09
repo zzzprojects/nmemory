@@ -4,6 +4,6 @@ namespace NMemory
 {
     public static class NMemoryManager
     {
-		public static bool DisableNullableConstraint { get; set; }
+		public static bool UseDefaultForNotNullable { get; set; }
 	}
 }

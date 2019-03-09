@@ -47,7 +47,7 @@ namespace NMemory.Constraints
         {
             if (value == null)
             {
-	            if (NMemory.NMemoryManager.DisableNullableConstraint)
+	            if (NMemory.NMemoryManager.UseDefaultForNotNullable)
 	            {
 		            if (typeof(TMember) == typeof(string))
 		            {
