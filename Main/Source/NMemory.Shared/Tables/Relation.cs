@@ -205,25 +205,27 @@ namespace NMemory.Tables
 
         private void ValidateEntityCore(TForeign foreign)
         {
-            TForeignKey foreignKey = this.foreignIndex.KeyInfo.SelectKey(foreign);
-
-            // Empty foreign key means, that it does not refer to anything
-            if (this.foreignIndex.KeyInfo.IsEmptyKey(foreignKey))
+            if (options.IsForeignKeyConstraintEnabled)
             {
-                return;
-            }
+                TForeignKey foreignKey = this.foreignIndex.KeyInfo.SelectKey(foreign);
 
-            TPrimaryKey primaryKey = this.convertForeignToPrimary.Invoke(foreignKey);
+                // Empty foreign key means, that it does not refer to anything
+                if (this.foreignIndex.KeyInfo.IsEmptyKey(foreignKey))
+                {
+                    return;
+                }
 
-            if (!this.primaryIndex.Contains(primaryKey))
-            {
-                throw new ForeignKeyViolationException(
-                    this.primaryIndex, 
-                    this.foreignIndex, 
-                    primaryKey);
+                TPrimaryKey primaryKey = this.convertForeignToPrimary.Invoke(foreignKey);
+
+                if (!this.primaryIndex.Contains(primaryKey))
+                {
+                    throw new ForeignKeyViolationException(
+                        this.primaryIndex,
+                        this.foreignIndex,
+                        primaryKey);
+                }
             }
         }
-
 
         void IRelationInternal.CascadedDelete(
             HashSet<object> entities, 

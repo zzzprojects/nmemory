@@ -57,5 +57,11 @@ namespace NMemory.Tables
                 return this.cascadedDeletion;
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the foreign key constraint is enabled.
+        /// </summary>
+        /// <value>True if the foreign key constraint is enabled, false if not.</value>
+        public bool IsForeignKeyConstraintEnabled { get; set; }
     }
 }
