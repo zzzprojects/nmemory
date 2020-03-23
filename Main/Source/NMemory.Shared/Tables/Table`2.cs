@@ -696,11 +696,11 @@ namespace NMemory.Tables
             }
         }
 
-        protected void CalculateIdentityFeed(bool isBeginAt1 = false)
+        protected void CalculateIdentityFeed(bool forceMinValue = false)
         {
             if (this.identityField != null)
             {
-                this.identityField.InitializeBasedOnData(this.primaryKeyIndex.SelectAll(), isBeginAt1);                                
+                this.identityField.InitializeBasedOnData(this.primaryKeyIndex.SelectAll(), forceMinValue);                                
             }
         }
 
