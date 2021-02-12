@@ -13,8 +13,6 @@ NMemory is a lightweight non-persistent in-memory relational database engine tha
 traditional database features like indexes, foreign key relations, transaction handling and isolation, stored procedures, query optimization.
 
 ## Getting started
----
-
 * Install [NuGet package](https://www.nuget.org/packages/NMemory)
 * Define the database
 
