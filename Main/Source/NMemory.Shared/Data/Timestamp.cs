@@ -45,9 +45,21 @@ namespace NMemory.Data
             return timestamp;
         }
 
+        public static Timestamp GetLastTimestamp()
+        {
+            Timestamp timestamp = new Timestamp();
+            timestamp.value = Interlocked.Read(ref counter);
+
+            return timestamp;
+        }
+
         public static Timestamp FromBytes(byte[] bytes)
         {
             Timestamp timestamp = new Timestamp();
+
+            if (NMemory.NMemoryManager.UseSqlServerTimestamp)
+                bytes = bytes.Reverse().ToArray();
+
             timestamp.value = BitConverter.ToInt64(bytes, 0);
 
             return timestamp;
@@ -55,7 +67,12 @@ namespace NMemory.Data
 
         public static byte[] GetBytes(Timestamp timestamp)
         {
-            return BitConverter.GetBytes(timestamp.value);
+            var bytes = BitConverter.GetBytes(timestamp.value);
+
+            if (NMemory.NMemoryManager.UseSqlServerTimestamp)
+                bytes = bytes.Reverse().ToArray();
+
+            return bytes;
         }
 
         public static implicit operator Timestamp(byte[] bytes)
