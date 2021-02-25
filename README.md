@@ -101,7 +101,7 @@ q.Update(x => new Group { Name = x.Name + " (taged)" });
 q.Delete();
 ```
 
-## Usefull links
+## Useful links
 
 - [Website](https://nmemory.net/)
 - [Documentation](https://nmemory.net/overview)
