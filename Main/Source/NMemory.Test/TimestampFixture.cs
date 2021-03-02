@@ -120,5 +120,20 @@ namespace NMemory.Test
 
             Assert.IsTrue(res > 0);
         }
+
+        [TestMethod]
+        public void GetLastTimestamp()
+        {
+            Timestamp timestamp1 = Timestamp.CreateNew();
+            int res = timestamp1.CompareTo(Timestamp.GetLastTimestamp());
+            Assert.AreEqual(0, res);
+            
+            Timestamp timestamp2 = Timestamp.CreateNew();
+            res = timestamp2.CompareTo(Timestamp.GetLastTimestamp());
+            Assert.AreEqual(0, res);
+
+            res = timestamp1.CompareTo(Timestamp.GetLastTimestamp());
+            Assert.AreNotEqual(0, res);
+        }
     }
 }
