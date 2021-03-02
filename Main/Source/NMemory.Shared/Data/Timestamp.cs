@@ -57,8 +57,10 @@ namespace NMemory.Data
         {
             Timestamp timestamp = new Timestamp();
 
-            if (NMemory.NMemoryManager.UseSqlServerTimestamp)
+            if (NMemory.NMemoryManager.UseTimestampBytesReverse)
+            {
                 bytes = bytes.Reverse().ToArray();
+            }
 
             timestamp.value = BitConverter.ToInt64(bytes, 0);
 
@@ -69,8 +71,10 @@ namespace NMemory.Data
         {
             var bytes = BitConverter.GetBytes(timestamp.value);
 
-            if (NMemory.NMemoryManager.UseSqlServerTimestamp)
+            if (NMemory.NMemoryManager.UseTimestampBytesReverse)
+            {
                 bytes = bytes.Reverse().ToArray();
+            }
 
             return bytes;
         }

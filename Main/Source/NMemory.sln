@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2035
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "NMemory.Shared", "NMemory.Shared\NMemory.Shared.shproj", "{148C0604-D59B-44A5-AAE4-EC17C6067EA7}"
 EndProject
@@ -20,6 +20,7 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		NMemory.Shared\NMemory.Shared.projitems*{148c0604-d59b-44a5-aae4-ec17c6067ea7}*SharedItemsImports = 13
+		NMemory.Shared\NMemory.Shared.projitems*{9c130937-ea32-468c-b403-ac0243fc3a27}*SharedItemsImports = 5
 		NMemory.Shared\NMemory.Shared.projitems*{c0567ffe-0d52-4747-ac52-b55c5d85bb57}*SharedItemsImports = 4
 		NMemory.Shared\NMemory.Shared.projitems*{c1d5e809-517f-4c4a-b97c-aea4f50d58c4}*SharedItemsImports = 4
 		NMemory.Shared\NMemory.Shared.projitems*{d90524e5-abe4-41e6-a7af-5148754bb5a6}*SharedItemsImports = 4

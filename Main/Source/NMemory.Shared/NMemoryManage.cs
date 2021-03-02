@@ -6,6 +6,6 @@ namespace NMemory
     {
 		public static bool UseDefaultForNotNullable { get; set; }
 
-        public static bool UseSqlServerTimestamp { get; set; }
+        public static bool UseTimestampBytesReverse { get; set; }
 	}
 }
