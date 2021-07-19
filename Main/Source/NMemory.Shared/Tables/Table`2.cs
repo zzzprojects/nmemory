@@ -447,6 +447,18 @@ namespace NMemory.Tables
         /// </returns>
         protected abstract int DeleteCore(Expression expression, Transaction transaction);
 
+        public void SetIdentity(int? seed, int? increment = null)
+        {
+            if(seed.HasValue)
+            {
+                this.identityField.nextIdentity = seed.Value;
+            }
+         
+            if(increment.HasValue)
+            {
+                this.originalIdentitySpecification.Increment = increment.Value;
+            }
+        }
         #endregion
 
         #region Query
