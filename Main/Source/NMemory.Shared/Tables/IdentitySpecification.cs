@@ -47,8 +47,8 @@ namespace NMemory.Tables
 
         public int Increment 
         { 
-            get; 
-            private set; 
+            get;
+            internal set; 
         }
 
         public Expression<Func<TEntity, long>> IdentityColumn 
