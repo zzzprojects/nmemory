@@ -447,7 +447,9 @@ namespace NMemory.Tables
         /// </returns>
         protected abstract int DeleteCore(Expression expression, Transaction transaction);
 
-        // NEED TEXT!
+        /// <summary>Set identity information.</summary>
+        /// <param name="seed">The identity seed.</param>
+        /// <param name="increment">The identity increment.</param>
         public void SetIdentity(int? seed, int? increment = null)
         {
             if (seed.HasValue)
