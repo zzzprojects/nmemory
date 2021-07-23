@@ -36,7 +36,7 @@ namespace NMemory.Tables
         private Func<TEntity, long> identityGetter;
         private DynamicPropertySetter<TEntity> identitySetter;
         private IdentitySpecification<TEntity> identitySpecification;
-        private long nextIdentity;
+        internal long nextIdentity;
         private Type identityType;
 
         internal IdentityField(IdentitySpecification<TEntity> identitySpecification)
