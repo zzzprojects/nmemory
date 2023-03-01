@@ -89,9 +89,16 @@ namespace NMemory.Tables
 
             Action<TEntity, TEntity> cloner = this.EntityService.CloneProperties<TEntity>;
 
-            cloner(entity, storedEntity);
-            this.Executor.ExecuteInsert(storedEntity, context);
-            cloner(storedEntity, entity);
+            if(NMemoryManager.DisableObjectCloning)
+            {
+                this.Executor.ExecuteInsert(entity, context);
+            }
+            else
+            {
+                cloner(entity, storedEntity);
+                this.Executor.ExecuteInsert(storedEntity, context);
+                cloner(storedEntity, entity);
+            }
         }
 
         /// <summary>

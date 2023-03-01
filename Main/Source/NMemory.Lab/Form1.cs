@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NMemory.Indexes;
+using NMemory.Services.Contracts;
 using NMemory.Tables;
 
 namespace NMemory.Lab
@@ -18,20 +19,28 @@ namespace NMemory.Lab
         {
             InitializeComponent();
 
+            NMemory.NMemoryManager.DisableObjectCloning = true;
+
             MyDatabase myDatabase = new MyDatabase();
-			
-	        myDatabase.Groups.Insert(new Group() { Id = 1});
 
-			myDatabase.Members.Insert(new Member() { Id = 1, GroupId = 1, Name = "It's Member_1" });
+            var member2 = new Member() { Id = 2, Name = "It's Member_2" };
 
-	        myDatabase.Members.Insert(new Member() { Id = 2, Name = "It's Member_2" });
+            myDatabase.Groups.Insert(new Group() { Id = 1 });
 
-	        myDatabase.Groups.Delete(new Group { Id = 1 });
+            myDatabase.Members.Insert(new Member() { Id = 1, GroupId = 1, Name = "It's Member_1" });
 
-			var list = myDatabase.Members.Where(x => Functions.Like(x.Name, "%Member_2%")).ToList();
+            myDatabase.Members.Insert(member2);
 
-	        var list2 = myDatabase.Members.ToList();  
-		}
+            myDatabase.Groups.Delete(new Group { Id = 1 });
+
+            var list = myDatabase.Members.Where(x => Functions.Like(x.Name, "%Member_2%")).ToList();
+
+            var x2 = list[0] == member2;
+            myDatabase.Members.Update(member2);
+            var list2 = myDatabase.Members.Where(x => Functions.Like(x.Name, "%Member_2%")).ToList();
+
+            var x3 = list2[0] == member2;
+        }
 
         public class MyDatabase : Database
         {
@@ -43,20 +52,20 @@ namespace NMemory.Lab
                 this.Members = members;
                 this.Groups = groups;
 
-	            RelationOptions options = new RelationOptions(
-		            cascadedDeletion: true);
+                RelationOptions options = new RelationOptions(
+                    cascadedDeletion: true);
 
-				var peopleGroupIdIndex = members.CreateIndex(
-		            new RedBlackTreeIndexFactory(),
-		            p => p.GroupId);
+                var peopleGroupIdIndex = members.CreateIndex(
+                    new RedBlackTreeIndexFactory(),
+                    p => p.GroupId);
 
-	            this.Tables.CreateRelation(
-		            groups.PrimaryKeyIndex,
-		            peopleGroupIdIndex,
-		            x =>  x ?? -1,
-		            x => x,
-		            options);
-			}
+                this.Tables.CreateRelation(
+                    groups.PrimaryKeyIndex,
+                    peopleGroupIdIndex,
+                    x => x ?? -1,
+                    x => x,
+                    options);
+            }
 
             public ITable<Member> Members { get; private set; }
 
