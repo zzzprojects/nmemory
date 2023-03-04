@@ -66,7 +66,7 @@ namespace NMemory.Execution
             ITable[] tables = TableLocator.FindAffectedTables(context.Database, plan);
 
             Action<T, T> cloner = null;
-            if (cloneEntities && this.database.Tables.IsEntityType<T>())
+            if (!NMemoryManager.DisableObjectCloning && cloneEntities && this.database.Tables.IsEntityType<T>())
             {
                 cloner = context
                     .GetService<IEntityService>()
@@ -129,7 +129,7 @@ namespace NMemory.Execution
             {
                 var result = plan.Execute(context);
 
-                if (this.database.Tables.IsEntityType<T>() && result != null)
+                if (!NMemoryManager.DisableObjectCloning && this.database.Tables.IsEntityType<T>() && result != null)
                 {
                     T resultEntity = Activator.CreateInstance<T>();
                     cloner(result, resultEntity);
@@ -282,17 +282,32 @@ namespace NMemory.Execution
                 {
                     T storedEntity = storedEntities[i];
 
-                    // Create backup
-                    T backup = Activator.CreateInstance<T>();
-                    cloner(storedEntity, backup);
-                    T newEntity = updater.Update(storedEntity);
+                    if (NMemoryManager.DisableObjectCloning)
+                    {
+                        T newEntity = updater.Update(storedEntity);
 
-                    // Apply contraints on the entity
-                    table.Contraints.Apply(newEntity, context, table);
+                        if(newEntity != storedEntity)
+                        {
+                            throw new Exception("Oops! When `NMemoryManager.DisableObjectCloning = true`, the `IUpdater<T>.Update` method needs to return the same entity.");
+                        }
 
-                    // Update entity
-                    cloner(newEntity, storedEntity);
-                    logScope.Log.WriteEntityUpdate(cloner, storedEntity, backup);
+                        // Apply contraints on the entity
+                        table.Contraints.Apply(storedEntity, context, table);
+                    }
+                    else
+                    {
+                        // Create backup
+                        T backup = Activator.CreateInstance<T>();
+                        cloner(storedEntity, backup);
+                        T newEntity = updater.Update(storedEntity);
+
+                        // Apply contraints on the entity
+                        table.Contraints.Apply(newEntity, context, table);
+
+                        // Update entity
+                        cloner(newEntity, storedEntity);
+                        logScope.Log.WriteEntityUpdate(cloner, storedEntity, backup);
+                    }   
                 }
 
                 // Insert to indexes the entities were removed from
