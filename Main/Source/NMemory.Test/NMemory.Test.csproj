@@ -66,6 +66,7 @@
     <Compile Include="CascadedOperationFixture.cs" />
     <Compile Include="ConstraintFixture.cs" />
     <Compile Include="Constraints\GeneratedGuidConstraintFixture.cs" />
+    <Compile Include="DisableCloning.cs" />
     <Compile Include="Environment\Data\BinaryEntity.cs" />
     <Compile Include="Environment\Data\Group.cs">
       <SubType>Code</SubType>
@@ -74,6 +75,7 @@
     <Compile Include="Environment\Data\Member.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Environment\Data\ReadOnlyGroup.cs" />
     <Compile Include="Environment\Data\TestDatabase.cs">
       <SubType>Code</SubType>
     </Compile>

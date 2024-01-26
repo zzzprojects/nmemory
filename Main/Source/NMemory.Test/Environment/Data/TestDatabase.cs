@@ -34,6 +34,7 @@ namespace NMemory.Test.Environment.Data
     {
         private Table<Member, string> members;
         private Table<Group, int> groups;
+        private Table<ReadOnlyGroup, int> roGroups;
         private Table<TimestampEntity, int> timestampEntities;
 
 
@@ -41,6 +42,7 @@ namespace NMemory.Test.Environment.Data
         {
             var members = this.Tables.Create<Member, string>(x => x.Id, null);
             var groups = this.Tables.Create<Group, int>(x => x.Id, createIdentityForGroup ? new IdentitySpecification<Group>(x => x.Id, 1, 1) : null);
+            var roGroups = this.Tables.Create<ReadOnlyGroup, int>(x => x.Id);
 
             if (createNcharContraintForGroup)
             {
@@ -54,6 +56,7 @@ namespace NMemory.Test.Environment.Data
 
             this.members = members;
             this.groups = groups;
+            this.roGroups = roGroups;
         }
 
         public ITable<Member> Members
@@ -64,6 +67,11 @@ namespace NMemory.Test.Environment.Data
         public ITable<Group> Groups
         {
             get { return this.groups; }
+        }
+
+        public ITable<ReadOnlyGroup> ReadOnlyGroups
+        {
+            get { return this.roGroups; }
         }
 
         public ITable<TimestampEntity> TimestampEntities
