@@ -135,9 +135,14 @@ A **HUGE THANKS** for your help!
 
 ## More Projects
 
-- [EntityFramework Extensions](https://entityframework-extensions.net/)
-- [Dapper Plus](https://dapper-plus.net/)
-- [C# Eval Expression](https://eval-expression.net/)
-- and much more! 
+- Projects:
+   - [EntityFramework Extensions](https://entityframework-extensions.net/)
+   - [Dapper Plus](https://dapper-plus.net/)
+   - [C# Eval Expression](https://eval-expression.net/)
+   - and much more! 
+Online Tools:
+   - [.NET Fiddle](https://dotnetfiddle.net/)
+   - [SQL Fiddle](https://sqlfiddle.com/)
+   - [ZZZ Code AI](https://zzzcode.ai/)
 
 To view all our free and paid projects, visit our [website](https://zzzprojects.com/).
