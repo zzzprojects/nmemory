@@ -133,4 +133,4 @@ A **HUGE THANKS** for your help.
    - [ZZZ Code AI](https://zzzcode.ai/)
 - and much more!
 
-To view all our free and paid projects, visit [ZZZ Projects](https://zzzprojects.com/).
+To view all our free and paid projects, visit our website [ZZZ Projects](https://zzzprojects.com/).
