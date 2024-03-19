@@ -141,8 +141,8 @@ A **HUGE THANKS** for your help!
    - [C# Eval Expression](https://eval-expression.net/)
    - and much more!
 - Learn Website
-   - [Learn EF Core]([https://entityframework-extensions.net/](https://www.learnentityframeworkcore.com/))
-   - [Learn Dapper]([https://dapper-plus.net/](https://www.learndapper.com/))
+   - [Learn EF Core](https://www.learnentityframeworkcore.com/)
+   - [Learn Dapper](https://www.learndapper.com/)
 - FREE Online Tools:
    - [.NET Fiddle](https://dotnetfiddle.net/)
    - [SQL Fiddle](https://sqlfiddle.com/)
