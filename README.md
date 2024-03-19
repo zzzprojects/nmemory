@@ -139,8 +139,11 @@ A **HUGE THANKS** for your help!
    - [EntityFramework Extensions](https://entityframework-extensions.net/)
    - [Dapper Plus](https://dapper-plus.net/)
    - [C# Eval Expression](https://eval-expression.net/)
-   - and much more! 
-- Online Tools:
+   - and much more!
+- Learn Website
+   - [Learn EF Core]([https://entityframework-extensions.net/](https://www.learnentityframeworkcore.com/))
+   - [Learn Dapper]([https://dapper-plus.net/](https://www.learndapper.com/))
+- FREE Online Tools:
    - [.NET Fiddle](https://dotnetfiddle.net/)
    - [SQL Fiddle](https://sqlfiddle.com/)
    - [ZZZ Code AI](https://zzzcode.ai/)
