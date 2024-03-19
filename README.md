@@ -139,7 +139,6 @@ A **HUGE THANKS** for your help!
    - [EntityFramework Extensions](https://entityframework-extensions.net/)
    - [Dapper Plus](https://dapper-plus.net/)
    - [C# Eval Expression](https://eval-expression.net/)
-   - and much more!
 - Learn Websites
    - [Learn EF Core](https://www.learnentityframeworkcore.com/)
    - [Learn Dapper](https://www.learndapper.com/)
